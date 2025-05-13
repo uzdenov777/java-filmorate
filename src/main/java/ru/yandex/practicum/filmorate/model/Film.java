@@ -19,7 +19,7 @@ public class Film {
     private int id;
     @NotBlank(message = "Название у фильмы не может отсутствовать")
     private String name;
-    @NotBlank( message = "Описание у фильма не должно отсутствовать")
+    @NotBlank(message = "Описание у фильма не должно отсутствовать")
     @Size(max = 200, message = "Описание у фильма не должно превышать 200 символов")
     private String description;
     @NotNull(message = "Дата релиза у фильмы не может отсутствовать")
