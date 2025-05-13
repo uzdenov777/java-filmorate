@@ -15,6 +15,7 @@ import java.time.LocalDate;
  */
 @Data
 public class Film {
+    @Min(1)
     @NotNull(message = "ID у фильмы не может отсутствовать")
     private int id;
     @NotBlank(message = "Название у фильмы не может отсутствовать")

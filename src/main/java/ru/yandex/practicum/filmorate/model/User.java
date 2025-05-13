@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -16,6 +13,7 @@ import java.time.LocalDate;
 * */
 @Data
 public class User {
+    @Min(1)
     @NotNull(message = "ID у пользователя не может отсутствовать")
     private int id;
     @NotBlank(message = "Email у пользователя не может отсутствовать")
