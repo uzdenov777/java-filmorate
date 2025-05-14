@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 /**
@@ -24,5 +26,6 @@ public class Film {
     @NotNull(message = "Дата релиза у фильмы не может отсутствовать")
     private LocalDate releaseDate;
     @NotNull(message = "Продолжительность у фильмы не может отсутствовать")
-    private Duration duration;
+    @Min(1)
+    private long duration;
 }

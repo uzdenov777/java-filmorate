@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +22,6 @@ public class FilmController {
     @PostMapping
     public Film add(@Valid @RequestBody Film film) {
         isValidReleaseDate(film);//В случае не валидного релиза вернется исключение ResponseStatusException
-        isPositiveDuration(film);
         film.setId(newIdFilm);
         newIdFilm++;
         log.info("Adding film {}", film);
@@ -35,7 +33,6 @@ public class FilmController {
     public Film update(@Valid @RequestBody Film film) {
         int id = film.getId();
         isValidReleaseDate(film);
-        isPositiveDuration(film);
         boolean isExistingFilm = films.containsKey(id);
 
         if (!isExistingFilm) {
@@ -61,19 +58,8 @@ public class FilmController {
         boolean isAfter = releaseDate.isAfter(minReleaseDate);
         boolean isEqual = releaseDate.isEqual(minReleaseDate);
         if (!(isAfter || isEqual)) {
-//        if ((!isAfter)) {
             log.error("Not Valid release date film :{}", film);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
-        }
-    }
-
-
-    private void isPositiveDuration(Film film) {
-        Duration duration = film.getDuration();
-
-        if (duration.isNegative() || duration.isZero()) {
-            log.error("Negative duration film :{}", film);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Negative duration film :" + film);
         }
     }
 }
