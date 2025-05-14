@@ -13,8 +13,6 @@ import java.time.LocalDate;
 * */
 @Data
 public class User {
-    @Min(1)
-    @NotNull(message = "ID у пользователя не может отсутствовать")
     private int id;
     @NotBlank(message = "Email у пользователя не может отсутствовать")
     @Email(message = "Email у пользователя не верного формата")

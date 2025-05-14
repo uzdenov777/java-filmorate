@@ -7,28 +7,25 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
     HashMap<Integer, Film> films = new HashMap<>();
+    int newIdFilm = 1;
 
     @PostMapping
     public Film add(@Valid @RequestBody Film film) {
         isValidReleaseDate(film);//В случае не валидного релиза вернется исключение ResponseStatusException
-
-        boolean isExistingFilm = films.containsKey(film.getId());
-        if (isExistingFilm) {
-            log.error("Already exists film with id {}", film.getId());
-            throw new ResponseStatusException(HttpStatus.FOUND, "Film ID:" + film.getId() + " Exists");
-        }
-
+        isPositiveDuration(film);
+        film.setId(newIdFilm);
+        newIdFilm++;
         log.info("Adding film {}", film);
         films.put(film.getId(), film);
         return film;
@@ -38,6 +35,7 @@ public class FilmController {
     public Film update(@Valid @RequestBody Film film) {
         int id = film.getId();
         isValidReleaseDate(film);
+        isPositiveDuration(film);
         boolean isExistingFilm = films.containsKey(id);
 
         if (!isExistingFilm) {
@@ -57,19 +55,25 @@ public class FilmController {
     }
 
     private void isValidReleaseDate(Film film) throws ResponseStatusException {
-        int id = film.getId();
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
         LocalDate releaseDate = film.getReleaseDate();
-        if (Objects.isNull(releaseDate)) {
-            log.error("Film ID:{} null release date", id);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film ID:" + id + " null release date");
-        }
 
         boolean isAfter = releaseDate.isAfter(minReleaseDate);
         boolean isEqual = releaseDate.isEqual(minReleaseDate);
         if (!(isAfter || isEqual)) {
-            log.error("Film ID:{} Not Valid release date", id);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Film ID:" + id + " Not Valid release date");
+//        if ((!isAfter)) {
+            log.error("Not Valid release date film :{}", film);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
+        }
+    }
+
+
+    private void isPositiveDuration(Film film) {
+        Duration duration = film.getDuration();
+
+        if (duration.isNegative() || duration.isZero()) {
+            log.error("Negative duration film :{}", film);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Negative duration film :" + film);
         }
     }
 }

@@ -16,18 +16,15 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     HashMap<Integer, User> users = new HashMap<>();
+    int newIdUser = 1;
 
     @PostMapping
     public User add(@Valid @RequestBody User user) {
-        int userId = user.getId();
-        if (users.containsKey(userId)) {
-            log.error("User ID:{} already exists", userId);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID:" + userId + " already exists");
-        }
-
-        log.info("Adding user with ID:{}", userId);
+        log.info("Adding user:{}", user);
         user.setDisplayName(user.getName(), user.getLogin());
-        users.put(userId, user);
+        user.setId(newIdUser);
+        users.put(user.getId(), user);
+        newIdUser++;
         return user;
     }
 
@@ -50,4 +47,10 @@ public class UserController {
         log.info("Getting all users");
         return new ArrayList<>(users.values());
     }
+
+//    private void etttt(User user) {
+//        user.setId(id);
+//        users.put(user.getId(), user);
+//        id++;
+//    }
 }
