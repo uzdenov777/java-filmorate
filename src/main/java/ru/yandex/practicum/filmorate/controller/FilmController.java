@@ -19,7 +19,7 @@ public class FilmController {
     HashMap<Integer, Film> films = new HashMap<>();
     int newIdFilm;
 
-    public int getNewId() {//Генерирует уникальный ID.
+    public int getNewId() { //Генерирует уникальный ID.
         newIdFilm++;
         return newIdFilm;
     }

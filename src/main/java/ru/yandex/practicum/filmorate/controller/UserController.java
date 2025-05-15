@@ -18,7 +18,7 @@ public class UserController {
     HashMap<Integer, User> users = new HashMap<>();
     int newIdFilm;
 
-    public int getNewId() {//Генерирует уникальный ID.
+    public int getNewId() { //Генерирует уникальный ID.
         newIdFilm++;
         return newIdFilm;
     }
