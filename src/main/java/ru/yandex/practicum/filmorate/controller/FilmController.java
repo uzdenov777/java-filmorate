@@ -17,14 +17,20 @@ import java.util.List;
 @RequestMapping("/films")
 public class FilmController {
     HashMap<Integer, Film> films = new HashMap<>();
-    int newIdFilm = 1;
+    int newIdFilm;
+
+    public int getNewId() {//Генерирует уникальный ID.
+        newIdFilm++;
+        return newIdFilm;
+    }
 
     @PostMapping
     public Film add(@Valid @RequestBody Film film) {
-        isValidReleaseDate(film);//В случае не валидного релиза вернется исключение ResponseStatusException
-        film.setId(newIdFilm);
-        newIdFilm++;
         log.info("Adding film {}", film);
+
+        isValidReleaseDate(film);//В случае не валидного релиза вернется исключение ResponseStatusException
+        film.setId(getNewId());
+
         films.put(film.getId(), film);
         return film;
     }

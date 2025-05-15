@@ -14,17 +14,19 @@ import java.time.LocalDate;
 @Data
 public class User {
     private int id;
+    private String name;
+
     @NotBlank(message = "Email у пользователя не может отсутствовать")
     @Email(message = "Email у пользователя не верного формата")
     private String email;
+
     @NotBlank(message = "Login у пользователя не может отсутствовать")
     private String login;
-    private String name;
+
     @Past(message = "Дата рождения у пользователя не должна быть в будущем")
     private LocalDate birthday;
 
     public void setDisplayName(String name, String login) {
-
          this.name = (name == null || name.isBlank()) ? login : name;
     }
 }

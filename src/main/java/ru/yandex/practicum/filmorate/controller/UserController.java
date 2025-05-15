@@ -16,21 +16,27 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     HashMap<Integer, User> users = new HashMap<>();
-    int newIdUser = 1;
+    int newIdFilm;
+
+    public int getNewId() {//Генерирует уникальный ID.
+        newIdFilm++;
+        return newIdFilm;
+    }
 
     @PostMapping
     public User add(@Valid @RequestBody User user) {
         log.info("Adding user:{}", user);
+
         user.setDisplayName(user.getName(), user.getLogin());
-        user.setId(newIdUser);
+        user.setId(getNewId());
         users.put(user.getId(), user);
-        newIdUser++;
         return user;
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         int userId = user.getId();
+
         if (users.containsKey(userId)) {
             log.info("Updating user with ID:{}", userId);
             user.setDisplayName(user.getName(), user.getLogin());
@@ -47,10 +53,4 @@ public class UserController {
         log.info("Getting all users");
         return new ArrayList<>(users.values());
     }
-
-//    private void etttt(User user) {
-//        user.setId(id);
-//        users.put(user.getId(), user);
-//        id++;
-//    }
 }
