@@ -167,12 +167,12 @@ public class FilmTest {
         film.setDuration(20L);
         film.setDescription("This is a test");
 
-        LocalDate releaseDateEarlier1895_12_28 = LocalDate.of(1895, 12, 28);
-        film.setReleaseDate(releaseDateEarlier1895_12_28);
+        LocalDate invalidReleaseDate = LocalDate.of(1895, 12, 28);
+        film.setReleaseDate(invalidReleaseDate);
         assertThrows(ResponseStatusException.class, () -> Film.isValidReleaseDate(film));
 
-        LocalDate releaseDateBefore1895_12_28 = LocalDate.of(1895, 12, 27);
-        film.setReleaseDate(releaseDateBefore1895_12_28);
+        LocalDate releaseDateBefore1895 = LocalDate.of(1895, 12, 27);
+        film.setReleaseDate(releaseDateBefore1895);
         assertThrows(ResponseStatusException.class, () -> Film.isValidReleaseDate(film));
     }
 
