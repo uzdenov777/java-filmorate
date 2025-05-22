@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Film.
@@ -21,7 +23,8 @@ import java.time.LocalDate;
 @Slf4j
 @Data
 public class Film {
-    private int id;
+    private long id;
+    private Set<Long> likesFromUsers = new HashSet<>();
 
     @NotBlank(message = "Название у фильмы не может отсутствовать")
     private String name;
@@ -47,5 +50,13 @@ public class Film {
             log.error("Not Valid release date film :{}", film);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
         }
+    }
+
+    public void addLikeFromUser(Long userId) {
+        likesFromUsers.add(userId);
+    }
+
+    public void removeLikeFromUser(Long userId) {
+        likesFromUsers.remove(userId);
     }
 }

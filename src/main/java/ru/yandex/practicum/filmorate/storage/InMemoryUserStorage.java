@@ -1,30 +1,30 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.storage;
 
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Slf4j
-@RestController
-@RequestMapping("/users")
-public class UserController {
-    HashMap<Integer, User> users = new HashMap<>();
-    int newIdFilm;
+@Log4j2
+@Component
+public class InMemoryUserStorage implements UserStorage {
+    HashMap<Long, User> users = new HashMap<>();
+    long newIdFilm;
 
-    public int getNewId() { //Генерирует уникальный ID.
+    @Override
+    public long getNewId() { //Генерирует уникальный ID.
         newIdFilm++;
         return newIdFilm;
     }
 
-    @PostMapping
-    public User add(@Valid @RequestBody User user) {
+    @Override
+    public User add(User user) {
         log.info("Adding user:{}", user);
 
         user.setDisplayName(user.getName(), user.getLogin());
@@ -33,9 +33,9 @@ public class UserController {
         return user;
     }
 
-    @PutMapping
-    public User update(@Valid @RequestBody User user) {
-        int userId = user.getId();
+    @Override
+    public User update(User user) throws ResponseStatusException {
+        long userId = user.getId();
 
         if (users.containsKey(userId)) {
             log.info("Updating user with ID:{}", userId);
@@ -48,9 +48,14 @@ public class UserController {
         }
     }
 
-    @GetMapping
+    @Override
     public List<User> getAllUsers() {
         log.info("Getting all users");
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public User getUserById(long id) {
+        return users.get(id);
     }
 }

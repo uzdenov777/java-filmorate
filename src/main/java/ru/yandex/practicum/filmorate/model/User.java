@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Past;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * e
@@ -19,8 +21,9 @@ import java.time.LocalDate;
 
 @Data
 public class User {
-    private int id;
+    private Long id;
     private String name;
+    private Set<Long> friends = new HashSet<>();
 
     @NotBlank(message = "Email у пользователя не может отсутствовать")
     @Email(message = "Email у пользователя не верного формата")
@@ -35,5 +38,15 @@ public class User {
 
     public void setDisplayName(String name, String login) {
         this.name = (name == null || name.isBlank()) ? login : name;
+    }
+
+    public void addFriend(User friendUser) {
+        Long friendId = friendUser.getId();
+        friends.add(friendId);
+    }
+
+    public void removeFriend(User friendUser) {
+        Long friendId = friendUser.getId();
+        friends.remove(friendId);
     }
 }
