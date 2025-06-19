@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/films")
 public class FilmController {
 
-    private static int newIdFilm;
+    private int newIdFilm;
 
     private final HashMap<Integer, Film> films = new HashMap<>();
 
@@ -25,6 +25,8 @@ public class FilmController {
         newIdFilm++;
         return newIdFilm;
     }
+
+
 
     private static void isValidReleaseDate(Film film) throws ResponseStatusException {
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);

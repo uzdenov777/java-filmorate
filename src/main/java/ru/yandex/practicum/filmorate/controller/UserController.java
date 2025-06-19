@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private static int newIdUser;
+    private int newIdUser;
 
     private final HashMap<Integer, User> users = new HashMap<>();
 
