@@ -15,58 +15,68 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserControllerTest {
 
     UserController userController;
-    User user;
+    User userOne;
 
     @BeforeEach
     public void setUp() {
         userController = new UserController();
-
-        user = new User();
-        user.setId(1);
-        user.setName("John Doe");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.now());
-        user.setEmail("adsdas009@.gmail.com");
+        userOne = new User();
+        userOne.setName("John Doe");
+        userOne.setLogin("login");
+        userOne.setBirthday(LocalDate.now());
+        userOne.setEmail("adsdas009@gmail.com");
     }
 
     @Test
-    @DisplayName("Должен возвращать новый ID для фильма при каждом вызове")
+    @DisplayName("Должен устанавливать новый ID для пользователя при каждом добавлении")
     public void getFilmId() {
-        int idNewOne = userController.getNewId();
-        assertEquals(1, idNewOne);
+        User newUser = new User();
+        newUser.setName("John Doe");
+        newUser.setLogin("login");
+        newUser.setBirthday(LocalDate.now());
+        newUser.setEmail("adsdas009@gmail.com");
+        assertEquals(0, userOne.getId());
+        assertEquals(0, newUser.getId());
 
-        int idNewTwo = userController.getNewId();
-        assertEquals(2, idNewTwo);
+        userController.add(userOne);
+        userController.add(newUser);
 
-        int idNewThree = userController.getNewId();
-        assertEquals(3, idNewThree);
+        int idUser = userOne.getId();
+        int idNewUser = newUser.getId();
+        assertEquals(1, idUser);
+        assertEquals(2, idNewUser);
     }
 
     @Test
     @DisplayName("Должен успешно добавить user-а")
     public void add_addUser() {
-        userController.add(user);
-        List<User> users = userController.getAllUsers();
+        List<User> before = userController.getAllUsers();
+        assertTrue(before.isEmpty());
 
+        userController.add(userOne);
+
+        List<User> users = userController.getAllUsers();
         assertEquals(1, users.size());
-        assertEquals(user, users.get(0));
+        assertEquals(userOne, users.get(0));
     }
 
     @Test
     @DisplayName("Должен успешно обновить user, когда user для обновления был ранее добавлен")
     public void update_existingUserToUpdate() {
-        userController.add(user);
+        userController.add(userOne);
+        List<User> before = userController.getAllUsers();
+        assertEquals(1, before.size());
+        assertEquals(userOne, before.get(0));
 
         User newUser = new User();
-        newUser.setId(user.getId());
+        newUser.setId(userOne.getId());
         newUser.setName("newUser");
         newUser.setLogin("login newUser");
         newUser.setBirthday(LocalDate.now().minusDays(1));
-        newUser.setEmail("adsdas009@.gmail.com");
-
+        newUser.setEmail("adsdas009@gmail.com");
         userController.update(newUser);
-        List<User> userList = userController.getAllUsers();
 
+        List<User> userList = userController.getAllUsers();
         assertEquals(1, userList.size());
         assertEquals(newUser, userList.get(0));
     }
@@ -74,25 +84,27 @@ public class UserControllerTest {
     @Test
     @DisplayName("Должен выбросить исключение ResponseStatusException, когда user-а для обновления с таким ID нету")
     public void update_notUpdatedUser_noExistingUserToUpdate() {
-        assertThrows(ResponseStatusException.class, () -> userController.update(user));
+        assertThrows(ResponseStatusException.class, () -> userController.update(userOne));
     }
 
     @Test
     @DisplayName("Должен вернуть список всех добавленных фильмов, когда фильмы добавлены")
     public void getAllUsers_getNotEmptyListAddUsers() {
+        List<User> before = userController.getAllUsers();
+        assertTrue(before.isEmpty());
+
         User newUser = new User();
-        newUser.setId(userController.getNewId());
         newUser.setName("newUser");
         newUser.setLogin("login newUser");
         newUser.setBirthday(LocalDate.now().minusDays(1));
         newUser.setEmail("30Сантиметров@.gmail.com");
 
-        userController.add(user);
+        userController.add(userOne);
         userController.add(newUser);
-        List<User> userList = userController.getAllUsers();
 
+        List<User> userList = userController.getAllUsers();
         assertEquals(2, userList.size());
-        assertEquals(user, userList.get(0));
+        assertEquals(userOne, userList.get(0));
         assertEquals(newUser, userList.get(1));
     }
 

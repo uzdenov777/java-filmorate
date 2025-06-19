@@ -159,22 +159,7 @@ public class FilmTest {
         assertEquals(1, violations.size());
     }
 
-    @Test
-    @DisplayName("Выбросит исключение ResponseStatusException, когда releaseDate раньше или ровно 1895-12-28")
-    public void setReleaseDateEarlier1895_12_28() {
-        film.setId(1);
-        film.setName("FilmTest");
-        film.setDuration(20L);
-        film.setDescription("This is a test");
 
-        LocalDate invalidReleaseDate = LocalDate.of(1895, 12, 28);
-        film.setReleaseDate(invalidReleaseDate);
-        assertThrows(ResponseStatusException.class, () -> Film.isValidReleaseDate(film));
-
-        LocalDate releaseDateBefore1895 = LocalDate.of(1895, 12, 27);
-        film.setReleaseDate(releaseDateBefore1895);
-        assertThrows(ResponseStatusException.class, () -> Film.isValidReleaseDate(film));
-    }
 
     @Test
     @DisplayName("Set-violations будет пустой и не выбросит никаких исключений,  когда releaseDate позже 1895-12-28 и не null")

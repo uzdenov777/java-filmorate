@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 
@@ -36,16 +34,4 @@ public class Film {
     @NotNull(message = "Продолжительность у фильмы не может отсутствовать")
     @Min(value = 1, message = "Продолжительность у фильма не должна быть меньше 1")
     private Long duration;
-
-    public static void isValidReleaseDate(Film film) throws ResponseStatusException {
-        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        LocalDate releaseDate = film.getReleaseDate();
-
-        boolean isBefore = releaseDate.isBefore(minReleaseDate);
-        boolean isEqual = releaseDate.isEqual(minReleaseDate);
-        if ((isBefore || isEqual)) {
-            log.error("Not Valid release date film :{}", film);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
-        }
-    }
 }

@@ -15,12 +15,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    HashMap<Integer, User> users = new HashMap<>();
-    int newIdFilm;
 
-    public int getNewId() { //Генерирует уникальный ID.
-        newIdFilm++;
-        return newIdFilm;
+    private static int newIdUser;
+
+    private final HashMap<Integer, User> users = new HashMap<>();
+
+    private int getNewId() { //Генерирует уникальный ID.
+        newIdUser++;
+        return newIdUser;
     }
 
     @PostMapping

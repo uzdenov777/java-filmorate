@@ -7,22 +7,35 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static ru.yandex.practicum.filmorate.model.Film.isValidReleaseDate;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    HashMap<Integer, Film> films = new HashMap<>();
-    int newIdFilm;
 
-    public int getNewId() { //Генерирует уникальный ID.
+    private static int newIdFilm;
+
+    private final HashMap<Integer, Film> films = new HashMap<>();
+
+    private int getNewId() { //Генерирует уникальный ID.
         newIdFilm++;
         return newIdFilm;
+    }
+
+    private static void isValidReleaseDate(Film film) throws ResponseStatusException {
+        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
+        LocalDate releaseDate = film.getReleaseDate();
+
+        boolean isBefore = releaseDate.isBefore(minReleaseDate);
+        boolean isEqual = releaseDate.isEqual(minReleaseDate);
+        if ((isBefore || isEqual)) {
+            log.error("Not Valid release date film :{}", film);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
+        }
     }
 
     @PostMapping
