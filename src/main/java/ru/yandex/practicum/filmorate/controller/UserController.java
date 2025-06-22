@@ -17,13 +17,7 @@ import java.util.List;
 public class UserController {
 
     private int newIdUser;
-
     private final HashMap<Integer, User> users = new HashMap<>();
-
-    private int getNewId() { //Генерирует уникальный ID.
-        newIdUser++;
-        return newIdUser;
-    }
 
     @PostMapping
     public User add(@Valid @RequestBody User user) {
@@ -54,5 +48,10 @@ public class UserController {
     public List<User> getAllUsers() {
         log.info("Getting all users");
         return new ArrayList<>(users.values());
+    }
+
+    private int getNewId() { //Генерирует уникальный ID.
+        newIdUser++;
+        return newIdUser;
     }
 }

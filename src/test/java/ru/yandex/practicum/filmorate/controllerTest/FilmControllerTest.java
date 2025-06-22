@@ -12,12 +12,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FilmControllerTest {
+class FilmControllerTest {
     FilmController filmController;
     Film filmOne;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         filmController = new FilmController();
         filmOne = new Film();
         filmOne.setName("FilmTest");
@@ -28,7 +28,7 @@ public class FilmControllerTest {
 
     @Test
     @DisplayName("Должен устанавливать новый ID для фильма при каждом добавлении фильма")
-    public void getFilmId() {
+    void getFilmId() {
         Film newFilm = new Film();
         newFilm.setName("FilmTest");
         newFilm.setDescription("This is a test");
@@ -48,7 +48,7 @@ public class FilmControllerTest {
 
     @Test
     @DisplayName("Должен успешно добавить фильм")
-    public void add_testAddFilm() {
+    void add_testAddFilm() {
         List<Film> before = filmController.getAllFilms();
         assertTrue(before.isEmpty());
 
@@ -61,7 +61,7 @@ public class FilmControllerTest {
 
     @Test
     @DisplayName("Должен успешно обновить фильм, когда фильм для обновления был ранее добавлен")
-    public void update_existingFilmToUpdate() {
+    void update_existingFilmToUpdate() {
         filmController.add(filmOne);
         List<Film> before = filmController.getAllFilms();
         assertEquals(1, before.size());
@@ -82,13 +82,13 @@ public class FilmControllerTest {
 
     @Test
     @DisplayName("Должен выбросить исключение ResponseStatusException, когда фильма для обновления с таким ID нету")
-    public void update_notUpdatedFilm_noExistingFilmToUpdate() {
+    void update_notUpdatedFilm_noExistingFilmToUpdate() {
         assertThrows(ResponseStatusException.class, () -> filmController.update(filmOne));
     }
 
     @Test
     @DisplayName("Должен вернуть список всех добавленных фильмов, когда фильмы добавлены")
-    public void getAllFilms_getNotEmptyListAddFilms() {
+    void getAllFilms_getNotEmptyListAddFilms() {
         Film twoFilm = new Film();
         twoFilm.setName("New Film");
         twoFilm.setDescription("New Description");
@@ -106,7 +106,7 @@ public class FilmControllerTest {
 
     @Test
     @DisplayName("Должен вернуть пустой список всех фильмов, когда фильмы не добавлены")
-    public void getAllFilms_getEmptyListAddFilms() {
+    void getAllFilms_getEmptyListAddFilms() {
         List<Film> filmList = filmController.getAllFilms();
 
         assertTrue(filmList.isEmpty());
@@ -114,7 +114,7 @@ public class FilmControllerTest {
 
     @Test
     @DisplayName("Выбросит исключение ResponseStatusException, когда releaseDate раньше или ровно 1895-12-28")
-    public void setReleaseDateEarlier1895_12_28() {
+    void setReleaseDateEarlier1895_12_28() {
         filmOne.setId(1);
         filmOne.setName("FilmTest");
         filmOne.setDuration(20L);

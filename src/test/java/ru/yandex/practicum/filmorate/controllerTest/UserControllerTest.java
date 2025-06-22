@@ -12,13 +12,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserControllerTest {
+class UserControllerTest {
 
     UserController userController;
     User userOne;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         userController = new UserController();
         userOne = new User();
         userOne.setName("John Doe");
@@ -27,29 +27,10 @@ public class UserControllerTest {
         userOne.setEmail("adsdas009@gmail.com");
     }
 
-    @Test
-    @DisplayName("Должен устанавливать новый ID для пользователя при каждом добавлении")
-    public void getFilmId() {
-        User newUser = new User();
-        newUser.setName("John Doe");
-        newUser.setLogin("login");
-        newUser.setBirthday(LocalDate.now());
-        newUser.setEmail("adsdas009@gmail.com");
-        assertEquals(0, userOne.getId());
-        assertEquals(0, newUser.getId());
-
-        userController.add(userOne);
-        userController.add(newUser);
-
-        int idUser = userOne.getId();
-        int idNewUser = newUser.getId();
-        assertEquals(1, idUser);
-        assertEquals(2, idNewUser);
-    }
 
     @Test
     @DisplayName("Должен успешно добавить user-а")
-    public void add_addUser() {
+    void add_addUser() {
         List<User> before = userController.getAllUsers();
         assertTrue(before.isEmpty());
 
@@ -62,7 +43,7 @@ public class UserControllerTest {
 
     @Test
     @DisplayName("Должен успешно обновить user, когда user для обновления был ранее добавлен")
-    public void update_existingUserToUpdate() {
+    void update_existingUserToUpdate() {
         userController.add(userOne);
         List<User> before = userController.getAllUsers();
         assertEquals(1, before.size());
@@ -83,13 +64,13 @@ public class UserControllerTest {
 
     @Test
     @DisplayName("Должен выбросить исключение ResponseStatusException, когда user-а для обновления с таким ID нету")
-    public void update_notUpdatedUser_noExistingUserToUpdate() {
+    void update_notUpdatedUser_noExistingUserToUpdate() {
         assertThrows(ResponseStatusException.class, () -> userController.update(userOne));
     }
 
     @Test
     @DisplayName("Должен вернуть список всех добавленных фильмов, когда фильмы добавлены")
-    public void getAllUsers_getNotEmptyListAddUsers() {
+    void getAllUsers_getNotEmptyListAddUsers() {
         List<User> before = userController.getAllUsers();
         assertTrue(before.isEmpty());
 
@@ -110,9 +91,29 @@ public class UserControllerTest {
 
     @Test
     @DisplayName("Должен вернуть пустой список всех user-ов, когда user-ы не добавлены")
-    public void getAllUsers_getEmptyListAddUsers() {
+    void getAllUsers_getEmptyListAddUsers() {
         List<User> userList = userController.getAllUsers();
 
         assertTrue(userList.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Должен устанавливать новый ID для пользователя при каждом добавлении")
+    void getFilmId() {
+        User newUser = new User();
+        newUser.setName("John Doe");
+        newUser.setLogin("login");
+        newUser.setBirthday(LocalDate.now());
+        newUser.setEmail("adsdas009@gmail.com");
+        assertEquals(0, userOne.getId());
+        assertEquals(0, newUser.getId());
+
+        userController.add(userOne);
+        userController.add(newUser);
+
+        int idUser = userOne.getId();
+        int idNewUser = newUser.getId();
+        assertEquals(1, idUser);
+        assertEquals(2, idNewUser);
     }
 }

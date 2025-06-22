@@ -8,18 +8,18 @@ import ru.yandex.practicum.filmorate.model.User;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class UserTest {
+class UserTest {
 
     private User testUser;
 
     @BeforeEach
-    protected void setUp() {
+    void setUp() {
         testUser = new User();
     }
 
     @DisplayName("Должен сохранить в поле name пользователя ,то что указанно в поле login(оно обязательное), когда передаём пустую строку для сохранения в поле name")
     @Test
-    public void setDisplayName_whenNameEmpty() {
+    void setDisplayName_whenNameEmpty() {
         String login = "testLogin";
         testUser.setLogin(login);
         String nameBefore = testUser.getName();
@@ -33,7 +33,7 @@ public class UserTest {
 
     @DisplayName("Должен сохранить в поле name пользователя ,то что указанно в поле login(оно обязательное), когда передаём name == NULL для сохранения в поле name")
     @Test
-    public void setDisplayName_WhenNameNull() {
+    void setDisplayName_WhenNameNull() {
         String login = "testLogin";
         testUser.setLogin(login);
         String nameBefore = testUser.getName();
@@ -47,7 +47,7 @@ public class UserTest {
 
     @DisplayName("Должен сохранить в поле name пользователя ,то что указанно в setNameTest, когда передаём name, который не пустой и не NULL")
     @Test
-    public void setDisplayName_WhenNameNotEmptyAndNull() {
+    void setDisplayName_WhenNameNotEmptyAndNull() {
         String login = "testLogin";
         testUser.setLogin(login);
         String nameBefore = testUser.getName();

@@ -18,27 +18,7 @@ import java.util.List;
 public class FilmController {
 
     private int newIdFilm;
-
     private final HashMap<Integer, Film> films = new HashMap<>();
-
-    private int getNewId() { //Генерирует уникальный ID.
-        newIdFilm++;
-        return newIdFilm;
-    }
-
-
-
-    private static void isValidReleaseDate(Film film) throws ResponseStatusException {
-        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        LocalDate releaseDate = film.getReleaseDate();
-
-        boolean isBefore = releaseDate.isBefore(minReleaseDate);
-        boolean isEqual = releaseDate.isEqual(minReleaseDate);
-        if ((isBefore || isEqual)) {
-            log.error("Not Valid release date film :{}", film);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
-        }
-    }
 
     @PostMapping
     public Film add(@Valid @RequestBody Film film) {
@@ -71,5 +51,22 @@ public class FilmController {
     public List<Film> getAllFilms() {
         log.info("Getting all films");
         return new ArrayList<>(films.values());
+    }
+
+    private int getNewId() { //Генерирует уникальный ID.
+        newIdFilm++;
+        return newIdFilm;
+    }
+
+    private void isValidReleaseDate(Film film) throws ResponseStatusException {
+        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
+        LocalDate releaseDate = film.getReleaseDate();
+
+        boolean isBefore = releaseDate.isBefore(minReleaseDate);
+        boolean isEqual = releaseDate.isEqual(minReleaseDate);
+        if ((isBefore || isEqual)) {
+            log.error("Not Valid release date film :{}", film);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
+        }
     }
 }
