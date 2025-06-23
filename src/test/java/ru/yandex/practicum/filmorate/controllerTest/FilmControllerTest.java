@@ -14,33 +14,36 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
     FilmController filmController;
-    Film filmOne;
+    Film firstFilm;
 
     @BeforeEach
     void setUp() {
         filmController = new FilmController();
-        filmOne = new Film();
-        filmOne.setName("FilmTest");
-        filmOne.setDescription("This is a test");
-        filmOne.setReleaseDate(LocalDate.now());
-        filmOne.setDuration(1L);
+        firstFilm = new Film();
+        firstFilm.setName("FilmTest");
+        firstFilm.setDescription("This is a test");
+        firstFilm.setReleaseDate(LocalDate.now());
+        firstFilm.setDuration(1L);
     }
 
     @Test
     @DisplayName("Должен устанавливать новый ID для фильма при каждом добавлении фильма")
     void getFilmId() {
+        //given
         Film newFilm = new Film();
         newFilm.setName("FilmTest");
         newFilm.setDescription("This is a test");
         newFilm.setReleaseDate(LocalDate.now());
         newFilm.setDuration(1L);
-        assertEquals(0, filmOne.getId());
+        assertEquals(0, firstFilm.getId());
         assertEquals(0, newFilm.getId());
 
-        filmController.add(filmOne);
+        //when
+        filmController.add(firstFilm);
         filmController.add(newFilm);
 
-        int idFilm = filmOne.getId();
+        //then
+        int idFilm = firstFilm.getId();
         assertEquals(1, idFilm);
         int idNewFilm = newFilm.getId();
         assertEquals(2, idNewFilm);
@@ -49,32 +52,38 @@ class FilmControllerTest {
     @Test
     @DisplayName("Должен успешно добавить фильм")
     void add_testAddFilm() {
+        //given
         List<Film> before = filmController.getAllFilms();
         assertTrue(before.isEmpty());
 
-        filmController.add(filmOne);
+        //when
+        filmController.add(firstFilm);
 
+        //then
         List<Film> filmList = filmController.getAllFilms();
         assertEquals(1, filmList.size());
-        assertEquals(filmOne, filmList.get(0));
+        assertEquals(firstFilm, filmList.get(0));
     }
 
     @Test
     @DisplayName("Должен успешно обновить фильм, когда фильм для обновления был ранее добавлен")
     void update_existingFilmToUpdate() {
-        filmController.add(filmOne);
+        //given
+        filmController.add(firstFilm);
         List<Film> before = filmController.getAllFilms();
         assertEquals(1, before.size());
-        assertEquals(filmOne, before.get(0));
+        assertEquals(firstFilm, before.get(0));
 
+        //when
         Film newFilm = new Film();
-        newFilm.setId(filmOne.getId());
+        newFilm.setId(firstFilm.getId());
         newFilm.setName("New Film");
         newFilm.setDescription("New Description");
         newFilm.setReleaseDate(LocalDate.now());
         newFilm.setDuration(1L);
         filmController.update(newFilm);
 
+        //then
         List<Film> filmList = filmController.getAllFilms();
         assertEquals(1, filmList.size());
         assertEquals(newFilm, filmList.get(0));
@@ -83,49 +92,55 @@ class FilmControllerTest {
     @Test
     @DisplayName("Должен выбросить исключение ResponseStatusException, когда фильма для обновления с таким ID нету")
     void update_notUpdatedFilm_noExistingFilmToUpdate() {
-        assertThrows(ResponseStatusException.class, () -> filmController.update(filmOne));
+        //when+then
+        assertThrows(ResponseStatusException.class, () -> filmController.update(firstFilm));
     }
 
     @Test
     @DisplayName("Должен вернуть список всех добавленных фильмов, когда фильмы добавлены")
     void getAllFilms_getNotEmptyListAddFilms() {
-        Film twoFilm = new Film();
-        twoFilm.setName("New Film");
-        twoFilm.setDescription("New Description");
-        twoFilm.setReleaseDate(LocalDate.now());
-        twoFilm.setDuration(1L);
+        //given
+        Film secondFilm = new Film();
+        secondFilm.setName("New Film");
+        secondFilm.setDescription("New Description");
+        secondFilm.setReleaseDate(LocalDate.now());
+        secondFilm.setDuration(1L);
 
-        filmController.add(filmOne);
-        filmController.add(twoFilm);
+        //when
+        filmController.add(firstFilm);
+        filmController.add(secondFilm);
 
+        //then
         List<Film> filmList = filmController.getAllFilms();
         assertEquals(2, filmList.size());
-        assertEquals(filmOne, filmList.get(0));
-        assertEquals(twoFilm, filmList.get(1));
+        assertEquals(firstFilm, filmList.get(0));
+        assertEquals(secondFilm, filmList.get(1));
     }
 
     @Test
     @DisplayName("Должен вернуть пустой список всех фильмов, когда фильмы не добавлены")
     void getAllFilms_getEmptyListAddFilms() {
         List<Film> filmList = filmController.getAllFilms();
-
         assertTrue(filmList.isEmpty());
     }
 
     @Test
     @DisplayName("Выбросит исключение ResponseStatusException, когда releaseDate раньше или ровно 1895-12-28")
     void setReleaseDateEarlier1895_12_28() {
-        filmOne.setId(1);
-        filmOne.setName("FilmTest");
-        filmOne.setDuration(20L);
-        filmOne.setDescription("This is a test");
+        //given
+        firstFilm.setId(1);
+        firstFilm.setName("FilmTest");
+        firstFilm.setDuration(20L);
+        firstFilm.setDescription("This is a test");
 
+        //when+then
         LocalDate invalidReleaseDate = LocalDate.of(1895, 12, 28);
-        filmOne.setReleaseDate(invalidReleaseDate);
-        assertThrows(ResponseStatusException.class, () -> filmController.add(filmOne));
+        firstFilm.setReleaseDate(invalidReleaseDate);
+        assertThrows(ResponseStatusException.class, () -> filmController.add(firstFilm));
 
+        //when+then
         LocalDate releaseDateBefore1895 = LocalDate.of(1895, 12, 27);
-        filmOne.setReleaseDate(releaseDateBefore1895);
-        assertThrows(ResponseStatusException.class, () -> filmController.add(filmOne));
+        firstFilm.setReleaseDate(releaseDateBefore1895);
+        assertThrows(ResponseStatusException.class, () -> filmController.add(firstFilm));
     }
 }
