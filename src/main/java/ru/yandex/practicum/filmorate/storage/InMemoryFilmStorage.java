@@ -51,7 +51,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         return new ArrayList<>(films.values());
     }
 
-    private long getNewId() { //Генерирует уникальный ID.
+    @Override
+    public long getNewId() { //Генерирует уникальный ID.
         newIdFilm++;
         return newIdFilm;
     }
