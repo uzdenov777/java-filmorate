@@ -14,14 +14,8 @@ import java.util.List;
 @Log4j2
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    HashMap<Long, User> users = new HashMap<>();
-    long newIdFilm;
-
-    @Override
-    public long getNewId() { //Генерирует уникальный ID.
-        newIdFilm++;
-        return newIdFilm;
-    }
+    private final HashMap<Long, User> users = new HashMap<>();
+    private long newIdFilm;
 
     @Override
     public User add(User user) {
@@ -52,6 +46,13 @@ public class InMemoryUserStorage implements UserStorage {
     public List<User> getAllUsers() {
         log.info("Getting all users");
         return new ArrayList<>(users.values());
+    }
+
+
+    @Override
+    private long getNewId() { //Генерирует уникальный ID.
+        newIdFilm++;
+        return newIdFilm;
     }
 
     @Override

@@ -7,23 +7,16 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static ru.yandex.practicum.filmorate.model.Film.isValidReleaseDate;
-
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    HashMap<Long, Film> films = new HashMap<>();
-    long newIdFilm;
-
-    @Override
-    public long getNewId() { //Генерирует уникальный ID.
-        newIdFilm++;
-        return newIdFilm;
-    }
+   private final HashMap<Long, Film> films = new HashMap<>();
+    private long newIdFilm;
 
     @Override
     public Film add(Film film) {
@@ -58,8 +51,25 @@ public class InMemoryFilmStorage implements FilmStorage {
         return new ArrayList<>(films.values());
     }
 
+    private long getNewId() { //Генерирует уникальный ID.
+        newIdFilm++;
+        return newIdFilm;
+    }
+
     @Override
     public Film getFilmById(long id) {
         return films.get(id);
+    }
+
+    private void isValidReleaseDate(Film film) throws ResponseStatusException {
+        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
+        LocalDate releaseDate = film.getReleaseDate();
+
+        boolean isBefore = releaseDate.isBefore(minReleaseDate);
+        boolean isEqual = releaseDate.isEqual(minReleaseDate);
+        if ((isBefore || isEqual)) {
+            log.error("Not Valid release date film :{}", film);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
+        }
     }
 }

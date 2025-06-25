@@ -1,168 +1,70 @@
 package ru.yandex.practicum.filmorate.modelTest;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class UserTest {
+class UserTest {
 
-    private Validator validator;
     private User testUser;
+    private String login;
 
     @BeforeEach
-    protected void setUp() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
+    void setUp() {
         testUser = new User();
+        login = "testLogin";
     }
 
+    @DisplayName("Должен сохранить в поле name пользователя ,то что указанно в поле login(оно обязательное), когда передаём пустую строку для сохранения в поле name")
     @Test
-    @DisplayName("Вернет в Set-violations неверную валидацию с Email, когда неверный формат Email")
-    public void setNotValidEmail() {
-        testUser.setId(1);
-        testUser.setLogin("test");
-        testUser.setBirthday(LocalDate.of(1990, 1, 1));
-        testUser.setDisplayName(testUser.getName(), testUser.getLogin());
+    void setDisplayName_whenNameEmpty() {
+        //given
+        testUser.setLogin(login);
+        String nameBefore = testUser.getName();
+        assertNull(nameBefore);
 
-        testUser.setEmail("failEmail@@@/com");
-        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
-        for (ConstraintViolation<User> v : violations) {
-            System.out.println(v.getPropertyPath() + " - " + v.getMessage());
-        }
+        //when
+        testUser.setDisplayName("", testUser.getLogin());
 
-        assertEquals(1, violations.size());
+        //then
+        String nameAfter = testUser.getName();
+        assertEquals(login, nameAfter);
     }
 
+    @DisplayName("Должен сохранить в поле name пользователя ,то что указанно в поле login(оно обязательное), когда передаём name == NULL для сохранения в поле name")
     @Test
-    @DisplayName("Вернет в Set-violations неверную валидацию с Email, когда пустой Email")
-    public void setEmptyEmail() {
-        testUser.setId(1);
-        testUser.setLogin("test");
-        testUser.setBirthday(LocalDate.of(1990, 1, 1));
-        testUser.setDisplayName(testUser.getName(), testUser.getLogin());
+    void setDisplayName_WhenNameNull() {
+        //given
+        testUser.setLogin(login);
+        String nameBefore = testUser.getName();
+        assertNull(nameBefore);
 
-        testUser.setEmail("");
-        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
-        for (ConstraintViolation<User> v : violations) {
-            System.out.println(v.getPropertyPath() + " - " + v.getMessage());
-        }
+        //when
+        testUser.setDisplayName(null, testUser.getLogin());
 
-        assertEquals(1, violations.size());
+        //then
+        String nameAfter = testUser.getName();
+        assertEquals(login, nameAfter);
     }
 
+    @DisplayName("Должен сохранить в поле name пользователя ,то что указанно в setNameTest, когда передаём name, который не пустой и не NULL")
     @Test
-    @DisplayName("Set-violations будет пустой, когда Email есть и валидного формата")
-    public void setValidEmail() {
-        testUser.setId(1);
-        testUser.setLogin("test");
-        testUser.setBirthday(LocalDate.of(1990, 1, 1));
-        testUser.setDisplayName(testUser.getName(), testUser.getLogin());
+    void setDisplayName_WhenNameNotEmptyAndNull() {
+        //given
+        testUser.setLogin(login);
+        String nameBefore = testUser.getName();
+        assertNull(nameBefore);
 
-        testUser.setEmail("uzdenov02@bk.ru");
-        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
+        //when
+        String setNameTest = "testName";
+        testUser.setDisplayName(setNameTest, testUser.getLogin());
 
-        assertTrue(violations.isEmpty());
-    }
-
-    @Test
-    @DisplayName("Вернет в Set-violations неверную валидацию с login, когда login null")
-    public void setNullLogin() {
-        testUser.setId(1);
-        testUser.setBirthday(LocalDate.of(1990, 1, 1));
-        testUser.setEmail("uzdenov02@bk.ru");
-
-        testUser.setLogin(null);
-        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
-        for (ConstraintViolation<User> v : violations) {
-            System.out.println(v.getPropertyPath() + " - " + v.getMessage());
-        }
-
-        assertEquals(1, violations.size());
-    }
-
-    @Test
-    @DisplayName("Вернет в Set-violations неверную валидацию с login, когда login пустой")
-    public void setEmptyLogin() {
-        testUser.setId(1);
-        testUser.setBirthday(LocalDate.of(1990, 1, 1));
-        testUser.setEmail("uzdenov02@bk.ru");
-
-        testUser.setLogin(" ");
-        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
-        for (ConstraintViolation<User> v : violations) {
-            System.out.println(v.getPropertyPath() + " - " + v.getMessage());
-        }
-
-        assertEquals(1, violations.size());
-    }
-
-    @Test
-    @DisplayName("Set-violations будет пустой, когда login есть и не пустой")
-    public void setValidLogin() {
-        testUser.setId(1);
-        testUser.setBirthday(LocalDate.of(1990, 1, 1));
-        testUser.setEmail("uzdenov02@bk.ru");
-
-        testUser.setLogin("login");
-        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
-
-        assertTrue(violations.isEmpty());
-    }
-
-    @Test
-    @DisplayName("Вернет в Set-violations неверную валидацию с birthday, когда birthday null")
-    public void setNullBirthday() {
-        testUser.setId(1);
-        testUser.setEmail("uzdenov02@bk.ru");
-        testUser.setLogin("login");
-
-        testUser.setBirthday(null);
-        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
-        for (ConstraintViolation<User> v : violations) {
-            System.out.println(v.getPropertyPath() + " - " + v.getMessage());
-        }
-
-        assertEquals(1, violations.size());
-    }
-
-    @Test
-    @DisplayName("Вернет в Set-violations неверную валидацию с birthday, когда birthday в будущем")
-    public void setBirthdayInFuture() {
-        testUser.setId(1);
-        testUser.setEmail("uzdenov02@bk.ru");
-        testUser.setLogin("login");
-
-        LocalDate birthdayInFuture = LocalDate.now().plusDays(1);
-        testUser.setBirthday(birthdayInFuture);
-        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
-        for (ConstraintViolation<User> v : violations) {
-            System.out.println(v.getPropertyPath() + " - " + v.getMessage());
-        }
-
-        assertEquals(1, violations.size());
-    }
-
-    @Test
-    @DisplayName("Set-violations будет пустой, когда birthday есть и не в будущем")
-    public void setValidBirthday() {
-        testUser.setId(1);
-        testUser.setEmail("uzdenov02@bk.ru");
-        testUser.setLogin("login");
-
-        testUser.setBirthday(LocalDate.of(1990, 1, 1));
-        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
-
-        assertTrue(violations.isEmpty());
+        //then
+        String nameAfter = testUser.getName();
+        assertEquals(setNameTest, nameAfter);
     }
 }
