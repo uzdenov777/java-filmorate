@@ -22,7 +22,7 @@ import java.util.Set;
 @Data
 public class Film {
     private long id;
-    private Set<Long> likesFromUsers = new HashSet<>();
+    private final Set<Long> likesFromUsers = new HashSet<>();
 
     @NotBlank(message = "Название у фильмы не может отсутствовать")
     private String name;

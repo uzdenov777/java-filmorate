@@ -17,8 +17,8 @@ import java.util.*;
 @Log4j2
 @Service
 public class FilmService {
-    FilmStorage filmsStorage;
-    UserStorage userStorage;
+    private final FilmStorage filmsStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public FilmService(InMemoryFilmStorage storage, InMemoryUserStorage userStorage) {
