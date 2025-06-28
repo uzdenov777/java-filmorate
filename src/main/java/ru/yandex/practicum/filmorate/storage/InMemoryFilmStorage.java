@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Long, Film> films = new HashMap<>();
-    private long newIdFilm;
+    private static long newIdFilm;
 
     @Override
     public Film add(Film film) {
