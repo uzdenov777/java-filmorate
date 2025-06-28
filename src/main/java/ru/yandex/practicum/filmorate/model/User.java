@@ -22,7 +22,7 @@ import java.util.Set;
 public class User {
     private Long id;
     private String name;
-    private Set<Long> friends = new HashSet<>();
+    private final Set<Long> friends = new HashSet<>();
 
     @NotBlank(message = "Email у пользователя не может отсутствовать")
     @Email(message = "Email у пользователя не верного формата")

@@ -17,7 +17,7 @@ import java.util.Set;
 @Log4j2
 @Service
 public class UserService {
-    UserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public UserService(InMemoryUserStorage userStorage) {
