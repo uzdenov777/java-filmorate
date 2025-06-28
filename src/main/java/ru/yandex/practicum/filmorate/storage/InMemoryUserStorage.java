@@ -48,13 +48,13 @@ public class InMemoryUserStorage implements UserStorage {
         return new ArrayList<>(users.values());
     }
 
-    private long getNewId() { //Генерирует уникальный ID.
-        newIdFilm++;
-        return newIdFilm;
-    }
-
     @Override
     public User getUserById(long id) {
         return users.get(id);
+    }
+
+    private long getNewId() { //Генерирует уникальный ID.
+        newIdFilm++;
+        return newIdFilm;
     }
 }
