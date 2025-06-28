@@ -36,16 +36,6 @@ public class UserService {
         return userStorage.getAllUsers();
     }
 
-    public void deleteFriend(long userOneId, long friendId) throws ResponseStatusException {
-        checkUsersExistAndNotEqual(userOneId, friendId);
-
-        User userOne = userStorage.getUserById(userOneId);
-        User friendUser = userStorage.getUserById(friendId);
-
-        userOne.removeFriend(friendUser);
-        friendUser.removeFriend(userOne);
-    }
-
     public void addFriend(long userOneId, long friendId) throws ResponseStatusException {
         checkUsersExistAndNotEqual(userOneId, friendId); // если все хорошо просто не выбросит исключение
 
@@ -56,27 +46,14 @@ public class UserService {
         friendUser.addFriend(userOne);
     }
 
-    private void checkUsersExistAndNotEqual(long userOneId, long friendId) throws ResponseStatusException {
+    public void deleteFriend(long userOneId, long friendId) throws ResponseStatusException {
+        checkUsersExistAndNotEqual(userOneId, friendId); // если все хорошо просто не выбросит исключение
+
         User userOne = userStorage.getUserById(userOneId);
         User friendUser = userStorage.getUserById(friendId);
 
-        boolean isUserOneNotExists = Objects.isNull(userOne);
-        if (isUserOneNotExists) {
-            log.error("Не найден пользователь для которого нужно добавить друга или удалить по ID: {}", userOneId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для которого нужно добавить или удалить друга по ID: " + userOneId);
-        }
-
-        boolean isFriendUserNotExists = Objects.isNull(friendUser);
-        if (isFriendUserNotExists) {
-            log.error("Не найден пользователь для добавления или удаления в друзья по ID: {}", friendId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для добавления или удаления в друзья по ID: " + friendId);
-        }
-
-        boolean isFriend = userOne.equals(friendUser);
-        if (isFriend) {
-            log.error("Нельзя добавить себя в друзья или удалить самого себя: {}", userOne);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Нельзя добавить себя в друзья или удалить самого себя: " + userOne);
-        }
+        userOne.removeFriend(friendUser);
+        friendUser.removeFriend(userOne);
     }
 
     public List<User> getFriends(long userId) throws ResponseStatusException {
@@ -114,7 +91,27 @@ public class UserService {
         }
         return mutualFriends;
     }
-//    Создайте UserService, который будет отвечать за такие операции с пользователями, как добавление в друзья,
-//    удаление из друзей, вывод списка общих друзей. Пока пользователям не надо одобрять заявки в друзья — добавляем сразу.
-//    То есть если Лена стала другом Саши, то это значит, что Саша теперь друг Лены.
+
+    private void checkUsersExistAndNotEqual(long userOneId, long friendId) throws ResponseStatusException {
+        User userOne = userStorage.getUserById(userOneId);
+        User friendUser = userStorage.getUserById(friendId);
+
+        boolean isUserOneNotExists = Objects.isNull(userOne);
+        if (isUserOneNotExists) {
+            log.error("Не найден пользователь для которого нужно добавить друга или удалить по ID: {}", userOneId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для которого нужно добавить или удалить друга по ID: " + userOneId);
+        }
+
+        boolean isFriendUserNotExists = Objects.isNull(friendUser);
+        if (isFriendUserNotExists) {
+            log.error("Не найден пользователь для добавления или удаления в друзья по ID: {}", friendId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для добавления или удаления в друзья по ID: " + friendId);
+        }
+
+        boolean isFriend = userOne.equals(friendUser);
+        if (isFriend) {
+            log.error("Нельзя добавить себя в друзья или удалить самого себя: {}", userOne);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Нельзя добавить себя в друзья или удалить самого себя: " + userOne);
+        }
+    }
 }

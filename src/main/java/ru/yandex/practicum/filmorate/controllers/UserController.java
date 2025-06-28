@@ -62,7 +62,3 @@ public class UserController {
         return userService.getListMutualFriends(id, otherId);
     }
 }
-//    PUT /users/{id}/friends/{friendId} — добавление в друзья.
-//    DELETE /users/{id}/friends/{friendId} — удаление из друзей.
-//    GET /users/{id}/friends — возвращаем список пользователей, являющихся его друзьями.
-//    GET /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем.
