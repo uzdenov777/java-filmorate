@@ -21,7 +21,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User add(User user) {
         log.info("Adding user:{}", user);
 
-        user.setDisplayName(user.getName(), user.getLogin());
+        setDisplayName(user);
         user.setId(getNewId());
         users.put(user.getId(), user);
         return user;
@@ -33,7 +33,7 @@ public class InMemoryUserStorage implements UserStorage {
 
         if (users.containsKey(userId)) {
             log.info("Updating user with ID:{}", userId);
-            user.setDisplayName(user.getName(), user.getLogin());
+            setDisplayName(user);
             users.put(userId, user);
             return user;
         } else {
@@ -56,5 +56,13 @@ public class InMemoryUserStorage implements UserStorage {
     private long getNewId() { //Генерирует уникальный ID.
         newIdFilm++;
         return newIdFilm;
+    }
+
+    private void setDisplayName(User user) {
+        String userName = user.getName();
+        String loginUser = user.getLogin();
+
+        String setNameUser = (userName == null || userName.isBlank()) ? loginUser : userName;
+        user.setName(setNameUser);
     }
 }

@@ -35,10 +35,6 @@ public class User {
     @NotNull
     private LocalDate birthday;
 
-    public void setDisplayName(String name, String login) {
-        this.name = (name == null || name.isBlank()) ? login : name;
-    }
-
     public void addFriend(User friendUser) {
         Long friendId = friendUser.getId();
         friends.add(friendId);
