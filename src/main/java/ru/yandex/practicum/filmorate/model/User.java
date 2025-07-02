@@ -34,9 +34,4 @@ public class User {
     @Past(message = "Дата рождения у пользователя не должна быть в будущем")
     @NotNull
     private LocalDate birthday;
-
-    public void addFriend(User friendUser) {
-        Long friendId = friendUser.getId();
-        friends.add(friendId);
-    }
 }

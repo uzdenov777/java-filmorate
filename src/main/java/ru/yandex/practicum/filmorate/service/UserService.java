@@ -36,14 +36,17 @@ public class UserService {
         return userStorage.getAllUsers();
     }
 
-    public void addFriend(long userOneId, long friendId) throws ResponseStatusException {
-        checkUsersExistAndNotEqual(userOneId, friendId); // если все хорошо просто не выбросит исключение
+    public void addFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
+        checkUsersExistAndNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
 
-        User userOne = userStorage.getUserById(userOneId);
-        User friendUser = userStorage.getUserById(friendId);
+        User firstUser = userStorage.getUserById(idFirstUser);
+        User secondUser = userStorage.getUserById(idSecondUser);
 
-        userOne.addFriend(friendUser);
-        friendUser.addFriend(userOne);
+        Set<Long> friendsFirstUser = firstUser.getFriends();
+        Set<Long> friendsSecondUser = secondUser.getFriends();
+
+        friendsFirstUser.add(idSecondUser);
+        friendsSecondUser.add(idFirstUser);
     }
 
     public void deleteFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
