@@ -39,9 +39,4 @@ public class User {
         Long friendId = friendUser.getId();
         friends.add(friendId);
     }
-
-    public void removeFriend(User friendUser) {
-        Long friendId = friendUser.getId();
-        friends.remove(friendId);
-    }
 }
