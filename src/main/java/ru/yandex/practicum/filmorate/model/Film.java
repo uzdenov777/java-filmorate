@@ -38,10 +38,6 @@ public class Film {
     @Min(value = 1, message = "Продолжительность у фильма не должна быть меньше 1")
     private Long duration;
 
-    public void addLikeFromUser(Long userId) {
-        likesFromUsers.add(userId);
-    }
-
     public void removeLikeFromUser(Long userId) {
         likesFromUsers.remove(userId);
     }

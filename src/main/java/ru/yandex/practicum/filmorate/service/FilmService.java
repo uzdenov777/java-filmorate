@@ -42,7 +42,9 @@ public class FilmService {
         checkExistFilmAndUser(filmId, userId);
 
         Film filmLike = filmsStorage.getFilmById(filmId);
-        filmLike.addLikeFromUser(userId);
+        Set<Long> likesFromUsers_FilmLike = filmLike.getLikesFromUsers();
+
+        likesFromUsers_FilmLike.add(userId);
     }
 
     public void removeLikeFilm(long filmId, long userId) throws ResponseStatusException {
