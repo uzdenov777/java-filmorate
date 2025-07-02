@@ -51,7 +51,9 @@ public class FilmService {
         checkExistFilmAndUser(filmId, userId);
 
         Film filmLike = filmsStorage.getFilmById(filmId);
-        filmLike.removeLikeFromUser(userId);
+        Set<Long> likesFromUsers_FilmLike = filmLike.getLikesFromUsers();
+
+        likesFromUsers_FilmLike.remove(userId);
     }
 
     public List<Film> getListTopPopularFilms(int count) {

@@ -37,8 +37,4 @@ public class Film {
     @NotNull(message = "Продолжительность у фильмы не может отсутствовать")
     @Min(value = 1, message = "Продолжительность у фильма не должна быть меньше 1")
     private Long duration;
-
-    public void removeLikeFromUser(Long userId) {
-        likesFromUsers.remove(userId);
-    }
 }
