@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 @Log4j2
@@ -63,17 +63,17 @@ public class UserService {
     }
 
     public List<User> getFriends(long userId) throws ResponseStatusException {
-        User getUser = userStorage.getUserById(userId);
-        if (Objects.isNull(getUser)) {
+        Optional<User> userFirst = Optional.ofNullable(userStorage.getUserById(userId));
+        if (userFirst.isEmpty()) {
             log.error("Пользователь с ID:{} не был найден для возвращения его списка друзей", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID:" + userId + " не был найден для возвращения его списка друзей");
         }
 
         List<User> friends = new ArrayList<>();
-        Set<Long> getUserFriendsId = getUser.getFriends();
+        Set<Long> getUserFriendsId = userFirst.get().getFriends();
         for (Long friendId : getUserFriendsId) {
-            User user = userStorage.getUserById(friendId);
-            friends.add(user);
+            Optional<User> user = Optional.ofNullable(userStorage.getUserById(friendId));
+            user.ifPresent(friends::add);
         }
         return friends;
     }
