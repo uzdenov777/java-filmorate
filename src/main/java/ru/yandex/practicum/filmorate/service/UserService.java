@@ -78,18 +78,17 @@ public class UserService {
         return friends;
     }
 
-    public List<User> getListMutualFriends(long userOneId, long friendId) throws ResponseStatusException {
-        checkUsersExistAndNotEqual(userOneId, friendId);
+    public List<User> getListMutualFriends(long IdUserFirst, long idUserSecond) throws ResponseStatusException {
+        checkUsersExistAndNotEqual(IdUserFirst, idUserSecond);
+
+        User userFirst = userStorage.getUserById(IdUserFirst);
+        User userSecond = userStorage.getUserById(idUserSecond);
+        Set<Long> friendsUserFirst = userFirst.getFriends();
+        Set<Long> friendsUserSecond = userSecond.getFriends();
 
         List<User> mutualFriends = new ArrayList<>();
-
-        User userOne = userStorage.getUserById(userOneId);
-        User friendUser = userStorage.getUserById(friendId);
-        Set<Long> friendsUserOne = userOne.getFriends();
-        Set<Long> friendsFriendUser = friendUser.getFriends();
-
-        for (long idOne : friendsUserOne) {
-            for (long idTwo : friendsFriendUser) {
+        for (long idOne : friendsUserFirst) {
+            for (long idTwo : friendsUserSecond) {
                 if (idOne == idTwo) {
                     mutualFriends.add(userStorage.getUserById(idOne));
                 }
