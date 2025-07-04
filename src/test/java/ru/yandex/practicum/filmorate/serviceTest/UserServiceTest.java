@@ -36,7 +36,6 @@ class UserServiceTest {
         secondUser.setEmail("google@icloud.com");
     }
 
-
     @Test
     @DisplayName("Должен успешно добавить user-а")
     void add_addUser() {
@@ -248,7 +247,6 @@ class UserServiceTest {
         assertThrows(ResponseStatusException.class, () -> userService.deleteFriend(idFirstUser, idFirstUser));
     }
 
-
     @Test
     @DisplayName("Должен вернут список друзей, которые добавлены, когда пользователь тоже добавлен")
     void getFriends_returnNotEmptyList_AddingExistFriendAndUserExist() {
@@ -394,7 +392,7 @@ class UserServiceTest {
         //when+then
         long idNotExistFirstUser = 456456;
         long idSecond = secondUser.getId();
-        assertThrows(ResponseStatusException.class, () ->userService.getListMutualFriends(idNotExistFirstUser, idSecond));
+        assertThrows(ResponseStatusException.class, () -> userService.getListMutualFriends(idNotExistFirstUser, idSecond));
     }
 
     @Test
@@ -406,9 +404,8 @@ class UserServiceTest {
         //when+then
         long idNotExistSecondUser = 456456;
         long idFirst = firstUser.getId();
-        assertThrows(ResponseStatusException.class, () ->userService.getListMutualFriends(idFirst, idNotExistSecondUser));
+        assertThrows(ResponseStatusException.class, () -> userService.getListMutualFriends(idFirst, idNotExistSecondUser));
     }
-
 
     @Test
     @DisplayName("Должен выбросить исключение ResponseStatusException, когда пользователь ищет общих друзей у самого себя")
@@ -418,6 +415,6 @@ class UserServiceTest {
 
         //when+then
         long idFirst = firstUser.getId();
-        assertThrows(ResponseStatusException.class, () ->userService.getListMutualFriends(idFirst, idFirst));
+        assertThrows(ResponseStatusException.class, () -> userService.getListMutualFriends(idFirst, idFirst));
     }
 }

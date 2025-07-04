@@ -27,7 +27,6 @@ public class InMemoryFilmStorageTest {
         firstFilm.setDuration(1L);
     }
 
-
     @Test
     @DisplayName("Должен успешно добавить пользователя в HashMap users")
     void add_validFilm() {
