@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Getter
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -63,10 +65,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private void isValidReleaseDate(Film film) throws ResponseStatusException {
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        LocalDate releaseDate = film.getReleaseDate();
+        LocalDate releaseDateFilm = film.getReleaseDate();
 
-        boolean isBefore = releaseDate.isBefore(minReleaseDate);
-        boolean isEqual = releaseDate.isEqual(minReleaseDate);
+        boolean isBefore = releaseDateFilm.isBefore(minReleaseDate);
+        boolean isEqual = releaseDateFilm.isEqual(minReleaseDate);
         if ((isBefore || isEqual)) {
             log.error("Not Valid release date film :{}", film);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
