@@ -78,10 +78,10 @@ public class UserService {
         return friends;
     }
 
-    public List<User> getListMutualFriends(long IdUserFirst, long idUserSecond) throws ResponseStatusException {
-        checkUsersExistAndNotEqual(IdUserFirst, idUserSecond);
+    public List<User> getListMutualFriends(long idUserFirst, long idUserSecond) throws ResponseStatusException {
+        checkUsersExistAndNotEqual(idUserFirst, idUserSecond);
 
-        User userFirst = userStorage.getUserById(IdUserFirst);
+        User userFirst = userStorage.getUserById(idUserFirst);
         User userSecond = userStorage.getUserById(idUserSecond);
         Set<Long> friendsUserFirst = userFirst.getFriends();
         Set<Long> friendsUserSecond = userSecond.getFriends();
@@ -97,19 +97,19 @@ public class UserService {
         return mutualFriends;
     }
 
-    private void checkUsersExistAndNotEqual(long IdUserFirst, long idUserSecond) throws ResponseStatusException {
-        Optional<User> userFirst = Optional.ofNullable(userStorage.getUserById(IdUserFirst));
+    private void checkUsersExistAndNotEqual(long idUserFirst, long idUserSecond) throws ResponseStatusException {
+        Optional<User> userFirst = Optional.ofNullable(userStorage.getUserById(idUserFirst));
         Optional<User> userSecond = Optional.ofNullable(userStorage.getUserById(idUserSecond));
 
-        boolean checkUserIsNotSelf = idUserSecond == IdUserFirst;
+        boolean checkUserIsNotSelf = idUserSecond == idUserFirst;
         if (checkUserIsNotSelf) {
             log.error("Нельзя добавить себя в друзья или удалить самого себя: {}", userFirst);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Нельзя добавить себя в друзья или удалить самого себя: " + userFirst);
         }
 
         if (userFirst.isEmpty()) {
-            log.error("Не найден пользователь для которого нужно добавить друга или удалить по ID: {}", IdUserFirst);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для которого нужно добавить или удалить друга по ID: " + IdUserFirst);
+            log.error("Не найден пользователь для которого нужно добавить друга или удалить по ID: {}", idUserFirst);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для которого нужно добавить или удалить друга по ID: " + idUserFirst);
         }
 
         if (userSecond.isEmpty()) {
