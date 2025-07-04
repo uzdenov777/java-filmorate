@@ -78,13 +78,13 @@ public class FilmService {
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
-        Film filmLike = filmsStorage.getFilmById(filmId);
-        User userOne = userStorage.getUserById(userId);
+        Optional<Film> filmLike = Optional.ofNullable(filmsStorage.getFilmById(filmId));
+        Optional<User> userFirst = Optional.ofNullable(userStorage.getUserById(userId));
 
-        if (Objects.isNull(userOne)) {
+        if (userFirst.isEmpty()) {
             log.error("Пользователь с ID: {} не найден для добавления лайка фильму", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID: " + userId + " не найден для добавления лайка фильму");
-        } else if (Objects.isNull(filmLike)) {
+        } else if (filmLike.isEmpty()) {
             log.error("Фильм с ID: {} не найден для добавления ему лайка", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с ID: " + filmId + " не найден для добавления ему лайка");
         }
