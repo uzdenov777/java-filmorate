@@ -146,7 +146,7 @@ class FilmServiceTest {
         //when+then
         long idFirstFilm = firstFilm.getId(); // ID фильма, который не был добавлен
         long idUser = userFirst.getId();
-        ResponseStatusException e = assertThrows(ResponseStatusException.class, () -> filmService.addLikeFilm(idFirstFilm, idUser));
+        assertThrows(ResponseStatusException.class, () -> filmService.addLikeFilm(idFirstFilm, idUser));
     }
 
     @Test
@@ -161,7 +161,7 @@ class FilmServiceTest {
         //when+then
         long idFirstFilm = firstFilm.getId();
         long idUser = userFirst.getId();// ID пользователя, который не был добавлен
-        ResponseStatusException e = assertThrows(ResponseStatusException.class, () -> filmService.addLikeFilm(idFirstFilm, idUser));
+        assertThrows(ResponseStatusException.class, () -> filmService.addLikeFilm(idFirstFilm, idUser));
     }
 
     @Test
@@ -196,7 +196,7 @@ class FilmServiceTest {
         //when+then
         long idFirstFilm = firstFilm.getId(); // ID фильма, который не был добавлен
         long idUser = userFirst.getId();
-        ResponseStatusException e = assertThrows(ResponseStatusException.class, () -> filmService.removeLikeFilm(idFirstFilm, idUser));
+        assertThrows(ResponseStatusException.class, () -> filmService.removeLikeFilm(idFirstFilm, idUser));
     }
 
     @Test
@@ -211,7 +211,7 @@ class FilmServiceTest {
         //when+then
         long idFirstFilm = firstFilm.getId();
         long idUser = userFirst.getId();// ID пользователя, который не был добавлен
-        ResponseStatusException e = assertThrows(ResponseStatusException.class, () -> filmService.removeLikeFilm(idFirstFilm, idUser));
+        assertThrows(ResponseStatusException.class, () -> filmService.removeLikeFilm(idFirstFilm, idUser));
     }
 
     @Test
