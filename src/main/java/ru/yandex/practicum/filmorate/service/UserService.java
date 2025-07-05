@@ -9,10 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Log4j2
 @Service
@@ -83,16 +80,14 @@ public class UserService {
 
         User userFirst = userStorage.getUserById(idUserFirst);
         User userSecond = userStorage.getUserById(idUserSecond);
-        Set<Long> friendsUserFirst = userFirst.getFriends();
+
+        Set<Long> friendsUserFirst = new HashSet<>(userFirst.getFriends());
         Set<Long> friendsUserSecond = userSecond.getFriends();
+        friendsUserFirst.retainAll(friendsUserSecond);
 
         List<User> mutualFriends = new ArrayList<>();
-        for (long idOne : friendsUserFirst) {
-            for (long idTwo : friendsUserSecond) {
-                if (idOne == idTwo) {
-                    mutualFriends.add(userStorage.getUserById(idOne));
-                }
-            }
+        for (long id : friendsUserFirst) {
+            mutualFriends.add(userStorage.getUserById(id));
         }
         return mutualFriends;
     }
