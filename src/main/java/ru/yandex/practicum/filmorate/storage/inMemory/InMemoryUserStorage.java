@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.inMemory;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;

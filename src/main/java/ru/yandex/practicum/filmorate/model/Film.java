@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -20,8 +20,9 @@ import java.util.Set;
  */
 @Slf4j
 @Data
+@AllArgsConstructor
 public class Film {
-    private long id;
+    private Long id;
     private final Set<Long> likesFromUsers = new HashSet<>();
 
     @NotBlank(message = "Название у фильмы не может отсутствовать")
@@ -37,4 +38,7 @@ public class Film {
     @NotNull(message = "Продолжительность у фильмы не может отсутствовать")
     @Min(value = 1, message = "Продолжительность у фильма не должна быть меньше 1")
     private Long duration;
+
+    @NotNull(message = "Возрастное ограничение не может отсутствовать у фильма")
+    private Integer mpaId;
 }

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.util.*;
@@ -14,30 +14,30 @@ import java.util.*;
 @Log4j2
 @Service
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserStorage userDbStorage;
 
     @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserService(UserDbStorage userDbStorage) {
+        this.userDbStorage = userDbStorage;
     }
 
     public User add(User user) {
-        return userStorage.add(user);
+        return userDbStorage.add(user);
     }
 
     public User update(User user) {
-        return userStorage.update(user);
+        return userDbStorage.update(user);
     }
 
     public List<User> getAllUsers() {
-        return userStorage.getAllUsers();
+        return userDbStorage.getAllUsers();
     }
 
     public void addFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
         checkUsersExistAndNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
 
-        User firstUser = userStorage.getUserById(idFirstUser);
-        User secondUser = userStorage.getUserById(idSecondUser);
+        User firstUser = userDbStorage.getUserById(idFirstUser);
+        User secondUser = userDbStorage.getUserById(idSecondUser);
 
         Set<Long> friendsFirstUser = firstUser.getFriends();
         Set<Long> friendsSecondUser = secondUser.getFriends();
@@ -49,8 +49,8 @@ public class UserService {
     public void deleteFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
         checkUsersExistAndNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
 
-        User firstUser = userStorage.getUserById(idFirstUser);
-        User secondUser = userStorage.getUserById(idSecondUser);
+        User firstUser = userDbStorage.getUserById(idFirstUser);
+        User secondUser = userDbStorage.getUserById(idSecondUser);
 
         Set<Long> friendsFirstUser = firstUser.getFriends();
         Set<Long> friendsSecondUser = secondUser.getFriends();
@@ -59,8 +59,17 @@ public class UserService {
         friendsSecondUser.remove(idFirstUser);
     }
 
+    public User getUserById(long userId) throws ResponseStatusException {
+        Optional<User> userFirst = Optional.ofNullable(userDbStorage.getUserById(userId));
+        if (userFirst.isEmpty()) {
+            log.error("Пользователь с ID:{} не был найден", userId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID:" + userId + " не был найден");
+        }
+        return userFirst.get();
+    }
+
     public List<User> getFriends(long userId) throws ResponseStatusException {
-        Optional<User> userFirst = Optional.ofNullable(userStorage.getUserById(userId));
+        Optional<User> userFirst = Optional.ofNullable(userDbStorage.getUserById(userId));
         if (userFirst.isEmpty()) {
             log.error("Пользователь с ID:{} не был найден для возвращения его списка друзей", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID:" + userId + " не был найден для возвращения его списка друзей");
@@ -69,7 +78,7 @@ public class UserService {
         List<User> friends = new ArrayList<>();
         Set<Long> getUserFriendsId = userFirst.get().getFriends();
         for (Long friendId : getUserFriendsId) {
-            Optional<User> user = Optional.ofNullable(userStorage.getUserById(friendId));
+            Optional<User> user = Optional.ofNullable(userDbStorage.getUserById(friendId));
             user.ifPresent(friends::add);
         }
         return friends;
@@ -78,8 +87,8 @@ public class UserService {
     public List<User> getListMutualFriends(long idUserFirst, long idUserSecond) throws ResponseStatusException {
         checkUsersExistAndNotEqual(idUserFirst, idUserSecond);
 
-        User userFirst = userStorage.getUserById(idUserFirst);
-        User userSecond = userStorage.getUserById(idUserSecond);
+        User userFirst = userDbStorage.getUserById(idUserFirst);
+        User userSecond = userDbStorage.getUserById(idUserSecond);
 
         Set<Long> friendsUserFirst = new HashSet<>(userFirst.getFriends());
         Set<Long> friendsUserSecond = userSecond.getFriends();
@@ -87,14 +96,14 @@ public class UserService {
 
         List<User> mutualFriends = new ArrayList<>();
         for (long id : friendsUserFirst) {
-            mutualFriends.add(userStorage.getUserById(id));
+            mutualFriends.add(userDbStorage.getUserById(id));
         }
         return mutualFriends;
     }
 
     private void checkUsersExistAndNotEqual(long idUserFirst, long idUserSecond) throws ResponseStatusException {
-        Optional<User> userFirst = Optional.ofNullable(userStorage.getUserById(idUserFirst));
-        Optional<User> userSecond = Optional.ofNullable(userStorage.getUserById(idUserSecond));
+        Optional<User> userFirst = Optional.ofNullable(userDbStorage.getUserById(idUserFirst));
+        Optional<User> userSecond = Optional.ofNullable(userDbStorage.getUserById(idUserSecond));
 
         boolean checkUserIsNotSelf = idUserSecond == idUserFirst;
         if (checkUserIsNotSelf) {

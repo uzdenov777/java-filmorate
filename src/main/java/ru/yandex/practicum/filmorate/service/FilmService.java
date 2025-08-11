@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.inMemory.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.inMemory.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
@@ -17,31 +19,31 @@ import java.util.*;
 @Log4j2
 @Service
 public class FilmService {
-    private final FilmStorage filmsStorage;
-    private final UserStorage userStorage;
+    private final FilmDbStorage filmDbStorage;
+    private final UserService userService;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage storage, InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
-        this.filmsStorage = storage;
+    public FilmService(FilmDbStorage filmDbStorage, UserService userService) {
+        this.userService = userService;
+        this.filmDbStorage = filmDbStorage;
     }
 
     public Film add(Film film) {
-        return filmsStorage.add(film);
+        return filmDbStorage.add(film);
     }
 
     public Film update(Film film) throws ResponseStatusException {
-        return filmsStorage.update(film);
+        return filmDbStorage.update(film);
     }
 
     public List<Film> getAllFilms() {
-        return filmsStorage.getAllFilms();
+        return filmDbStorage.getAllFilms();
     }
 
     public void addLikeFilm(long filmId, long userId) throws ResponseStatusException {
         checkExistFilmAndUser(filmId, userId);
 
-        Film filmLike = filmsStorage.getFilmById(filmId);
+        Film filmLike = filmDbStorage.getFilmById(filmId);
         Set<Long> likedUserIds = filmLike.getLikesFromUsers();
 
         likedUserIds.add(userId);
@@ -50,7 +52,7 @@ public class FilmService {
     public void removeLikeFilm(long filmId, long userId) throws ResponseStatusException {
         checkExistFilmAndUser(filmId, userId);
 
-        Film filmLike = filmsStorage.getFilmById(filmId);
+        Film filmLike = filmDbStorage.getFilmById(filmId);
         Set<Long> likedUserIds = filmLike.getLikesFromUsers();
 
         likedUserIds.remove(userId);
@@ -68,7 +70,7 @@ public class FilmService {
     }
 
     private List<Film> getSortListFilms() throws ResponseStatusException {
-        List<Film> allFilms = new ArrayList<>(filmsStorage.getAllFilms()); //копию для того, чтобы могли делать, что хотим с этим списком
+        List<Film> allFilms = new ArrayList<>(filmDbStorage.getAllFilms()); //копию для того, чтобы могли делать, что хотим с этим списком
         if (allFilms.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не добавлено еще ни одного фильма для получения TOP-а");
         }
@@ -78,8 +80,10 @@ public class FilmService {
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
-        Optional<Film> filmLike = Optional.ofNullable(filmsStorage.getFilmById(filmId));
-        Optional<User> userFirst = Optional.ofNullable(userStorage.getUserById(userId));
+        Optional<Film> filmLike = Optional.ofNullable(filmDbStorage.getFilmById(filmId));
+        Optional<User> userFirst = Optional.ofNullable(userService.getUserById(userId));
+
+
 
         if (userFirst.isEmpty()) {
             log.error("Пользователь с ID: {} не найден для добавления лайка фильму", userId);
