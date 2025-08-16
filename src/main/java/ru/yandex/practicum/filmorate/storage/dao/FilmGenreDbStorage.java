@@ -11,15 +11,15 @@ public class FilmGenreDbStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void addFilmGenre(Long film_id, Integer genre_id) {
+    public void addFilmGenre(Long filmId, Integer genreId) {
         String sql = "INSERT INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
 
-        jdbcTemplate.update(sql, film_id, genre_id);
+        jdbcTemplate.update(sql, filmId, genreId);
     }
 
-    public void deleteFilmGenreByFilmId(Long film_id) {
+    public void deleteFilmGenreByFilmId(Long filmId) {
         String sql = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
 
-        jdbcTemplate.update(sql, film_id);
+        jdbcTemplate.update(sql, filmId);
     }
 }
