@@ -41,12 +41,12 @@ public class FilmService {
 
         filmDbStorage.add(film); // пробуем добавить фильм
 
-        Long film_id = film.getId();
+        Long filmId = film.getId();
         Set<Genre> genres = film.getGenres();
         Set<Long> likesFromUsersId = film.getLikesFromUsers();
 
-        filmGenresService.addFilmGenres(film_id, genres);
-        filmLikesService.addFilmLikes(film_id, likesFromUsersId);
+        filmGenresService.addFilmGenres(filmId, genres);
+        filmLikesService.addFilmLikes(filmId, likesFromUsersId);
 
         return film;
     }
