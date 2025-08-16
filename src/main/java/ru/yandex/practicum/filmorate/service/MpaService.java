@@ -28,7 +28,7 @@ public class MpaService {
         return mpaDbStorage.getMpaById(mpaId);
     }
 
-    public void isExistsMpa(Integer mpaId) throws  ResponseStatusException {
+    public void isExistsMpa(Integer mpaId) throws ResponseStatusException {
         boolean existsMpa = mpaDbStorage.isExistsMpa(mpaId);
         if (!existsMpa) {
             log.info("Не найден Mpa-возрастное ограничение по ID: {}", mpaId);

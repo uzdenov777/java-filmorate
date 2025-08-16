@@ -9,7 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class Genre {
     @NotNull(message = "ID не может отсутствовать у Genre")
-    private int  id;
+    private int id;
 
     @NotBlank(message = "Name не может отсутствовать у Genre")
     private String name;

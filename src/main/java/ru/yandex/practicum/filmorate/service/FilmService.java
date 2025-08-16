@@ -87,7 +87,7 @@ public class FilmService {
         boolean filmExists = filmDbStorage.isFilmExists(filmId);
         if (!filmExists) {
             log.info("Не найден фильм для возвращения по ID: {}", filmId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для возвращения по ID: " +  filmId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для возвращения по ID: " + filmId);
         }
 
         Film film = filmDbStorage.getFilmById(filmId);

@@ -29,12 +29,12 @@ public class GenreDbStorage implements GenresStorage {
     }
 
     public List<Genre> getGenresByFilmId(Long filmId) {
-      String query = "SELECT genres.genre_id, genres.genre_name " +
-              "FROM film_genres " +
-              "JOIN genres ON film_genres.genre_id = genres.genre_id " +
-              "WHERE film_genres.film_id = ?";
+        String query = "SELECT genres.genre_id, genres.genre_name " +
+                "FROM film_genres " +
+                "JOIN genres ON film_genres.genre_id = genres.genre_id " +
+                "WHERE film_genres.film_id = ?";
 
-      return jdbcTemplate.query(query, getGenreRowMapper(), filmId);
+        return jdbcTemplate.query(query, getGenreRowMapper(), filmId);
     }
 
     public boolean isExistsGenre(Integer genreId) {

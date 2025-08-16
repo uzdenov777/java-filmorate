@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;

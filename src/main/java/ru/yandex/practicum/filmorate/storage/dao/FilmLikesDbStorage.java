@@ -32,8 +32,8 @@ public class FilmLikesDbStorage {
     }
 
     public List<Long> getFilmLikesByFilmId(long filmId) {
-         String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";
+        String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";
 
-         return jdbcTemplate.queryForList(sql, Long.class, filmId);
+        return jdbcTemplate.queryForList(sql, Long.class, filmId);
     }
 }

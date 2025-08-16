@@ -12,9 +12,9 @@ public class FilmGenreDbStorage {
     }
 
     public void addFilmGenre(Long film_id, Integer genre_id) {
-          String sql = "INSERT INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
+        String sql = "INSERT INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
 
-          jdbcTemplate.update(sql, film_id, genre_id);
+        jdbcTemplate.update(sql, film_id, genre_id);
     }
 
     public void deleteFilmGenreByFilmId(Long film_id) {

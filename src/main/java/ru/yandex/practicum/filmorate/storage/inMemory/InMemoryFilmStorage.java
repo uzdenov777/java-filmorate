@@ -21,7 +21,7 @@ public class InMemoryFilmStorage implements FilmsStorage {
     private static long newIdFilm;
 
     @Override
-    public Film add(Film film) throws ResponseStatusException{
+    public Film add(Film film) throws ResponseStatusException {
         log.info("Adding film {}", film);
 
         isValidReleaseDate(film); //В случае не валидного релиза вернется исключение ResponseStatusException

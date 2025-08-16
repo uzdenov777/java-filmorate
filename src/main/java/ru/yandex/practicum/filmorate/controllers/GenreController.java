@@ -14,14 +14,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/genres")
 public class GenreController {
- private final GenreService genreService;
+    private final GenreService genreService;
 
     public GenreController(GenreService genreService) {
         this.genreService = genreService;
     }
 
     @GetMapping
-    public List<Genre>  getAllGenres() {
+    public List<Genre> getAllGenres() {
         log.info("getAllGenres");
         return genreService.getAllGenres();
     }

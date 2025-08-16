@@ -27,19 +27,19 @@ public class GenreService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр при запросе на возврат по ID: " + id);
         }
 
-        return  genreDbStorage.getGenreById(id);
+        return genreDbStorage.getGenreById(id);
     }
 
-     public void isGenreExist(int id) throws ResponseStatusException {
+    public void isGenreExist(int id) throws ResponseStatusException {
         boolean genreExist = genreDbStorage.isExistsGenre(id);
         if (!genreExist) {
             log.info("Не найден жанр по ID: {}", id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр по ID: " + id);
         }
-     }
+    }
 
     public List<Genre> getAllGenres() {
-        return  genreDbStorage.getAllGenres();
+        return genreDbStorage.getAllGenres();
     }
 
     public Set<Genre> getGenresByFilmId(Long filmId) {
