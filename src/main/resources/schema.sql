@@ -1,8 +1,8 @@
-DROP TABLE film_genres;
-DROP TABLE film_likes;
-DROP TABLE films;
-DROP TABLE friends;
-DROP TABLE users;
+DROP TABLE IF EXISTS film_genres;
+DROP TABLE IF EXISTS film_likes;
+DROP TABLE IF EXISTS films;
+DROP TABLE IF EXISTS friends;
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE IF NOT EXISTS mpa(
     mpa_id   INTEGER      AUTO_INCREMENT PRIMARY KEY,
