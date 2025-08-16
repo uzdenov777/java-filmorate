@@ -17,23 +17,23 @@ public class FilmGenresService {
         this.filmGenreDbStorage = filmGenreDbStorage;
     }
 
-    public void addFilmGenres(Long film_id, Set<Genre> genres) {
+    public void addFilmGenres(Long filmId, Set<Genre> genres) {
         Set<Integer> genreIds = new HashSet<>();
         for (Genre genre : genres) {
             genreIds.add(genre.getId());
         }
 
         for (Integer genreId : genreIds) {
-            filmGenreDbStorage.addFilmGenre(film_id, genreId);
+            filmGenreDbStorage.addFilmGenre(filmId, genreId);
         }
     }
 
-    public void deleteAllFilmGenresByFilmId(Long film_id) {
-        filmGenreDbStorage.deleteFilmGenreByFilmId(film_id);
+    public void deleteAllFilmGenresByFilmId(Long filmId) {
+        filmGenreDbStorage.deleteFilmGenreByFilmId(filmId);
     }
 
-    public void updateFilmGenres(Long film_id, Set<Genre> genres) {
-        filmGenreDbStorage.deleteFilmGenreByFilmId(film_id);
-        addFilmGenres(film_id, genres);
+    public void updateFilmGenres(Long filmId, Set<Genre> genres) {
+        filmGenreDbStorage.deleteFilmGenreByFilmId(filmId);
+        addFilmGenres(filmId, genres);
     }
 }
