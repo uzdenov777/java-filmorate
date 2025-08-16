@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -32,6 +33,12 @@ public class UserController {
         return userService.update(user);
     }
 
+    @GetMapping("/{id}")
+    public User getByIdUser(@PathVariable long id) {
+        log.info("Get user by id: {}", id);
+        return userService.getUserById(id);
+    }
+
     @GetMapping
     public List<User> getAllUsers() {
         log.info("Getting all users");
@@ -47,13 +54,13 @@ public class UserController {
     @DeleteMapping("/{id}/friends/{friendId}")
     public void removeFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("Removing friend");
-        userService.deleteFriend(id, friendId);
+        userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable int id) {
         log.info("Getting friends");
-        return userService.getFriends(id);
+        return userService.getAllFriendsByUserId(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")

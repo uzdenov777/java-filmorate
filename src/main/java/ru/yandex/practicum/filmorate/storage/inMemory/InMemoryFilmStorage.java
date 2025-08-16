@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmsStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,12 +16,12 @@ import java.util.List;
 @Getter
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage {
+public class InMemoryFilmStorage implements FilmsStorage {
     private final HashMap<Long, Film> films = new HashMap<>();
     private static long newIdFilm;
 
     @Override
-    public Film add(Film film) {
+    public Film add(Film film) throws ResponseStatusException{
         log.info("Adding film {}", film);
 
         isValidReleaseDate(film); //В случае не валидного релиза вернется исключение ResponseStatusException
@@ -51,11 +51,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getAllFilms() {
         log.info("Getting all films");
         return new ArrayList<>(films.values());
-    }
-
-    @Override
-    public Film getFilmById(long id) {
-        return films.get(id);
     }
 
     private long getNewId() { //Генерирует уникальный ID.

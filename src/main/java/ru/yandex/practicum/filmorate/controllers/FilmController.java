@@ -21,15 +21,21 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film add(@Valid @RequestBody Film film) {
-        log.info("Adding film");
+    public Film add(@RequestBody @Valid Film film) {
+        log.info("Adding film: {}", film);
         return filmService.add(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        log.info("Updating film");
+        log.info("Updating film: {}", film);
         return filmService.update(film);
+    }
+
+    @GetMapping("/{id}")
+    public Film getById(@PathVariable Long id) {
+        log.info("Getting film with id: {}", id);
+        return filmService.getFilmById(id);
     }
 
     @GetMapping

@@ -1,6 +1,7 @@
 DROP TABLE film_genres;
 DROP TABLE film_likes;
 DROP TABLE films;
+DROP TABLE friends;
 DROP TABLE users;
 
 CREATE TABLE IF NOT EXISTS mpa(
@@ -13,7 +14,7 @@ CREATE TABLE IF NOT EXISTS films(
     description  VARCHAR(200)   NOT NULL,
     release_date DATE           NOT NULL,
     duration     INTEGER        NOT NULL,
-    mpa_id       INTEGER        NOT NULL,
+    mpa_id       INTEGER,
     CONSTRAINT films_mpa_fk FOREIGN KEY(mpa_id) REFERENCES mpa(mpa_id));
 
 CREATE TABLE IF NOT EXISTS genres(
@@ -33,6 +34,14 @@ CREATE TABLE IF NOT EXISTS users(
     email     VARCHAR(255)  NOT NULL,
     login     VARCHAR(100)  NOT NULL,
     birthday  DATE           NOT NULL);
+
+CREATE TABLE IF NOT EXISTS Friends(
+    user_id   BIGINT NOT NULL,
+    friend_id BIGINT NOT NULL,
+    CONSTRAINT Friends_pk primary key (user_id, friend_id),
+    CONSTRAINT Friends_USERS_USER_ID_fk FOREIGN KEY (user_id) REFERENCES USERS,
+    CONSTRAINT Friends_USERS_USER_ID_fk_2 FOREIGN KEY (friend_id) REFERENCES USERS);
+
 
 CREATE TABLE IF NOT EXISTS Film_likes(
     film_id BIGINT NOT NULL,

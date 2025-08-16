@@ -4,8 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -18,12 +17,10 @@ import java.util.Set;
  * дата релиза — не раньше 28 декабря 1895 года;
  * продолжительность фильма должна быть положительной.
  */
-@Slf4j
+
 @Data
-@AllArgsConstructor
 public class Film {
     private Long id;
-    private final Set<Long> likesFromUsers = new HashSet<>();
 
     @NotBlank(message = "Название у фильмы не может отсутствовать")
     private String name;
@@ -39,6 +36,9 @@ public class Film {
     @Min(value = 1, message = "Продолжительность у фильма не должна быть меньше 1")
     private Long duration;
 
-    @NotNull(message = "Возрастное ограничение не может отсутствовать у фильма")
-    private Integer mpaId;
+    private Mpa mpa;
+
+    private Set<Genre> genres = new HashSet<>();
+
+    private Set<Long> likesFromUsers = new HashSet<>();
 }
