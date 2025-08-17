@@ -7,13 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Log4j2
 @Service
@@ -158,7 +156,11 @@ public class FilmService {
 
     private void isValidFilm(Film chekFilm) throws ResponseStatusException {
         isValidReleaseDate(chekFilm); //В случае не валидного релиза выбросит исключение ResponseStatusException
-        mpaService.isExistsMpa(chekFilm.getMpa().getId());
+
+        Mpa mpa = chekFilm.getMpa();
+        if (Objects.nonNull(mpa)) {
+            mpaService.isExistsMpa(chekFilm.getMpa().getId());
+        }
 
         Set<Genre> genres = chekFilm.getGenres();
         for (Genre genre : genres) {
