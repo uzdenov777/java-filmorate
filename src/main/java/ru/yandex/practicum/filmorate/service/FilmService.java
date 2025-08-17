@@ -36,24 +36,24 @@ public class FilmService {
         this.mpaService = mpaService;
     }
 
-    public Film add(Film film) throws ResponseStatusException {
-        isValidFilm(film); //если у фильма все понял и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
+    public Film add(Film newFilm) throws ResponseStatusException {
+        isValidFilm(newFilm); //если у фильма все понял и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
 
-        filmDbStorage.add(film); // пробуем добавить фильм
+        filmDbStorage.add(newFilm); // пробуем добавить фильм
 
-        Long filmId = film.getId();
-        Set<Genre> genres = film.getGenres();
-        Set<Long> likesFromUsersId = film.getLikesFromUsers();
+        Long newFilmId = newFilm.getId();
+        Set<Genre> genresOfNewFilm = newFilm.getGenres();
+        Set<Long> likesUsersIdOfNewFilm = newFilm.getLikesUsersId();
 
-        filmGenresService.addFilmGenres(filmId, genres);
-        filmLikesService.addFilmLikes(filmId, likesFromUsersId);
+        filmGenresService.addFilmGenres(newFilmId, genresOfNewFilm);
+        filmLikesService.addFilmLikes(newFilmId, likesUsersIdOfNewFilm);
 
-        return film;
+        return newFilm;
     }
 
 
-    public Film update(Film film) throws ResponseStatusException {
-        Long filmId = film.getId();
+    public Film update(Film filmToUpdate) throws ResponseStatusException {
+        Long filmId = filmToUpdate.getId();
 
         boolean filmExists = filmDbStorage.isFilmExists(filmId);
         if (!filmExists) {
@@ -61,12 +61,12 @@ public class FilmService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для обновления с ID: " + filmId);
         }
 
-        isValidFilm(film); //если у фильма все поля и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
+        isValidFilm(filmToUpdate); //если у фильма все поля и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
 
-        filmDbStorage.update(film);
+        filmDbStorage.update(filmToUpdate);
 
-        Set<Genre> genres = film.getGenres();
-        Set<Long> likesFromUsers = film.getLikesFromUsers();
+        Set<Genre> genres = filmToUpdate.getGenres();
+        Set<Long> likesUsersId = filmToUpdate.getLikesUsersId();
 
         if (genres.isEmpty()) {
             filmGenresService.deleteAllFilmGenresByFilmId(filmId);
@@ -74,13 +74,13 @@ public class FilmService {
             filmGenresService.updateFilmGenres(filmId, genres);
         }
 
-        if (likesFromUsers.isEmpty()) {
+        if (likesUsersId.isEmpty()) {
             filmLikesService.deleteAllFilmLikesByFilmId(filmId);
         } else {
-            filmLikesService.updateFilmLike(filmId, likesFromUsers);
+            filmLikesService.updateFilmLike(filmId, likesUsersId);
         }
 
-        return film;
+        return filmToUpdate;
     }
 
     public Film getFilmById(Long filmId) throws ResponseStatusException {
@@ -92,7 +92,7 @@ public class FilmService {
 
         Film film = filmDbStorage.getFilmById(filmId);
         film.setGenres(genreService.getGenresByFilmId(filmId));
-        film.setLikesFromUsers(filmLikesService.getFilmLikesByFilmId(filmId));
+        film.setLikesUsersId(filmLikesService.getFilmLikesByFilmId(filmId));
 
         return film;
     }
@@ -103,7 +103,7 @@ public class FilmService {
         for (Film film : allFilms) {
             Long filmId = film.getId();
             film.setGenres(genreService.getGenresByFilmId(filmId));
-            film.setLikesFromUsers(filmLikesService.getFilmLikesByFilmId(filmId));
+            film.setLikesUsersId(filmLikesService.getFilmLikesByFilmId(filmId));
         }
 
         return allFilms;
@@ -138,7 +138,7 @@ public class FilmService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не добавлено еще ни одного фильма для получения TOP-а");
         }
 
-        allFilms.sort(Comparator.comparingInt((Film film) -> film.getLikesFromUsers().size()).reversed());
+        allFilms.sort(Comparator.comparingInt((Film film) -> film.getLikesUsersId().size()).reversed());
         return allFilms;
     }
 
@@ -156,30 +156,30 @@ public class FilmService {
         }
     }
 
-    private void isValidFilm(Film film) throws ResponseStatusException {
-        isValidReleaseDate(film); //В случае не валидного релиза выбросит исключение ResponseStatusException
-        mpaService.isExistsMpa(film.getMpa().getId());
+    private void isValidFilm(Film chekFilm) throws ResponseStatusException {
+        isValidReleaseDate(chekFilm); //В случае не валидного релиза выбросит исключение ResponseStatusException
+        mpaService.isExistsMpa(chekFilm.getMpa().getId());
 
-        Set<Genre> genres = film.getGenres();
+        Set<Genre> genres = chekFilm.getGenres();
         for (Genre genre : genres) {
             genreService.isGenreExist(genre.getId());
         }
 
-        Set<Long> likesFromUsers = film.getLikesFromUsers();
-        for (Long userId : likesFromUsers) {
+        Set<Long> likesUsers = chekFilm.getLikesUsersId();
+        for (Long userId : likesUsers) {
             userService.isUserExists(userId);
         }
     }
 
-    private void isValidReleaseDate(Film film) throws ResponseStatusException {
+    private void isValidReleaseDate(Film filmToValidate ) throws ResponseStatusException {
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        LocalDate releaseDateFilm = film.getReleaseDate();
+        LocalDate releaseDateFilm = filmToValidate .getReleaseDate();
 
         boolean isBefore = releaseDateFilm.isBefore(minReleaseDate);
         boolean isEqual = releaseDateFilm.isEqual(minReleaseDate);
         if ((isBefore || isEqual)) {
-            log.error("Not Valid release date film :{}", film);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + film);
+            log.error("Not Valid release date film :{}", filmToValidate );
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + filmToValidate );
         }
     }
 }

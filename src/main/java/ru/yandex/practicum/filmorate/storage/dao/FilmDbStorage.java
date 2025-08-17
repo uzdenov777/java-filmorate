@@ -26,18 +26,18 @@ public class FilmDbStorage implements FilmsStorage {
     }
 
     @Override
-    public Film add(Film film) {
+    public Film add(Film newFilm) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("film_id");
-        Long newId = simpleJdbcInsert.executeAndReturnKey(filmsToMap(film)).longValue();
+        Long newId = simpleJdbcInsert.executeAndReturnKey(filmsToMap(newFilm)).longValue();
 
-        film.setId(newId);
-        return film;
+        newFilm.setId(newId);
+        return newFilm;
     }
 
     @Override
-    public Film update(Film film) throws ResponseStatusException {
+    public Film update(Film filmToUpdate) throws ResponseStatusException {
         String sql = "UPDATE films SET film_name = ?," +
                 "description = ?," +
                 "release_date = ?," +
@@ -45,7 +45,7 @@ public class FilmDbStorage implements FilmsStorage {
                 "mpa_id = ?" +
                 "WHERE film_id = ?";
 
-        Map<String, Object> filmToMap = filmsToMap(film);
+        Map<String, Object> filmToMap = filmsToMap(filmToUpdate);
 
         jdbcTemplate.update(sql, filmToMap.get("film_name"),
                 filmToMap.get("description"),
@@ -55,16 +55,17 @@ public class FilmDbStorage implements FilmsStorage {
                 filmToMap.get("film_id")
         );
 
-        return film;
+        return filmToUpdate;
     }
 
-    public Film getFilmById(Long id) {
+    @Override
+    public Film getFilmById(Long filmId) {
         String sql = "SELECT * " +
                 "FROM films " +
                 "JOIN mpa USING (mpa_id) " +
                 "WHERE film_id = ?";
 
-        return jdbcTemplate.queryForObject(sql, getFilmRowMapper(), id);
+        return jdbcTemplate.queryForObject(sql, getFilmRowMapper(), filmId);
     }
 
     @Override
@@ -87,8 +88,8 @@ public class FilmDbStorage implements FilmsStorage {
         String filmDescription = film.getDescription();
         LocalDate filmReleaseDate = film.getReleaseDate();
         Long filmDuration = film.getDuration();
-        Integer mpaId;
         Long filmId = film.getId();
+        Integer mpaId;
 
         if (Objects.nonNull(film.getMpa())) {
             mpaId = film.getMpa().getId();

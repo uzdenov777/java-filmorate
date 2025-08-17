@@ -22,8 +22,8 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa getMpaById(int id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM mpa WHERE mpa_id = ?", mpaRowMapper(), id);
+    public Mpa getMpaById(int mpaId) {
+        return jdbcTemplate.queryForObject("SELECT * FROM mpa WHERE mpa_id = ?", mpaRowMapper(), mpaId);
     }
 
     public boolean isExistsMpa(Integer mpaId) {

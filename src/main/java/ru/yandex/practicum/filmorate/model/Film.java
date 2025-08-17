@@ -40,5 +40,5 @@ public class Film {
 
     private Set<Genre> genres = new HashSet<>();
 
-    private Set<Long> likesFromUsers = new HashSet<>();
+    private Set<Long> likesUsersId = new HashSet<>();
 }

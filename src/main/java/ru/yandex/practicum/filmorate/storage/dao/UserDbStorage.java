@@ -23,16 +23,18 @@ public class UserDbStorage implements UsersStorage {
     }
 
     @Override
-    public void add(User user) {
+    public User add(User newUser) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         simpleJdbcInsert.withTableName("USERS")
                 .usingGeneratedKeyColumns("user_id");
-        Long id = simpleJdbcInsert.executeAndReturnKey(userToMap(user)).longValue();
-        user.setId(id);
+        Long id = simpleJdbcInsert.executeAndReturnKey(userToMap(newUser)).longValue();
+        newUser.setId(id);
+
+        return newUser;
     }
 
     @Override
-    public User update(User user) throws ResponseStatusException {
+    public User update(User userToUser) throws ResponseStatusException {
         String sql = "UPDATE USERS " +
                 "SET user_name = ?," +
                 "email = ?," +
@@ -40,17 +42,17 @@ public class UserDbStorage implements UsersStorage {
                 "birthday = ? " +
                 "WHERE user_id = ?";
 
-        Map<String, Object> hashMap = userToMap(user);
+        Map<String, Object> hashMap = userToMap(userToUser);
 
         jdbcTemplate.update(sql,
                 hashMap.get("user_name"),
                 hashMap.get("email"),
                 hashMap.get("login"),
                 hashMap.get("birthday"),
-                user.getId()
+                userToUser.getId()
         );
 
-        return user;
+        return userToUser;
     }
 
     @Override

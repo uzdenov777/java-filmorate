@@ -20,21 +20,21 @@ public class GenreService {
         this.genreDbStorage = genreDbStorage;
     }
 
-    public Genre getGenreById(int id) throws ResponseStatusException {
-        boolean genreExist = genreDbStorage.isExistsGenre(id);
+    public Genre getGenreById(int genreId) throws ResponseStatusException {
+        boolean genreExist = genreDbStorage.isExistsGenre(genreId);
         if (!genreExist) {
-            log.info("Не найден жанр при запросе на возврат по ID: {}", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр при запросе на возврат по ID: " + id);
+            log.info("Не найден жанр при запросе на возврат по ID: {}", genreId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр при запросе на возврат по ID: " + genreId);
         }
 
-        return genreDbStorage.getGenreById(id);
+        return genreDbStorage.getGenreById(genreId);
     }
 
-    public void isGenreExist(int id) throws ResponseStatusException {
-        boolean genreExist = genreDbStorage.isExistsGenre(id);
+    public void isGenreExist(int genreId) throws ResponseStatusException {
+        boolean genreExist = genreDbStorage.isExistsGenre(genreId);
         if (!genreExist) {
-            log.info("Не найден жанр по ID: {}", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр по ID: " + id);
+            log.info("Не найден жанр по ID: {}", genreId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр по ID: " + genreId);
         }
     }
 

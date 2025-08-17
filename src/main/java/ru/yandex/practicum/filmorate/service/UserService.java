@@ -25,37 +25,37 @@ public class UserService {
         this.friendsServer = friendsServer;
     }
 
-    public User add(User user) {
-        setDisplayName(user);
-        userDbStorage.add(user);
+    public User add(User newUser) {
+        setDisplayName(newUser);
+        userDbStorage.add(newUser);
 
-        Set<Long> friends = user.getFriends();
+        Set<Long> friends = newUser.getFriends();
         if (!friends.isEmpty()) {
-            Long userId = user.getId();
+            Long userId = newUser.getId();
             addFriends(userId, friends);
         }
 
-        return user;
+        return newUser;
     }
 
-    public User update(User user) {
-        Long userId = user.getId();
+    public User update(User userToUpdate) {
+        Long userId = userToUpdate.getId();
         boolean userExists = userDbStorage.isUserExists(userId);
         if (!userExists) {
             log.info("Не найден пользователь для обновления с ID: {}", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для обновления с ID: " + userId);
         }
 
-        setDisplayName(user);
-        userDbStorage.update(user);
+        setDisplayName(userToUpdate);
+        userDbStorage.update(userToUpdate);
 
-        Set<Long> friends = user.getFriends();
+        Set<Long> friends = userToUpdate.getFriends();
         if (!friends.isEmpty()) {
             removeFriends(userId, friends); //удаляем потому что старые записи если есть, могут быть не актуальными
             addFriends(userId, friends); //добавляем по той же причине
         }
 
-        return user;
+        return userToUpdate;
     }
 
     public List<User> getAllUsers() {
@@ -138,8 +138,8 @@ public class UserService {
         friendsUserFirst.retainAll(friendsUserSecond);
 
         List<User> mutualFriends = new ArrayList<>();
-        for (long id : friendsUserFirst) {
-            mutualFriends.add(userDbStorage.getUserById(id));
+        for (long friendId : friendsUserFirst) {
+            mutualFriends.add(userDbStorage.getUserById(friendId));
         }
         return mutualFriends;
     }

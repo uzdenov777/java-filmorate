@@ -19,8 +19,8 @@ public class GenreDbStorage implements GenresStorage {
     }
 
     @Override
-    public Genre getGenreById(int id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM genres WHERE genre_id = ?", getGenreRowMapper(), id);
+    public Genre getGenreById(int genreId) {
+        return jdbcTemplate.queryForObject("SELECT * FROM genres WHERE genre_id = ?", getGenreRowMapper(), genreId);
     }
 
     @Override
@@ -28,6 +28,7 @@ public class GenreDbStorage implements GenresStorage {
         return jdbcTemplate.query("SELECT * FROM genres", getGenreRowMapper());
     }
 
+    @Override
     public List<Genre> getGenresByFilmId(Long filmId) {
         String query = "SELECT genres.genre_id, genres.genre_name " +
                 "FROM film_genres " +

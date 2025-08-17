@@ -3,17 +3,17 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.dao.FilmGenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FilmGenresDbStorage;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Service
 public class FilmGenresService {
-    FilmGenreDbStorage filmGenreDbStorage;
+    FilmGenresDbStorage filmGenreDbStorage;
 
     @Autowired
-    public FilmGenresService(FilmGenreDbStorage filmGenreDbStorage) {
+    public FilmGenresService(FilmGenresDbStorage filmGenreDbStorage) {
         this.filmGenreDbStorage = filmGenreDbStorage;
     }
 
