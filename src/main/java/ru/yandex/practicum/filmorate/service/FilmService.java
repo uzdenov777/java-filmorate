@@ -171,15 +171,15 @@ public class FilmService {
         }
     }
 
-    private void isValidReleaseDate(Film filmToValidate ) throws ResponseStatusException {
+    private void isValidReleaseDate(Film filmToValidate) throws ResponseStatusException {
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        LocalDate releaseDateFilm = filmToValidate .getReleaseDate();
+        LocalDate releaseDateFilm = filmToValidate.getReleaseDate();
 
         boolean isBefore = releaseDateFilm.isBefore(minReleaseDate);
         boolean isEqual = releaseDateFilm.isEqual(minReleaseDate);
         if ((isBefore || isEqual)) {
-            log.error("Not Valid release date film :{}", filmToValidate );
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + filmToValidate );
+            log.error("Not Valid release date film :{}", filmToValidate);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + filmToValidate);
         }
     }
 }

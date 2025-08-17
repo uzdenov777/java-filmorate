@@ -18,12 +18,14 @@ public class InMemoryUserStorage implements UsersStorage {
     private static long newIdFilm;
 
     @Override
-    public void add(User user) {
+    public User add(User user) {
         log.info("Adding user:{}", user);
 
         setDisplayName(user);
         user.setId(getNewId());
         users.put(user.getId(), user);
+
+        return user;
     }
 
     @Override
