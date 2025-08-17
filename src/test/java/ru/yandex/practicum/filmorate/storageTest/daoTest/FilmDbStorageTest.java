@@ -53,7 +53,7 @@ public class FilmDbStorageTest {
         //then
         List<Film> allFilmsAfter = filmDbStorage.getAllFilms();
         assertEquals(1L, testFilm.getId()); // теперь после добавления появился у фильма ID
-        assertEquals(testFilm,  allFilmsAfter.get(0)); // так как кроме
+        assertEquals(testFilm, allFilmsAfter.get(0)); // так как кроме
     }
 
     @DisplayName("Должен успешно вернуть фильм, который был ранее добавлен")
@@ -76,7 +76,7 @@ public class FilmDbStorageTest {
         Long notExistingFilmId = 999L;
 
         //when
-        assertThrows(EmptyResultDataAccessException.class, () ->filmDbStorage.getFilmById(notExistingFilmId));
+        assertThrows(EmptyResultDataAccessException.class, () -> filmDbStorage.getFilmById(notExistingFilmId));
     }
 
     @DisplayName("Должен успешно вернуть список всех фильмов, когда фильмы добавлены")
@@ -92,7 +92,7 @@ public class FilmDbStorageTest {
 
         //then
         assertEquals(1L, testFilm.getId());
-        assertEquals(testFilm,  allFilmsAfter.get(0));
+        assertEquals(testFilm, allFilmsAfter.get(0));
     }
 
     @DisplayName("Должен вернуть пустой список фильмов, когда фильмы не были добавлены")
