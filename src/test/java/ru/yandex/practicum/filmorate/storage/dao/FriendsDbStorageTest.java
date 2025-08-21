@@ -48,8 +48,7 @@ class FriendsDbStorageTest {
 
     @Test
     @DisplayName("Должен добавить друга secondUser для firstUser")
-        //проверка односторонней дружбы
-    void addFriend_addingFriends_bothUsersExist() {
+    void addFriend_addingFriends_bothUsersExist() { //проверка односторонней дружбы
         //given
         userDbStorage.add(firstUser);
         userDbStorage.add(secondUser);
@@ -72,8 +71,7 @@ class FriendsDbStorageTest {
 
     @Test
     @DisplayName("Должен выбросить исключение DataIntegrityViolationException, когда нового друга нет в БД")
-        //проверка односторонней дружбы
-    void addFriend_notAddingFriends_secondUserNotExist() {
+    void addFriend_notAddingFriends_secondUserNotExist() { //проверка односторонней дружбы
         //given
         userDbStorage.add(firstUser);
         List<User> allUsers = userDbStorage.getAllUsers();
@@ -86,8 +84,7 @@ class FriendsDbStorageTest {
 
     @Test
     @DisplayName("Должен выбросить исключение DataIntegrityViolationException, когда пользователя, которому добавляем друга нет в БД")
-        //проверка односторонней дружбы
-    void addFriend_notAddingFriends_firstUserNotExist() {
+    void addFriend_notAddingFriends_firstUserNotExist() { //проверка односторонней дружбы
         //given
         userDbStorage.add(secondUser);
         List<User> allUsers = userDbStorage.getAllUsers();
@@ -100,7 +97,7 @@ class FriendsDbStorageTest {
 
     @Test
     @DisplayName("Должен удалить друга secondUser для firstUser")
-    void removeFriend_removeFriend_bothUsersExist() {//проверка односторонней дружбы
+    void removeFriend_removeFriend_bothUsersExist() { //проверка односторонней дружбы
         //given
         userDbStorage.add(firstUser);
         userDbStorage.add(secondUser);
