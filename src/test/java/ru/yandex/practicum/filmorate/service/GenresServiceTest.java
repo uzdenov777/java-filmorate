@@ -42,7 +42,7 @@ class GenresServiceTest {
 
     @Test
     @DisplayName("Должен вернуть жанр ID:3, \"Мультфильм\"")
-    void getGenreById_genreСartoonExist() {
+    void getGenreById_genreCartoonExist() {
         //when
         Genre resGenre = genresService.getGenreById(3);
 
