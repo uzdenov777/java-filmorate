@@ -76,9 +76,9 @@ class GenresServiceTest {
         assertEquals(2, genreDrama.getId());
         assertEquals("Драма", genreDrama.getName());
 
-        Genre genreСartoon = genres.get(2);
-        assertEquals(3, genreСartoon.getId());
-        assertEquals("Мультфильм", genreСartoon.getName());
+        Genre genreCartoon = genres.get(2);
+        assertEquals(3, genreCartoon.getId());
+        assertEquals("Мультфильм", genreCartoon.getName());
 
         Genre genreThriller = genres.get(3);
         assertEquals(4, genreThriller.getId());
