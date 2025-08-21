@@ -81,17 +81,17 @@ class MpaServiceTest {
         assertEquals(2, mpaPG.getId());
         assertEquals("PG", mpaPG.getName());
 
-        Mpa mpaPG_13 = allMpa.get(2);
-        assertEquals(3, mpaPG_13.getId());
-        assertEquals("PG-13", mpaPG_13.getName());
+        Mpa mpaPG13 = allMpa.get(2);
+        assertEquals(3, mpaPG13.getId());
+        assertEquals("PG-13", mpaPG13.getName());
 
         Mpa mpaR = allMpa.get(3);
         assertEquals(4, mpaR.getId());
         assertEquals("R", mpaR.getName());
 
-        Mpa mpaNC_17 = allMpa.get(4);
-        assertEquals(5, mpaNC_17.getId());
-        assertEquals("NC-17", mpaNC_17.getName());
+        Mpa mpaNC17 = allMpa.get(4);
+        assertEquals(5, mpaNC17.getId());
+        assertEquals("NC-17", mpaNC17.getName());
     }
 
     @Test
