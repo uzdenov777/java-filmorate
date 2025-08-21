@@ -28,15 +28,17 @@ public class MpaService {
         return mpaDbStorage.getMpaById(mpaId);
     }
 
-    public void isExistsMpa(Integer mpaId) throws ResponseStatusException {
+    public List<Mpa> getAllMpa() {
+        return mpaDbStorage.getAllMpa();
+    }
+
+    public boolean isExistsMpa(Integer mpaId) throws ResponseStatusException {
         boolean existsMpa = mpaDbStorage.isExistsMpa(mpaId);
         if (!existsMpa) {
             log.info("Не найден Mpa-возрастное ограничение по ID: {}", mpaId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден Mpa-возрастное ограничение по ID: " + mpaId);
         }
-    }
 
-    public List<Mpa> findAllMpa() {
-        return mpaDbStorage.getAllMpa();
+        return true;
     }
 }

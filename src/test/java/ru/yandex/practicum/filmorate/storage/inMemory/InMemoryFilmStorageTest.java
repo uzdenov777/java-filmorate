@@ -1,11 +1,10 @@
-package ru.yandex.practicum.filmorate.storageTest.inMemory;
+package ru.yandex.practicum.filmorate.storage.inMemory;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.inMemory.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.util.HashMap;

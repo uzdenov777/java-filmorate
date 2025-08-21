@@ -18,10 +18,10 @@ import java.util.Objects;
 
 @Slf4j
 @Repository
-public class FilmDbStorage implements FilmsStorage {
+public class FilmsDbStorage implements FilmsStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmsDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

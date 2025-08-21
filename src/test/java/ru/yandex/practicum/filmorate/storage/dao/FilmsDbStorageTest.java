@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storageTest.daoTest;
+package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -6,12 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,15 +21,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @Sql(scripts = {"/schema.sql", "/data.sql"}) // Инициализация БД перед тестами
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @JdbcTest
-public class FilmDbStorageTest {
+class FilmsDbStorageTest {
     private final JdbcTemplate jdbcTemplate;
 
-    private FilmDbStorage filmDbStorage;
+    private FilmsDbStorage filmsDbStorage;
     private Film testFilm;
 
     @BeforeEach
-    public void setUp() {
-        filmDbStorage = new FilmDbStorage(jdbcTemplate);
+    void setUp() {
+        filmsDbStorage = new FilmsDbStorage(jdbcTemplate);
 
         testFilm = new Film();
         testFilm.setName("FilmTest");
@@ -41,29 +41,77 @@ public class FilmDbStorageTest {
 
     @DisplayName("Должен успешно добавить фильм и сохранить в него его новый ID")
     @Test
-    public void add_addingFilm() {
+    void add_addingFilm() {
         //given
-        List<Film> allFilmsBefore = filmDbStorage.getAllFilms();
+        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
         assertNull(testFilm.getId()); // ID появится только после добавления
         assertTrue(allFilmsBefore.isEmpty());
 
         //when
-        filmDbStorage.add(testFilm);
+        filmsDbStorage.add(testFilm);
 
         //then
-        List<Film> allFilmsAfter = filmDbStorage.getAllFilms();
+        List<Film> allFilmsAfter = filmsDbStorage.getAllFilms();
         assertEquals(1L, testFilm.getId()); // теперь после добавления появился у фильма ID
         assertEquals(testFilm, allFilmsAfter.get(0)); // так как кроме
     }
 
+    @DisplayName("Должен выбросить исключение DataIntegrityViolationException, когда у фильма отсутствует Name")
+    @Test
+    void add_notAddingFilm_nameNull() {
+        //given
+        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        assertTrue(allFilmsBefore.isEmpty());
+
+        //when+then
+        testFilm.setName(null);
+        assertThrows(DataIntegrityViolationException.class, () -> filmsDbStorage.add(testFilm));
+    }
+
+    @DisplayName("Должен выбросить исключение DataIntegrityViolationException, когда у фильма отсутствует Description")
+    @Test
+    void add_notAddingFilm_descriptionNull() {
+        //given
+        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        assertTrue(allFilmsBefore.isEmpty());
+
+        //when+then
+        testFilm.setDescription(null);
+        assertThrows(DataIntegrityViolationException.class, () -> filmsDbStorage.add(testFilm));
+    }
+
+    @DisplayName("Должен выбросить исключение DataIntegrityViolationException, когда у фильма отсутствует ReleaseDate")
+    @Test
+    void add_notAddingFilm_releaseDateNull() {
+        //given
+        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        assertTrue(allFilmsBefore.isEmpty());
+
+        //when+then
+        testFilm.setReleaseDate(null);
+        assertThrows(DataIntegrityViolationException.class, () -> filmsDbStorage.add(testFilm));
+    }
+
+    @DisplayName("Должен выбросить исключение DataIntegrityViolationException, когда у фильма отсутствует duration")
+    @Test
+    void add_notAddingFilm_durationNull() {
+        //given
+        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        assertTrue(allFilmsBefore.isEmpty());
+
+        //when+then
+        testFilm.setDuration(null);
+        assertThrows(DataIntegrityViolationException.class, () -> filmsDbStorage.add(testFilm));
+    }
+
     @DisplayName("Должен успешно вернуть фильм, который был ранее добавлен")
     @Test
-    public void getFilmById_existingFilm() {
+    void getFilmById_existingFilm() {
         //given
-        Film savedFilm = filmDbStorage.add(testFilm);
+        Film savedFilm = filmsDbStorage.add(testFilm);
 
         //when
-        Film foundFilm = filmDbStorage.getFilmById(testFilm.getId());
+        Film foundFilm = filmsDbStorage.getFilmById(testFilm.getId());
 
         //then
         assertEquals(foundFilm, savedFilm);
@@ -71,24 +119,24 @@ public class FilmDbStorageTest {
 
     @DisplayName("Должен выбросить фильм, когда запрашиваем не существующий фильм по ID")
     @Test
-    public void getFilmById_notExistingFilm() {
+    void getFilmById_notExistingFilm() {
         //given
         Long notExistingFilmId = 999L;
 
         //when
-        assertThrows(EmptyResultDataAccessException.class, () -> filmDbStorage.getFilmById(notExistingFilmId));
+        assertThrows(EmptyResultDataAccessException.class, () -> filmsDbStorage.getFilmById(notExistingFilmId));
     }
 
     @DisplayName("Должен успешно вернуть список всех фильмов, когда фильмы добавлены")
     @Test
-    public void getAllFilms_filmAdded() {
+    void getAllFilms_filmAdded() {
         //given
-        List<Film> allFilmsBefore = filmDbStorage.getAllFilms();
+        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
         assertTrue(allFilmsBefore.isEmpty());
 
         //when
-        filmDbStorage.add(testFilm);
-        List<Film> allFilmsAfter = filmDbStorage.getAllFilms();
+        filmsDbStorage.add(testFilm);
+        List<Film> allFilmsAfter = filmsDbStorage.getAllFilms();
 
         //then
         assertEquals(1L, testFilm.getId());
@@ -97,18 +145,18 @@ public class FilmDbStorageTest {
 
     @DisplayName("Должен вернуть пустой список фильмов, когда фильмы не были добавлены")
     @Test
-    public void getAllFilms_filmsNotAdded() {
-        List<Film> allFilmsBefore = filmDbStorage.getAllFilms();
+    void getAllFilms_filmsNotAdded() {
+        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
         assertTrue(allFilmsBefore.isEmpty());
     }
 
     @DisplayName("Должен успешно обновить фильм, когда фильм добавлен")
     @Test
-    public void update_filmExists() {
+    void update_filmExists() {
         //given
-        filmDbStorage.add(testFilm);
+        filmsDbStorage.add(testFilm);
         Long filmId = testFilm.getId();
-        Film foundFilmBefore = filmDbStorage.getFilmById(filmId);
+        Film foundFilmBefore = filmsDbStorage.getFilmById(filmId);
         assertEquals(foundFilmBefore, testFilm);
 
         //when
@@ -119,22 +167,22 @@ public class FilmDbStorageTest {
         updatedFilm.setReleaseDate(LocalDate.now());
         updatedFilm.setMpa(new Mpa(1, "G"));
         updatedFilm.setDuration(100L);
-        filmDbStorage.update(updatedFilm);
+        filmsDbStorage.update(updatedFilm);
 
         //then
-        Film foundFilmAfter = filmDbStorage.getFilmById(filmId);
+        Film foundFilmAfter = filmsDbStorage.getFilmById(filmId);
         assertEquals(updatedFilm, foundFilmAfter);
     }
 
     @DisplayName("Должен вернуть true при запросе на существование фильма по ID, когда фильм добавлен")
     @Test
-    public void isFilmExists_filmExisting() {
+    void isFilmExists_filmExisting() {
         //given
-        filmDbStorage.add(testFilm);
+        filmsDbStorage.add(testFilm);
         Long filmId = testFilm.getId();
 
         //when
-        boolean isFilmExists = filmDbStorage.isFilmExists(filmId);
+        boolean isFilmExists = filmsDbStorage.isFilmExists(filmId);
 
         //then
         assertTrue(isFilmExists);
@@ -142,12 +190,12 @@ public class FilmDbStorageTest {
 
     @DisplayName("Должен вернуть false при запросе на существование фильма по ID, когда фильм не добавлен добавлен")
     @Test
-    public void isFilmExists_filmNotExisting() {
+    void isFilmExists_filmNotExisting() {
         //given
         Long filmId = 999L;
 
         //when
-        boolean isFilmExists = filmDbStorage.isFilmExists(filmId);
+        boolean isFilmExists = filmsDbStorage.isFilmExists(filmId);
 
         //then
         assertFalse(isFilmExists);

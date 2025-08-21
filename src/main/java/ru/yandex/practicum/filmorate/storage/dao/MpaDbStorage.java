@@ -17,13 +17,13 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public List<Mpa> getAllMpa() {
-        return jdbcTemplate.query("SELECT * FROM mpa", mpaRowMapper());
+    public Mpa getMpaById(int mpaId) {
+        return jdbcTemplate.queryForObject("SELECT * FROM mpa WHERE mpa_id = ?", mpaRowMapper(), mpaId);
     }
 
     @Override
-    public Mpa getMpaById(int mpaId) {
-        return jdbcTemplate.queryForObject("SELECT * FROM mpa WHERE mpa_id = ?", mpaRowMapper(), mpaId);
+    public List<Mpa> getAllMpa() {
+        return jdbcTemplate.query("SELECT * FROM mpa", mpaRowMapper());
     }
 
     public boolean isExistsMpa(Integer mpaId) {

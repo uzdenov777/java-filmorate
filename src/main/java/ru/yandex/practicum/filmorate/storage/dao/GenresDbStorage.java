@@ -11,10 +11,10 @@ import java.util.List;
 
 @Slf4j
 @Repository
-public class GenreDbStorage implements GenresStorage {
+public class GenresDbStorage implements GenresStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public GenreDbStorage(JdbcTemplate jdbcTemplate) {
+    public GenresDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -26,16 +26,6 @@ public class GenreDbStorage implements GenresStorage {
     @Override
     public List<Genre> getAllGenres() {
         return jdbcTemplate.query("SELECT * FROM genres", getGenreRowMapper());
-    }
-
-    @Override
-    public List<Genre> getGenresByFilmId(Long filmId) {
-        String query = "SELECT genres.genre_id, genres.genre_name " +
-                "FROM film_genres " +
-                "JOIN genres ON film_genres.genre_id = genres.genre_id " +
-                "WHERE film_genres.film_id = ?";
-
-        return jdbcTemplate.query(query, getGenreRowMapper(), filmId);
     }
 
     public boolean isExistsGenre(Integer genreId) {

@@ -8,7 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FilmsDbStorage;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -16,28 +16,28 @@ import java.util.*;
 @Log4j2
 @Service
 public class FilmService {
-    private final FilmDbStorage filmDbStorage;
+    private final FilmsDbStorage filmsDbStorage;
 
     private final UserService userService;
     private final FilmLikesService filmLikesService;
     private final FilmGenresService filmGenresService;
-    private final GenreService genreService;
+    private final GenresService genresService;
     private final MpaService mpaService;
 
     @Autowired
-    public FilmService(FilmDbStorage filmDbStorage, UserService userService, FilmLikesService filmLikesService, FilmGenresService filmGenresService, GenreService genreService, MpaService mpaService) {
+    public FilmService(FilmsDbStorage filmsDbStorage, UserService userService, FilmLikesService filmLikesService, FilmGenresService filmGenresService, GenresService genresService, MpaService mpaService) {
         this.userService = userService;
-        this.filmDbStorage = filmDbStorage;
+        this.filmsDbStorage = filmsDbStorage;
         this.filmLikesService = filmLikesService;
         this.filmGenresService = filmGenresService;
-        this.genreService = genreService;
+        this.genresService = genresService;
         this.mpaService = mpaService;
     }
 
     public Film add(Film newFilm) throws ResponseStatusException {
         isValidFilm(newFilm); //если у фильма все понял и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
 
-        filmDbStorage.add(newFilm); // пробуем добавить фильм
+        filmsDbStorage.add(newFilm); // пробуем добавить фильм
 
         Long newFilmId = newFilm.getId();
         Set<Genre> genresOfNewFilm = newFilm.getGenres();
@@ -53,7 +53,7 @@ public class FilmService {
     public Film update(Film filmToUpdate) throws ResponseStatusException {
         Long filmId = filmToUpdate.getId();
 
-        boolean filmExists = filmDbStorage.isFilmExists(filmId);
+        boolean filmExists = filmsDbStorage.isFilmExists(filmId);
         if (!filmExists) {
             log.info("Не найден фильм для обновления с ID: {}", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для обновления с ID: " + filmId);
@@ -61,7 +61,7 @@ public class FilmService {
 
         isValidFilm(filmToUpdate); //если у фильма все поля и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
 
-        filmDbStorage.update(filmToUpdate);
+        filmsDbStorage.update(filmToUpdate);
 
         Set<Genre> genres = filmToUpdate.getGenres();
         Set<Long> likesUsersId = filmToUpdate.getLikesUsersId();
@@ -82,25 +82,25 @@ public class FilmService {
     }
 
     public Film getFilmById(Long filmId) throws ResponseStatusException {
-        boolean filmExists = filmDbStorage.isFilmExists(filmId);
+        boolean filmExists = filmsDbStorage.isFilmExists(filmId);
         if (!filmExists) {
             log.info("Не найден фильм для возвращения по ID: {}", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для возвращения по ID: " + filmId);
         }
 
-        Film film = filmDbStorage.getFilmById(filmId);
-        film.setGenres(genreService.getGenresByFilmId(filmId));
+        Film film = filmsDbStorage.getFilmById(filmId);
+        film.setGenres(filmGenresService.getGenresByFilmId(filmId));
         film.setLikesUsersId(filmLikesService.getFilmLikesByFilmId(filmId));
 
         return film;
     }
 
     public List<Film> getAllFilms() {
-        List<Film> allFilms = filmDbStorage.getAllFilms();
+        List<Film> allFilms = filmsDbStorage.getAllFilms();
 
         for (Film film : allFilms) {
             Long filmId = film.getId();
-            film.setGenres(genreService.getGenresByFilmId(filmId));
+            film.setGenres(filmGenresService.getGenresByFilmId(filmId));
             film.setLikesUsersId(filmLikesService.getFilmLikesByFilmId(filmId));
         }
 
@@ -110,13 +110,23 @@ public class FilmService {
     public void addLikeFilm(long filmId, long userId) throws ResponseStatusException {
         checkExistFilmAndUser(filmId, userId);
 
-        filmLikesService.addFilmLike(filmId, userId);
+        filmLikesService.addLikeFilm(filmId, userId);
     }
 
     public void removeLikeFilm(long filmId, long userId) throws ResponseStatusException {
         checkExistFilmAndUser(filmId, userId);
 
         filmLikesService.removeLikeFilm(filmId, userId);
+    }
+
+    public Set<Long> getLikesUsersIdByFilmId(long filmId) {
+        boolean filmExists = filmsDbStorage.isFilmExists(filmId);
+        if (!filmExists) {
+            log.info("Для возвращения списка id пользователей поставивших лайк фильму по ID: {} не найден", filmId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Для возвращения списка id пользователей поставивших лайк фильму по ID: " + filmId + " не найден");
+        }
+
+        return filmLikesService.getFilmLikesByFilmId(filmId);
     }
 
     public List<Film> getListTopPopularFilms(int count) {
@@ -141,7 +151,7 @@ public class FilmService {
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
-        boolean existFilmLike = filmDbStorage.isFilmExists(filmId);
+        boolean existFilmLike = filmsDbStorage.isFilmExists(filmId);
         boolean existUserFirst = userService.isUserExists(userId);
 
 
@@ -164,7 +174,7 @@ public class FilmService {
 
         Set<Genre> genres = chekFilm.getGenres();
         for (Genre genre : genres) {
-            genreService.isGenreExist(genre.getId());
+            genresService.isGenreExist(genre.getId());
         }
 
         Set<Long> likesUsers = chekFilm.getLikesUsersId();

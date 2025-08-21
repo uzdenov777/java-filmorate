@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS FILM_GENRES(
 
 CREATE TABLE IF NOT EXISTS users(
     user_id   BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_name VARCHAR(100),
+    user_name VARCHAR(100) NOT NULL,
     email     VARCHAR(255)  NOT NULL,
     login     VARCHAR(100)  NOT NULL,
     birthday  DATE           NOT NULL);

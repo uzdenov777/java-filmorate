@@ -10,12 +10,11 @@ import java.util.Set;
 public class FilmLikesService {
     private final FilmLikesDbStorage filmLikesDbStorage;
 
-
     public FilmLikesService(FilmLikesDbStorage filmLikesDbStorage) {
         this.filmLikesDbStorage = filmLikesDbStorage;
     }
 
-    public void addFilmLike(long filmId, long userId) {
+    public void addLikeFilm(long filmId, long userId) {
         filmLikesDbStorage.addLikeFilm(filmId, userId);
     }
 
