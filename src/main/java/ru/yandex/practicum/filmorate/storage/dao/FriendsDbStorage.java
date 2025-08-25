@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public class FriendsDbStorage implements FriendsStorage {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public FriendsDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

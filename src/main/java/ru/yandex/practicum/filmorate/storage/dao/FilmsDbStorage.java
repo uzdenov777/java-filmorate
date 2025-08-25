@@ -25,6 +25,44 @@ public class FilmsDbStorage implements FilmsStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    private static Map<String, Object> filmsToMap(Film film) {
+        String filmName = film.getName();
+        String filmDescription = film.getDescription();
+        LocalDate filmReleaseDate = film.getReleaseDate();
+        Long filmDuration = film.getDuration();
+        Long filmId = film.getId();
+        Integer mpaId;
+
+        if (Objects.nonNull(film.getMpa())) {
+            mpaId = film.getMpa().getId();
+        } else {
+            mpaId = null;
+        }
+
+        HashMap<String, Object> filmMap = new HashMap<>();
+        filmMap.put("film_name", filmName);
+        filmMap.put("description", filmDescription);
+        filmMap.put("release_date", filmReleaseDate);
+        filmMap.put("duration", filmDuration);
+        filmMap.put("mpa_id", mpaId);
+        filmMap.put("film_id", filmId);
+
+        return filmMap;
+    }
+
+    private static RowMapper<Film> getFilmRowMapper() {
+        return (rs, rowNum) -> {
+            Film film = new Film();
+            film.setId(rs.getLong("film_id"));
+            film.setName(rs.getString("film_name"));
+            film.setDescription(rs.getString("description"));
+            film.setReleaseDate(rs.getDate("release_date").toLocalDate());
+            film.setDuration(rs.getLong(("duration")));
+            film.setMpa(new Mpa(rs.getInt("mpa_id"), rs.getString("mpa_name")));
+            return film;
+        };
+    }
+
     @Override
     public Film add(Film newFilm) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -81,43 +119,5 @@ public class FilmsDbStorage implements FilmsStorage {
     public boolean isFilmExists(Long filmId) throws ResponseStatusException { // Если запрос найдет такой фильм по вход. filmId,
         String sql = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
         return jdbcTemplate.queryForObject(sql, Boolean.class, filmId);
-    }
-
-    private static Map<String, Object> filmsToMap(Film film) {
-        String filmName = film.getName();
-        String filmDescription = film.getDescription();
-        LocalDate filmReleaseDate = film.getReleaseDate();
-        Long filmDuration = film.getDuration();
-        Long filmId = film.getId();
-        Integer mpaId;
-
-        if (Objects.nonNull(film.getMpa())) {
-            mpaId = film.getMpa().getId();
-        } else {
-            mpaId = null;
-        }
-
-        HashMap<String, Object> filmMap = new HashMap<>();
-        filmMap.put("film_name", filmName);
-        filmMap.put("description", filmDescription);
-        filmMap.put("release_date", filmReleaseDate);
-        filmMap.put("duration", filmDuration);
-        filmMap.put("mpa_id", mpaId);
-        filmMap.put("film_id", filmId);
-
-        return filmMap;
-    }
-
-    private static RowMapper<Film> getFilmRowMapper() {
-        return (rs, rowNum) -> {
-            Film film = new Film();
-            film.setId(rs.getLong("film_id"));
-            film.setName(rs.getString("film_name"));
-            film.setDescription(rs.getString("description"));
-            film.setReleaseDate(rs.getDate("release_date").toLocalDate());
-            film.setDuration(rs.getLong(("duration")));
-            film.setMpa(new Mpa(rs.getInt("mpa_id"), rs.getString("mpa_name")));
-            return film;
-        };
     }
 }

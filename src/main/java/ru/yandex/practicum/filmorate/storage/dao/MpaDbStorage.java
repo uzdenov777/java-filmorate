@@ -16,6 +16,13 @@ public class MpaDbStorage implements MpaStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    private static RowMapper<Mpa> mpaRowMapper() {
+        return (rs, rowNum) -> new Mpa(
+                rs.getInt("mpa_id"),
+                rs.getString("mpa_name")
+        );
+    }
+
     @Override
     public Mpa getMpaById(int mpaId) {
         return jdbcTemplate.queryForObject("SELECT * FROM mpa WHERE mpa_id = ?", mpaRowMapper(), mpaId);
@@ -30,12 +37,5 @@ public class MpaDbStorage implements MpaStorage {
         String sql = "SELECT EXISTS (SELECT 1 FROM mpa WHERE mpa_id = ?)";
 
         return jdbcTemplate.queryForObject(sql, Boolean.class, mpaId);
-    }
-
-    private static RowMapper<Mpa> mpaRowMapper() {
-        return (rs, rowNum) -> new Mpa(
-                rs.getInt("mpa_id"),
-                rs.getString("mpa_name")
-        );
     }
 }

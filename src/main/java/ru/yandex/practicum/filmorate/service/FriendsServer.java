@@ -8,7 +8,7 @@ import java.util.List;
 
 @Service
 public class FriendsServer {
-    FriendsDbStorage friendsDbStorage;
+    private final FriendsDbStorage friendsDbStorage;
 
     @Autowired
     public FriendsServer(FriendsDbStorage friendsDbStorage) {

@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Service
 public class FilmGenresService {
-    FilmGenresDbStorage filmGenreDbStorage;
+    private final FilmGenresDbStorage filmGenreDbStorage;
 
     @Autowired
     public FilmGenresService(FilmGenresDbStorage filmGenreDbStorage) {

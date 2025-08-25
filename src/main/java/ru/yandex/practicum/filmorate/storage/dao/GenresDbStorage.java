@@ -18,6 +18,13 @@ public class GenresDbStorage implements GenresStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    static RowMapper<Genre> getGenreRowMapper() {
+        return (resultSet, rowNum) -> new Genre(
+                resultSet.getInt("genre_id"),
+                resultSet.getString("genre_name")
+        );
+    }
+
     @Override
     public Genre getGenreById(int genreId) {
         return jdbcTemplate.queryForObject("SELECT * FROM genres WHERE genre_id = ?", getGenreRowMapper(), genreId);
@@ -32,12 +39,5 @@ public class GenresDbStorage implements GenresStorage {
         String sql = "SELECT EXISTS (SELECT 1 FROM genres WHERE genre_id = ?)";
 
         return jdbcTemplate.queryForObject(sql, Boolean.class, genreId);
-    }
-
-    static RowMapper<Genre> getGenreRowMapper() {
-        return (resultSet, rowNum) -> new Genre(
-                resultSet.getInt("genre_id"),
-                resultSet.getString("genre_name")
-        );
     }
 }

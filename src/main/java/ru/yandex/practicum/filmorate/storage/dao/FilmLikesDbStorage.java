@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public class FilmLikesDbStorage implements FilmLikesStorage {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public FilmLikesDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
