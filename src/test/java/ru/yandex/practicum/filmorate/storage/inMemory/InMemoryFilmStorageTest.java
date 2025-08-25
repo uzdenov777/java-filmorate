@@ -1,11 +1,10 @@
-package ru.yandex.practicum.filmorate.storageTest;
+package ru.yandex.practicum.filmorate.storage.inMemory;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -21,6 +20,7 @@ public class InMemoryFilmStorageTest {
     void setUp() {
         filmStorage = new InMemoryFilmStorage();
         firstFilm = new Film();
+        firstFilm.setId(1L);
         firstFilm.setName("FilmTest");
         firstFilm.setDescription("This is a test");
         firstFilm.setReleaseDate(LocalDate.now());
@@ -70,6 +70,7 @@ public class InMemoryFilmStorageTest {
         //given
         HashMap<Long, Film> filmsBefore = filmStorage.getFilms();
         assertTrue(filmsBefore.isEmpty());
+
 
         //when+then
         assertThrows(ResponseStatusException.class, () -> filmStorage.update(firstFilm));
@@ -146,7 +147,7 @@ public class InMemoryFilmStorageTest {
     @DisplayName("Выбросит исключение ResponseStatusException, когда releaseDate раньше или ровно 1895-12-28")
     void setReleaseDateEarlier1895_12_28() {
         //given
-        firstFilm.setId(1);
+        firstFilm.setId(1L);
         firstFilm.setName("FilmTest");
         firstFilm.setDuration(20L);
         firstFilm.setDescription("This is a test");

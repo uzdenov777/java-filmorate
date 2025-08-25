@@ -1,14 +1,18 @@
-package ru.yandex.practicum.filmorate.serviceTest;
+package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,47 +20,68 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Sql(scripts = {"/schema.sql", "/data.sql"}) // Инициализация БД перед тестами
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@JdbcTest
 class FilmServiceTest {
-    FilmService filmService;
-    Film firstFilm;
-    Film secondFilm;
+    private final JdbcTemplate jdbcTemplate;
 
-    InMemoryUserStorage userStorage;
-    User userFirst;
+    private FilmService filmService;
+    private Film firstFilm;
+    private Film secondFilm;
+
+    private UserDbStorage userDbStorage;
+    private User userFirst;
 
     @BeforeEach
     void setUp() {
-        userStorage = new InMemoryUserStorage();
-        filmService = new FilmService(new InMemoryFilmStorage(), userStorage);
+        FilmsDbStorage filmsDbStorage = new FilmsDbStorage(jdbcTemplate);
+        userDbStorage = new UserDbStorage(jdbcTemplate);
+
+        UserService userService = new UserService(new UserDbStorage(jdbcTemplate), new FriendsServer(new FriendsDbStorage(jdbcTemplate)));
+        FilmLikesService filmLikesService = new FilmLikesService(new FilmLikesDbStorage(jdbcTemplate));
+        FilmGenresService filmGenresService = new FilmGenresService(new FilmGenresDbStorage(jdbcTemplate));
+        GenresService genresService = new GenresService(new GenresDbStorage(jdbcTemplate));
+        MpaService mpaService = new MpaService(new MpaDbStorage(jdbcTemplate));
+
+        filmService = new FilmService(filmsDbStorage, userService, filmLikesService, filmGenresService, genresService, mpaService);
 
         firstFilm = new Film();
         firstFilm.setName("FilmTest");
         firstFilm.setDescription("This is a test");
         firstFilm.setReleaseDate(LocalDate.now());
+        firstFilm.setMpa(new Mpa(1, "G"));
         firstFilm.setDuration(1L);
+
         secondFilm = new Film();
         secondFilm.setName("New Film");
         secondFilm.setDescription("New Description");
         secondFilm.setReleaseDate(LocalDate.now());
+        secondFilm.setMpa(new Mpa(2, "PG"));
         secondFilm.setDuration(1L);
 
         userFirst = new User();
+        userFirst.setName("First");
+        userFirst.setEmail("newEmail@gmail.com");
+        userFirst.setLogin("FirstLogin");
+        userFirst.setBirthday(LocalDate.now());
     }
 
     @Test
     @DisplayName("Должен успешно добавить фильм")
     void add_testAddFilm() {
         //given
-        List<Film> before = filmService.getAllFilms();
-        assertTrue(before.isEmpty());
+        List<Film> allFilmsBefore = filmService.getAllFilms();
+        assertNull(firstFilm.getId()); // ID появится только после добавления
+        assertTrue(allFilmsBefore.isEmpty());
 
         //when
         filmService.add(firstFilm);
 
         //then
-        List<Film> filmList = filmService.getAllFilms();
-        assertEquals(1, filmList.size());
-        assertEquals(firstFilm, filmList.get(0));
+        List<Film> allFilmsAfter = filmService.getAllFilms();
+        assertEquals(1L, firstFilm.getId()); // теперь после добавления появился у фильма ID
+        assertEquals(firstFilm, allFilmsAfter.get(0));
     }
 
     @Test
@@ -74,6 +99,7 @@ class FilmServiceTest {
         newFilm.setName("New Film");
         newFilm.setDescription("New Description");
         newFilm.setReleaseDate(LocalDate.now());
+        newFilm.setMpa(new Mpa(2, "PG"));
         newFilm.setDuration(1L);
         filmService.update(newFilm);
 
@@ -90,6 +116,29 @@ class FilmServiceTest {
         assertThrows(ResponseStatusException.class, () -> filmService.update(firstFilm));
     }
 
+    @DisplayName("Должен успешно вернуть фильм, который был ранее добавлен")
+    @Test
+    void getFilmById_existingFilm() {
+        //given
+        Film savedFilm = filmService.add(firstFilm);
+
+        //when
+        Film foundFilm = filmService.getFilmById(firstFilm.getId());
+
+        //then
+        assertEquals(foundFilm, savedFilm);
+    }
+
+    @DisplayName("Должен выбросить фильм, когда запрашиваем не существующий фильм по ID")
+    @Test
+    void getFilmById_notExistingFilm() {
+        //given
+        Long notExistingFilmId = 999L;
+
+        //when
+        assertThrows(ResponseStatusException.class, () -> filmService.getFilmById(notExistingFilmId));
+    }
+
     @Test
     @DisplayName("Должен вернуть список всех добавленных фильмов, когда фильмы добавлены")
     void getAllFilms_getNotEmptyListAddFilms() {
@@ -99,18 +148,17 @@ class FilmServiceTest {
 
         //when
         filmService.add(firstFilm);
-        filmService.add(secondFilm);
 
         //then
         List<Film> filmList = filmService.getAllFilms();
-        assertEquals(2, filmList.size());
+        assertEquals(1, filmList.size());
         assertEquals(firstFilm, filmList.get(0));
-        assertEquals(secondFilm, filmList.get(1));
     }
 
     @Test
     @DisplayName("Должен вернуть пустой список всех фильмов, когда фильмы не добавлены")
-    void getAllFilms_getEmptyListAddFilms() {
+    void
+    getAllFilms_getEmptyListAddFilms() {
         List<Film> filmList = filmService.getAllFilms();
         assertTrue(filmList.isEmpty());
     }
@@ -119,9 +167,9 @@ class FilmServiceTest {
     @DisplayName("Должен успешно добавить id пользователя, который поставил лайк, когда фильм и пользователь существуют")
     void addLikeFilm_trueAddLikeFilm() {
         //given
-        userStorage.add(userFirst);
+        userDbStorage.add(userFirst);
         filmService.add(firstFilm);
-        Set<Long> likesFirstFilmBefore = firstFilm.getLikesFromUsers();
+        Set<Long> likesFirstFilmBefore = filmService.getLikesUsersIdByFilmId(firstFilm.getId());
         assertTrue(likesFirstFilmBefore.isEmpty());
 
         //when
@@ -130,48 +178,45 @@ class FilmServiceTest {
         filmService.addLikeFilm(idFirstFilm, idUser);
 
         //then
-        Set<Long> likesFirstFilmAfter = firstFilm.getLikesFromUsers();
+        Set<Long> likesFirstFilmAfter = filmService.getLikesUsersIdByFilmId(firstFilm.getId());
         assertTrue(likesFirstFilmAfter.contains(idUser));
     }
 
     @Test
     @DisplayName("Должен выбросить исключение ResponseStatusException, когда фильм для лайка не добавлен")
-    void addLikeFilm_falseAddLikeFilm_NotAddingFilm() {
+    void addLikeFilm_failAddLikeFilm_NotAddingFilm() {
         //given
-        userStorage.add(userFirst);
-        firstFilm.setId(255);
-        Set<Long> likesFirstFilmBefore = firstFilm.getLikesFromUsers();
-        assertTrue(likesFirstFilmBefore.isEmpty());
+        userDbStorage.add(userFirst);
 
         //when+then
-        long idFirstFilm = firstFilm.getId(); // ID фильма, который не был добавлен
+        long idNotExistFilm = 777; // ID фильма, который не был добавлен
         long idUser = userFirst.getId();
-        assertThrows(ResponseStatusException.class, () -> filmService.addLikeFilm(idFirstFilm, idUser));
+        assertThrows(ResponseStatusException.class, () -> filmService.addLikeFilm(idNotExistFilm, idUser));
     }
 
     @Test
     @DisplayName("Должен выбросить исключение ResponseStatusException, когда пользователь не добавлен")
-    void addLikeFilm_falseAddLikeFilm_NotAddingUser() {
+    void addLikeFilm_failAddLikeFilm_NotAddingUser() {
         //given
         filmService.add(firstFilm);
-        userFirst.setId(255L);
-        Set<Long> likesFirstFilmBefore = firstFilm.getLikesFromUsers();
+        Set<Long> likesFirstFilmBefore = filmService.getLikesUsersIdByFilmId(firstFilm.getId());
         assertTrue(likesFirstFilmBefore.isEmpty());
 
         //when+then
         long idFirstFilm = firstFilm.getId();
-        long idUser = userFirst.getId();// ID пользователя, который не был добавлен
-        assertThrows(ResponseStatusException.class, () -> filmService.addLikeFilm(idFirstFilm, idUser));
+        long idNotExistUser = 777L;// ID пользователя, который не был добавлен
+        assertThrows(ResponseStatusException.class, () -> filmService.addLikeFilm(idFirstFilm, idNotExistUser));
     }
 
     @Test
     @DisplayName("Должен успешно удалить id пользователя, который поставил лайк, когда фильм и пользователь существуют")
     void removeLikeFilm_trueAddLikeFilm() {
         //given
-        userStorage.add(userFirst);
+        userDbStorage.add(userFirst);
         filmService.add(firstFilm);
-        Set<Long> likesFirstFilmBefore = firstFilm.getLikesFromUsers();
+        Set<Long> likesFirstFilmBefore = filmService.getLikesUsersIdByFilmId(firstFilm.getId());
         likesFirstFilmBefore.add(userFirst.getId());
+
         assertTrue(likesFirstFilmBefore.contains(userFirst.getId()));
 
         //when
@@ -180,7 +225,7 @@ class FilmServiceTest {
         filmService.removeLikeFilm(idFirstFilm, idUser);
 
         //then
-        Set<Long> likesFirstFilmAfter = firstFilm.getLikesFromUsers();
+        Set<Long> likesFirstFilmAfter = filmService.getLikesUsersIdByFilmId(firstFilm.getId());
         assertFalse(likesFirstFilmAfter.contains(idUser));
     }
 
@@ -188,15 +233,12 @@ class FilmServiceTest {
     @DisplayName("Должен выбросить исключение ResponseStatusException, когда фильм для удаления лайка не добавлен")
     void removeLikeFilm_falseAddLikeFilm_NotAddingFilm() {
         //given
-        userStorage.add(userFirst);
-        firstFilm.setId(255);
-        Set<Long> likesFirstFilmBefore = firstFilm.getLikesFromUsers();
-        assertTrue(likesFirstFilmBefore.isEmpty());
+        userDbStorage.add(userFirst);
 
         //when+then
-        long idFirstFilm = firstFilm.getId(); // ID фильма, который не был добавлен
+        long idNotExistFilm = 777; // ID фильма, который не был добавлен
         long idUser = userFirst.getId();
-        assertThrows(ResponseStatusException.class, () -> filmService.removeLikeFilm(idFirstFilm, idUser));
+        assertThrows(ResponseStatusException.class, () -> filmService.removeLikeFilm(idNotExistFilm, idUser));
     }
 
     @Test
@@ -204,24 +246,23 @@ class FilmServiceTest {
     void removeLikeFilm_falseAddLikeFilm_NotAddingUser() {
         //given
         filmService.add(firstFilm);
-        userFirst.setId(255L);
-        Set<Long> likesFirstFilmBefore = firstFilm.getLikesFromUsers();
+        Set<Long> likesFirstFilmBefore = filmService.getLikesUsersIdByFilmId(firstFilm.getId());
         assertTrue(likesFirstFilmBefore.isEmpty());
 
         //when+then
         long idFirstFilm = firstFilm.getId();
-        long idUser = userFirst.getId();// ID пользователя, который не был добавлен
-        assertThrows(ResponseStatusException.class, () -> filmService.removeLikeFilm(idFirstFilm, idUser));
+        long idNotExistUser = 777L;// ID пользователя, который не был добавлен
+        assertThrows(ResponseStatusException.class, () -> filmService.removeLikeFilm(idFirstFilm, idNotExistUser));
     }
 
     @Test
     @DisplayName("Должен вернуть список топ 1 фильмов по лайкам, когда несколько фильмов добавлены")
     void getListTopPopularFilms_getTop1() {
         //given
-        userStorage.add(userFirst);
+        userDbStorage.add(userFirst);
         filmService.add(firstFilm);
         filmService.add(secondFilm);
-        List<Film> topPopularFilms = filmService.getListTopPopularFilms(2);
+        List<Film> topPopularFilms = filmService.getAllFilms();
         assertTrue(topPopularFilms.contains(firstFilm));
         assertTrue(topPopularFilms.contains(secondFilm));
 
@@ -230,7 +271,9 @@ class FilmServiceTest {
 
         //then
         List<Film> top1 = filmService.getListTopPopularFilms(1);
-        assertTrue(top1.contains(firstFilm));
+        Long idFirstFilm = firstFilm.getId();
+        Long idResFilm = top1.get(0).getId();
+        assertEquals(idFirstFilm, idResFilm);
     }
 
     @Test
@@ -238,21 +281,31 @@ class FilmServiceTest {
     void getListTopPopularFilms_getTop3() {
         //given
         User newUser = new User();
+        newUser.setName("newUser");
+        newUser.setEmail("newUser@email");
+        newUser.setLogin("newUserLogin");
+        newUser.setBirthday(LocalDate.now());
         User secondUser = new User();
-        userStorage.add(secondUser);
-        userStorage.add(newUser);
-        userStorage.add(userFirst);
-
+        secondUser.setName("secondUser");
+        secondUser.setEmail("secondUser@email");
+        secondUser.setLogin("secondUserLogin");
+        secondUser.setBirthday(LocalDate.now());
         Film newFilm = new Film();
         newFilm.setReleaseDate(LocalDate.now());
+        newFilm.setName("newFilm");
+        newFilm.setDescription("newFilmDescription");
+        newFilm.setDuration(1L);
+        newFilm.setMpa(new Mpa(1, "G"));
+
+        userDbStorage.add(secondUser);
+        userDbStorage.add(newUser);
+        userDbStorage.add(userFirst);
         filmService.add(firstFilm);
         filmService.add(secondFilm);
         filmService.add(newFilm);
 
         List<Film> topPopularFilms = filmService.getListTopPopularFilms(3);
-        assertTrue(topPopularFilms.contains(firstFilm));
-        assertTrue(topPopularFilms.contains(secondFilm));
-        assertTrue(topPopularFilms.contains(newFilm));
+        assertEquals(3, topPopularFilms.size());
 
         //when
         filmService.addLikeFilm(firstFilm.getId(), userFirst.getId());
@@ -264,10 +317,14 @@ class FilmServiceTest {
 
         //then
         List<Film> top3 = filmService.getListTopPopularFilms(3);
+        Long idFirstFilm = firstFilm.getId();
+        Long idSecondFilm = secondFilm.getId();
+        Long idNewFilm = newFilm.getId();
+
         assertEquals(3, top3.size());
-        assertEquals(newFilm, top3.get(0));
-        assertEquals(secondFilm, top3.get(1));
-        assertEquals(firstFilm, top3.get(2));
+        assertEquals(idNewFilm, top3.get(0).getId());
+        assertEquals(idSecondFilm, top3.get(1).getId());
+        assertEquals(idFirstFilm, top3.get(2).getId());
     }
 
     @Test

@@ -10,4 +10,3 @@ class FilmorateApplicationTests {
     void contextLoads() {
     }
 }
-

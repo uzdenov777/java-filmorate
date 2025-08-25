@@ -1,0 +1,51 @@
+DROP TABLE IF EXISTS film_genres;
+DROP TABLE IF EXISTS film_likes;
+DROP TABLE IF EXISTS films;
+DROP TABLE IF EXISTS friends;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE IF NOT EXISTS mpa(
+    mpa_id   INTEGER      AUTO_INCREMENT PRIMARY KEY,
+    mpa_name VARCHAR(100));
+
+CREATE TABLE IF NOT EXISTS films(
+    film_id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+    film_name    VARCHAR(255)   NOT NULL,
+    description  VARCHAR(200)   NOT NULL,
+    release_date DATE           NOT NULL,
+    duration     INTEGER        NOT NULL,
+    mpa_id       INTEGER,
+    CONSTRAINT films_mpa_fk FOREIGN KEY(mpa_id) REFERENCES mpa(mpa_id));
+
+CREATE TABLE IF NOT EXISTS genres(
+    genre_id   INTEGER AUTO_INCREMENT PRIMARY KEY,
+    genre_name VARCHAR(100) NOT NULL);
+
+CREATE TABLE IF NOT EXISTS FILM_GENRES(
+    film_id  BIGINT NOT NULL,
+    genre_id BIGINT NOT NULL,
+    CONSTRAINT FILM_GENRES_pk PRIMARY KEY (film_id, genre_id),
+    CONSTRAINT FILM_GENRES_FILMS_FILM_ID_fk FOREIGN KEY (film_id) REFERENCES FILMS,
+    CONSTRAINT FILM_GENRES_GENRES_GENRE_ID_fk FOREIGN KEY (genre_id) REFERENCES GENRES);
+
+CREATE TABLE IF NOT EXISTS users(
+    user_id   BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_name VARCHAR(100) NOT NULL,
+    email     VARCHAR(255)  NOT NULL,
+    login     VARCHAR(100)  NOT NULL,
+    birthday  DATE           NOT NULL);
+
+CREATE TABLE IF NOT EXISTS Friends(
+    user_id   BIGINT NOT NULL,
+    friend_id BIGINT NOT NULL,
+    CONSTRAINT Friends_pk primary key (user_id, friend_id),
+    CONSTRAINT Friends_USERS_USER_ID_fk FOREIGN KEY (user_id) REFERENCES USERS,
+    CONSTRAINT Friends_USERS_USER_ID_fk_2 FOREIGN KEY (friend_id) REFERENCES USERS);
+
+
+CREATE TABLE IF NOT EXISTS Film_likes(
+    film_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    CONSTRAINT Film_likes_pk PRIMARY KEY (film_id, user_id),
+    CONSTRAINT Film_likes_FILMS_FILM_ID_fk FOREIGN KEY (film_id) REFERENCES FILMS,
+    CONSTRAINT Film_likes_USERS_USER_ID_fk FOREIGN KEY (user_id) REFERENCES USERS);

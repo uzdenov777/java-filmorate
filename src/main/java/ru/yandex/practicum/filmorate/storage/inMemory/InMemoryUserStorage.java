@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.inMemory;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.UsersStorage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Log4j2
 @Component
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryUserStorage implements UsersStorage {
     private final HashMap<Long, User> users = new HashMap<>();
     private static long newIdFilm;
 
@@ -24,6 +24,7 @@ public class InMemoryUserStorage implements UserStorage {
         setDisplayName(user);
         user.setId(getNewId());
         users.put(user.getId(), user);
+
         return user;
     }
 
