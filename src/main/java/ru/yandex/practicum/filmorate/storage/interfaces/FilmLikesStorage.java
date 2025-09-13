@@ -10,5 +10,5 @@ public interface FilmLikesStorage {
 
     void deleteAllFilmLikesByFilmId(long filmId);
 
-    List<Long> getFilmLikesByFilmId(long filmId);
+    List<Long> getLikersIdsByFilmId(long filmId);
 }

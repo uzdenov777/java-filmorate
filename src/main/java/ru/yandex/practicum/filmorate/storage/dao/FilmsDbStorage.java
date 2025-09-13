@@ -38,7 +38,7 @@ public class FilmsDbStorage implements FilmsStorage {
         }
 
         HashMap<String, Object> filmMap = new HashMap<>();
-        filmMap.put("film_id", id);
+        filmMap.put("id", id);
         filmMap.put("film_name", filmName);
         filmMap.put("description", filmDescription);
         filmMap.put("release_date", filmReleaseDate);
@@ -51,7 +51,7 @@ public class FilmsDbStorage implements FilmsStorage {
     private static RowMapper<Film> getFilmRowMapper() {
         return (rs, rowNum) -> {
             Film film = new Film();
-            film.setId(rs.getLong("film_id"));
+            film.setId(rs.getLong("id"));
             film.setName(rs.getString("film_name"));
             film.setDescription(rs.getString("description"));
             film.setReleaseDate(rs.getDate("release_date").toLocalDate());
@@ -65,7 +65,7 @@ public class FilmsDbStorage implements FilmsStorage {
     public Film add(Film newFilm) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
-                .usingGeneratedKeyColumns("film_id");
+                .usingGeneratedKeyColumns("id");
         Long newId = simpleJdbcInsert.executeAndReturnKey(filmsToMap(newFilm)).longValue();
 
         newFilm.setId(newId);
@@ -79,7 +79,7 @@ public class FilmsDbStorage implements FilmsStorage {
                 "release_date = ?," +
                 "duration = ?," +
                 "mpa_id = ?" +
-                "WHERE film_id = ?";
+                "WHERE id = ?";
 
         Map<String, Object> filmToMap = filmsToMap(filmToUpdate);
 
@@ -88,7 +88,7 @@ public class FilmsDbStorage implements FilmsStorage {
                 filmToMap.get("release_date"),
                 filmToMap.get("duration"),
                 filmToMap.get("mpa_id"),
-                filmToMap.get("film_id")
+                filmToMap.get("id")
         );
 
         return filmToUpdate;
@@ -99,7 +99,7 @@ public class FilmsDbStorage implements FilmsStorage {
         String sql = "SELECT * " +
                 "        FROM films " +
                 "        JOIN mpa ON films.mpa_id = mpa.id " +
-                "        WHERE films.film_id = ?";
+                "        WHERE films.id = ?";
 
 
         try {
@@ -115,13 +115,13 @@ public class FilmsDbStorage implements FilmsStorage {
         String sql = "SELECT * " +
                 "FROM films " +
                 " JOIN mpa ON films.mpa_id = mpa.id " +
-                "ORDER BY films.film_id";
+                "ORDER BY films.id";
 
         return jdbcTemplate.query(sql, getFilmRowMapper());
     }
 
     public boolean isFilmExists(Long filmId) throws ResponseStatusException { // Если запрос найдет такой фильм по вход. filmId,
-        String sql = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
+        String sql = "SELECT EXISTS (SELECT 1 FROM films WHERE id = ?)";
         return jdbcTemplate.queryForObject(sql, Boolean.class, filmId);
     }
 }

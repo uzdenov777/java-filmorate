@@ -57,14 +57,14 @@ class FilmLikesDbStorageTest {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getFilmLikesByFilmId(firstFilm.getId());
+        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
         assertTrue(likesFilmByFirstFilmBefore.isEmpty());
 
         //when
         filmLikesDbStorage.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
 
         //then
-        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getFilmLikesByFilmId(firstFilm.getId());
+        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
         assertEquals(userFilmorate.getId(), likesFilmByFirstFilmAfter.get(0));
     }
 
@@ -97,14 +97,14 @@ class FilmLikesDbStorageTest {
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
         filmLikesDbStorage.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
-        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getFilmLikesByFilmId(firstFilm.getId());
+        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
         assertEquals(userFilmorate.getId(), likesFilmByFirstFilmBefore.get(0));
 
         //when
         filmLikesDbStorage.removeLikeFilm(firstFilm.getId(), userFilmorate.getId());
 
         //then
-        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getFilmLikesByFilmId(firstFilm.getId());
+        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
         assertTrue(likesFilmByFirstFilmAfter.isEmpty());
     }
 
@@ -115,14 +115,14 @@ class FilmLikesDbStorageTest {
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
         filmLikesDbStorage.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
-        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getFilmLikesByFilmId(firstFilm.getId());
+        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
         assertEquals(userFilmorate.getId(), likesFilmByFirstFilmBefore.get(0));
 
         //when
         filmLikesDbStorage.deleteAllFilmLikesByFilmId(firstFilm.getId());
 
         //then
-        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getFilmLikesByFilmId(firstFilm.getId());
+        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
         assertTrue(likesFilmByFirstFilmAfter.isEmpty());
     }
 
@@ -133,7 +133,7 @@ class FilmLikesDbStorageTest {
         filmsDbStorage.add(firstFilm);
 
         //when
-        List<Long> allLikesFirstFilm = filmLikesDbStorage.getFilmLikesByFilmId(firstFilm.getId());
+        List<Long> allLikesFirstFilm = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
 
         //then
         assertTrue(allLikesFirstFilm.isEmpty());
@@ -148,7 +148,7 @@ class FilmLikesDbStorageTest {
         filmLikesDbStorage.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
 
         //when
-        List<Long> allLikesFirstFilm = filmLikesDbStorage.getFilmLikesByFilmId(firstFilm.getId());
+        List<Long> allLikesFirstFilm = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
 
         //then
         assertEquals(userFilmorate.getId(), allLikesFirstFilm.get(0));

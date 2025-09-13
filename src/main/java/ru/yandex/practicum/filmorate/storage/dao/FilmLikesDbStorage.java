@@ -36,7 +36,7 @@ public class FilmLikesDbStorage implements FilmLikesStorage {
     }
 
     @Override
-    public List<Long> getFilmLikesByFilmId(long filmId) {
+    public List<Long> getLikersIdsByFilmId(long filmId) {
         String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";
 
         return jdbcTemplate.queryForList(sql, Long.class, filmId);

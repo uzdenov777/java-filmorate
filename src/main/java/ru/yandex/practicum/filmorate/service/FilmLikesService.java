@@ -41,6 +41,6 @@ public class FilmLikesService {
     }
 
     public Set<Long> getFilmLikesByFilmId(long filmId) {
-        return new HashSet<>(filmLikesDbStorage.getFilmLikesByFilmId(filmId));
+        return new HashSet<>(filmLikesDbStorage.getLikersIdsByFilmId(filmId));
     }
 }
