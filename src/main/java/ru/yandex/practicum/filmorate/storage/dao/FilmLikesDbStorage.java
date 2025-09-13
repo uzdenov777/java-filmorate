@@ -16,7 +16,6 @@ public class FilmLikesDbStorage implements FilmLikesStorage {
 
     @Override
     public void addLikeFilm(long filmId, long userId) {
-        System.out.println("Adding like film ID: " + filmId + ", User ID: " + userId);
         String sql = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
 
         jdbcTemplate.update(sql, filmId, userId);

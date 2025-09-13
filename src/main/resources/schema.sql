@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS friends;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE IF NOT EXISTS mpa(
-mpa_id   INTEGER      AUTO_INCREMENT PRIMARY KEY,
+id   INTEGER      AUTO_INCREMENT PRIMARY KEY,
 mpa_name VARCHAR(100));
 
 CREATE TABLE IF NOT EXISTS films(
@@ -15,7 +15,7 @@ description  VARCHAR(200)   NOT NULL,
 release_date DATE           NOT NULL,
 duration     INTEGER        NOT NULL,
 mpa_id       INTEGER,
-CONSTRAINT films_mpa_fk FOREIGN KEY(mpa_id) REFERENCES mpa(mpa_id));
+CONSTRAINT films_mpa_fk FOREIGN KEY(mpa_id) REFERENCES mpa(id));
 
 CREATE TABLE IF NOT EXISTS genres(
 genre_id   INTEGER AUTO_INCREMENT PRIMARY KEY,

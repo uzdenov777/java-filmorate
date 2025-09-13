@@ -96,9 +96,9 @@ public class FilmsDbStorage implements FilmsStorage {
 
     @Override
     public Optional<Film> findById(Long filmId) {
-        String sql = "SELECT films.*, mpa.* " +
+        String sql = "SELECT * " +
                 "        FROM films " +
-                "        JOIN mpa ON films.mpa_id = mpa.mpa_id " +
+                "        JOIN mpa ON films.mpa_id = mpa.id " +
                 "        WHERE films.film_id = ?";
 
 
@@ -114,7 +114,7 @@ public class FilmsDbStorage implements FilmsStorage {
     public List<Film> findAll() {
         String sql = "SELECT * " +
                 "FROM films " +
-                " JOIN mpa ON films.mpa_id = mpa.mpa_id " +
+                " JOIN mpa ON films.mpa_id = mpa.id " +
                 "ORDER BY films.film_id";
 
         return jdbcTemplate.query(sql, getFilmRowMapper());
