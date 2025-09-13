@@ -177,14 +177,14 @@ public class FilmService {
 
         Mpa mpa = chekFilm.getMpa();
         if (Objects.nonNull(mpa)) {
-            int IdMpa = mpa.getId();
-            mpaService.isExistsMpa(IdMpa);
+            int mpaId = mpa.getId();
+            mpaService.isExistsMpa(mpaId);
         }
 
         Set<Genre> filmGenres = chekFilm.getGenres();
         for (Genre genre : filmGenres) {
-            int IdGenre = genre.getId();
-            genresService.isGenreExist(IdGenre);
+            int genreId = genre.getId();
+            genresService.isGenreExist(genreId);
         }
 
         Set<Long> findLikersIds = chekFilm.getLikerIds();
