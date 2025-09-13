@@ -41,7 +41,7 @@ public class UserDbStorage implements UsersStorage {
     private static RowMapper<User> userRowMapper() {
         return (rs, rowNum) -> {
             User user = new User();
-            user.setId(rs.getLong("user_id"));
+            user.setId(rs.getLong("id"));
             user.setName(rs.getString("user_name"));
             user.setEmail(rs.getString("email"));
             user.setLogin(rs.getString("login"));
@@ -54,7 +54,7 @@ public class UserDbStorage implements UsersStorage {
     public User add(User newUser) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         simpleJdbcInsert.withTableName("USERS")
-                .usingGeneratedKeyColumns("user_id");
+                .usingGeneratedKeyColumns("id");
         Long id = simpleJdbcInsert.executeAndReturnKey(userToMap(newUser)).longValue();
         newUser.setId(id);
 
@@ -68,7 +68,7 @@ public class UserDbStorage implements UsersStorage {
                 "email = ?," +
                 "login = ?," +
                 "birthday = ? " +
-                "WHERE user_id = ?";
+                "WHERE id = ?";
 
         Map<String, Object> hashMap = userToMap(userToUser);
 
@@ -85,7 +85,7 @@ public class UserDbStorage implements UsersStorage {
 
     @Override
     public Optional<User> findById(long userId) throws ResponseStatusException {
-        String sql = "SELECT * FROM users WHERE user_id = ?";
+        String sql = "SELECT * FROM users WHERE id = ?";
         try {
             User user = jdbcTemplate.queryForObject(sql, userRowMapper(), userId);
             return Optional.ofNullable(user);
@@ -102,7 +102,7 @@ public class UserDbStorage implements UsersStorage {
     }
 
     public boolean isUserExists(Long userId) {
-        String sql = "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = ?)";
+        String sql = "SELECT EXISTS (SELECT 1 FROM users WHERE id = ?)";
         return jdbcTemplate.queryForObject(sql, Boolean.class, userId);
     }
 }
