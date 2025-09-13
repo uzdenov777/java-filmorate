@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -11,10 +12,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmsStorage;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Repository
@@ -26,11 +24,11 @@ public class FilmsDbStorage implements FilmsStorage {
     }
 
     private static Map<String, Object> filmsToMap(Film film) {
+        Long id = film.getId();
         String filmName = film.getName();
         String filmDescription = film.getDescription();
         LocalDate filmReleaseDate = film.getReleaseDate();
         Long filmDuration = film.getDuration();
-        Long filmId = film.getId();
         Integer mpaId;
 
         if (Objects.nonNull(film.getMpa())) {
@@ -40,12 +38,12 @@ public class FilmsDbStorage implements FilmsStorage {
         }
 
         HashMap<String, Object> filmMap = new HashMap<>();
+        filmMap.put("film_id", id);
         filmMap.put("film_name", filmName);
         filmMap.put("description", filmDescription);
         filmMap.put("release_date", filmReleaseDate);
         filmMap.put("duration", filmDuration);
         filmMap.put("mpa_id", mpaId);
-        filmMap.put("film_id", filmId);
 
         return filmMap;
     }
@@ -97,21 +95,27 @@ public class FilmsDbStorage implements FilmsStorage {
     }
 
     @Override
-    public Film getFilmById(Long filmId) {
-        String sql = "SELECT * " +
-                "FROM films " +
-                "JOIN mpa USING (mpa_id) " +
-                "WHERE film_id = ?";
+    public Optional<Film> findById(Long filmId) {
+        String sql = "SELECT films.*, mpa.* " +
+                "        FROM films " +
+                "        JOIN mpa ON films.mpa_id = mpa.mpa_id " +
+                "        WHERE films.film_id = ?";
 
-        return jdbcTemplate.queryForObject(sql, getFilmRowMapper(), filmId);
+
+        try {
+            Film film = jdbcTemplate.queryForObject(sql, getFilmRowMapper(), filmId);
+            return Optional.ofNullable(film);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public List<Film> getAllFilms() {
+    public List<Film> findAll() {
         String sql = "SELECT * " +
                 "FROM films " +
-                "JOIN mpa USING (mpa_id) " +
-                "ORDER BY film_id";
+                " JOIN mpa ON films.mpa_id = mpa.mpa_id " +
+                "ORDER BY films.film_id";
 
         return jdbcTemplate.query(sql, getFilmRowMapper());
     }

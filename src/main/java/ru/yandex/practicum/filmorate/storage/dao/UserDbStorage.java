@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class UserDbStorage implements UsersStorage {
@@ -82,14 +84,18 @@ public class UserDbStorage implements UsersStorage {
     }
 
     @Override
-    public User getUserById(long userId) throws ResponseStatusException {
+    public Optional<User> findById(long userId) throws ResponseStatusException {
         String sql = "SELECT * FROM users WHERE user_id = ?";
-
-        return jdbcTemplate.queryForObject(sql, userRowMapper(), userId);
+        try {
+            User user = jdbcTemplate.queryForObject(sql, userRowMapper(), userId);
+            return Optional.ofNullable(user);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
         String sql = "SELECT * FROM users";
 
         return jdbcTemplate.query(sql, userRowMapper());

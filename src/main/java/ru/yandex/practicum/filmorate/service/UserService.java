@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 @Log4j2
@@ -27,19 +27,21 @@ public class UserService {
 
     public User add(User newUser) {
         setDisplayName(newUser);
-        userDbStorage.add(newUser);
 
-        Set<Long> friends = newUser.getFriends();
+        User save = userDbStorage.add(newUser);
+
+        Set<Long> friends = save.getFriends();
         if (!friends.isEmpty()) {
-            Long userId = newUser.getId();
+            Long userId = save.getId();
             addFriends(userId, friends);
         }
 
-        return newUser;
+        return save;
     }
 
     public User update(User userToUpdate) {
         Long userId = userToUpdate.getId();
+
         boolean userExists = userDbStorage.isUserExists(userId);
         if (!userExists) {
             log.info("Не найден пользователь для обновления с ID: {}", userId);
@@ -47,28 +49,48 @@ public class UserService {
         }
 
         setDisplayName(userToUpdate);
-        userDbStorage.update(userToUpdate);
+        User user = userDbStorage.update(userToUpdate);
 
-        Set<Long> friends = userToUpdate.getFriends();
+        Set<Long> friends = user.getFriends();
         if (!friends.isEmpty()) {
             removeFriends(userId, friends); //удаляем потому что старые записи если есть, могут быть не актуальными
             addFriends(userId, friends); //добавляем по той же причине
         }
 
-        return userToUpdate;
+        return user;
     }
 
     public List<User> getAllUsers() {
-        List<User> allUsers = userDbStorage.getAllUsers();
+        List<User> allUsers = userDbStorage.findAll();
 
         for (User user : allUsers) {
             Set<Long> friends = user.getFriends();
             Long userId = user.getId();
-            friends.addAll(
-                    friendsServer.getAllFriendsIdByUserId(userId));
+
+            List<Long> friendsIdsByUserId = friendsServer.getAllFriendsIdsByUserId(userId);
+            friends.addAll(friendsIdsByUserId);
         }
 
         return allUsers;
+    }
+
+    public User getUserById(long userId) throws ResponseStatusException {
+        Optional<User> userOpt = userDbStorage.findById(userId);
+
+        if (userOpt.isEmpty()) {
+            log.info("Не найден пользователь для возвращения с ID: {}", userId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId);
+        }
+
+        User user = userOpt.get();
+
+        Set<Long> friends = user.getFriends();
+
+        List<Long> friendsIdsByUserId = friendsServer.getAllFriendsIdsByUserId(userId);
+
+        friends.addAll(friendsIdsByUserId);
+
+        return user;
     }
 
     public void addFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
@@ -93,25 +115,6 @@ public class UserService {
         }
     }
 
-    public User getUserById(long userId) throws ResponseStatusException {
-        boolean existsUser = userDbStorage.isUserExists(userId);
-
-        if (!existsUser) {
-            log.info("Не найден пользователь для возвращения с ID: {}", userId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId);
-        }
-
-        User user = userDbStorage.getUserById(userId);
-        if (Objects.nonNull(user)) {
-            Set<Long> friends = user.getFriends();
-            friends.addAll(
-                    friendsServer.getAllFriendsIdByUserId(userId)
-            );
-        }
-
-        return user;
-    }
-
     public List<User> getAllFriendsByUserId(long userId) throws ResponseStatusException {
         boolean existsUser = userDbStorage.isUserExists(userId);
 
@@ -120,26 +123,30 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId + ", для возращения списка его друзей");
         }
 
-        List<Long> allFriendsIdByUserId = friendsServer.getAllFriendsIdByUserId(userId);
+        List<Long> friendsIds = friendsServer.getAllFriendsIdsByUserId(userId);
+        List<User> friendsByUser = new ArrayList<>();
 
-        List<User> allFriends = new ArrayList<>();
-        for (Long friendId : allFriendsIdByUserId) {
-            allFriends.add(userDbStorage.getUserById(friendId));
+        for (Long friendId : friendsIds) {
+            Optional<User> userOpt = userDbStorage.findById(friendId);
+            User user = userOpt.get();
+            friendsByUser.add(user);
         }
 
-        return allFriends;
+        return friendsByUser;
     }
 
     public List<User> getListMutualFriends(long idUserFirst, long idUserSecond) throws ResponseStatusException {
         checkUsersExistAndNotEqual(idUserFirst, idUserSecond);
 
-        List<Long> friendsUserFirst = friendsServer.getAllFriendsIdByUserId(idUserFirst);
-        List<Long> friendsUserSecond = friendsServer.getAllFriendsIdByUserId(idUserSecond);
-        friendsUserFirst.retainAll(friendsUserSecond);
+        List<Long> friendsOfFirstUser = friendsServer.getAllFriendsIdsByUserId(idUserFirst);
+        List<Long> friendsOfSecondUser = friendsServer.getAllFriendsIdsByUserId(idUserSecond);
+        friendsOfFirstUser.retainAll(friendsOfSecondUser);
 
         List<User> mutualFriends = new ArrayList<>();
-        for (long friendId : friendsUserFirst) {
-            mutualFriends.add(userDbStorage.getUserById(friendId));
+        for (long friendId : friendsOfFirstUser) {
+            Optional<User> userOpt = userDbStorage.findById(friendId);
+            User user = userOpt.get();
+            mutualFriends.add(user);
         }
         return mutualFriends;
     }

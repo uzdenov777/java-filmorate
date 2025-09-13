@@ -22,14 +22,18 @@ public class UserController {
 
     @PostMapping
     public User add(@Valid @RequestBody User user) {
-        log.info("Adding user");
-        return userService.add(user);
+        log.info("Adding user: {}", user);
+        User save = userService.add(user);
+        log.info("Saving user: {}", save);
+        return save;
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
-        log.info("Updating user with");
-        return userService.update(user);
+        log.info("Updating user with: {}", user);
+        User save = userService.update(user);
+        log.info("Saving user with: {}", save);
+        return save;
     }
 
     @GetMapping("/{id}")
@@ -45,7 +49,9 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+    public void
+
+    addFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("Adding friend");
         userService.addFriend(id, friendId);
     }

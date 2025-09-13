@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.dao.GenresDbStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -19,17 +20,18 @@ public class GenresService {
     }
 
     public Genre getGenreById(int genreId) throws ResponseStatusException {
-        boolean genreExist = genresDbStorage.isExistsGenre(genreId);
-        if (!genreExist) {
+        Optional<Genre> genreOpt = genresDbStorage.findById(genreId);
+        if (genreOpt.isEmpty()) {
             log.info("Не найден жанр при запросе на возврат по ID: {}", genreId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр при запросе на возврат по ID: " + genreId);
         }
 
-        return genresDbStorage.getGenreById(genreId);
+        Genre genre = genreOpt.get();
+        return genre;
     }
 
     public List<Genre> getAllGenres() {
-        return genresDbStorage.getAllGenres();
+        return genresDbStorage.findAll();
     }
 
     public boolean isGenreExist(int genreId) throws ResponseStatusException {

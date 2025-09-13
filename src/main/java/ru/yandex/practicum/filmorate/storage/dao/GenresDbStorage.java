@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -8,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.interfaces.GenresStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -26,12 +28,17 @@ public class GenresDbStorage implements GenresStorage {
     }
 
     @Override
-    public Genre getGenreById(int genreId) {
-        return jdbcTemplate.queryForObject("SELECT * FROM genres WHERE genre_id = ?", getGenreRowMapper(), genreId);
+    public Optional<Genre> findById(int genreId) {
+        try {
+            Genre genre = jdbcTemplate.queryForObject("SELECT * FROM genres WHERE genre_id = ?", getGenreRowMapper(), genreId);
+            return Optional.ofNullable(genre);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public List<Genre> getAllGenres() {
+    public List<Genre> findAll() {
         return jdbcTemplate.query("SELECT * FROM genres", getGenreRowMapper());
     }
 

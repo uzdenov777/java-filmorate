@@ -52,7 +52,7 @@ class FriendsDbStorageTest {
         //given
         userDbStorage.add(firstUser);
         userDbStorage.add(secondUser);
-        List<User> allUsers = userDbStorage.getAllUsers();
+        List<User> allUsers = userDbStorage.findAll();
         List<Long> friendIdFirstUserBefore = friendsDbStorage.getAllFriendsIdByUserId(firstUser.getId());
         List<Long> friendsIdSecondUserBefore = friendsDbStorage.getAllFriendsIdByUserId(secondUser.getId());
         assertEquals(2, allUsers.size());
@@ -74,7 +74,7 @@ class FriendsDbStorageTest {
     void addFriend_notAddingFriends_secondUserNotExist() { //проверка односторонней дружбы
         //given
         userDbStorage.add(firstUser);
-        List<User> allUsers = userDbStorage.getAllUsers();
+        List<User> allUsers = userDbStorage.findAll();
         assertEquals(1, allUsers.size());
 
         //when+then
@@ -87,7 +87,7 @@ class FriendsDbStorageTest {
     void addFriend_notAddingFriends_firstUserNotExist() { //проверка односторонней дружбы
         //given
         userDbStorage.add(secondUser);
-        List<User> allUsers = userDbStorage.getAllUsers();
+        List<User> allUsers = userDbStorage.findAll();
         assertEquals(1, allUsers.size());
 
         //when+then
@@ -122,7 +122,7 @@ class FriendsDbStorageTest {
     void removeFriend_removeFriend_secondUserNotExist() { //проверка односторонней дружбы
         //given
         userDbStorage.add(firstUser);
-        List<User> allUsers = userDbStorage.getAllUsers();
+        List<User> allUsers = userDbStorage.findAll();
         assertEquals(1, allUsers.size());
 
         //when+then
@@ -135,7 +135,7 @@ class FriendsDbStorageTest {
     void removeFriend_removeFriend_firstUserNotExist() { //проверка односторонней дружбы
         //given
         userDbStorage.add(secondUser);
-        List<User> allUsers = userDbStorage.getAllUsers();
+        List<User> allUsers = userDbStorage.findAll();
         assertEquals(1, allUsers.size());
 
         //when+then

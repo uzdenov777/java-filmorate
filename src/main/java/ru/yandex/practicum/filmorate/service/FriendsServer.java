@@ -23,7 +23,7 @@ public class FriendsServer {
         friendsDbStorage.removeFriend(userId, friendId);
     }
 
-    public List<Long> getAllFriendsIdByUserId(long userId) {
+    public List<Long> getAllFriendsIdsByUserId(long userId) {
         return friendsDbStorage.getAllFriendsIdByUserId(userId);
     }
 }

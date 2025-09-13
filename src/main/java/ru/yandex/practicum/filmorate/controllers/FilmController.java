@@ -23,13 +23,17 @@ public class FilmController {
     @PostMapping
     public Film add(@RequestBody @Valid Film newFilm) {
         log.info("Adding film: {}", newFilm);
-        return filmService.add(newFilm);
+        Film save = filmService.add(newFilm);
+        log.info("Save film: {}", save);
+        return save;
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film filmToUpdate) {
         log.info("Updating film: {}", filmToUpdate);
-        return filmService.update(filmToUpdate);
+        Film save = filmService.update(filmToUpdate);
+        log.info("Saved during update film: {}", save);
+        return save;
     }
 
     @GetMapping("/{id}")
@@ -46,19 +50,19 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void like(@PathVariable int id, @PathVariable int userId) {
-        log.info("Liking film");
-        filmService.addLikeFilm(id, userId);
+        log.info("Liking film ID: {}, User ID: {}", id, userId);
+        filmService.addLikeToFilm(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Removing like film");
-        filmService.removeLikeFilm(id, userId);
+        log.info("Removing like film ID:{}, User ID{}", id, userId);
+        filmService.removeLikeToFilm(id, userId);
     }
 
     @GetMapping("/popular")
     public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        log.info("Getting popular films");
+        log.info("Getting popular films top: {}", count);
         return filmService.getListTopPopularFilms(count);
     }
 }

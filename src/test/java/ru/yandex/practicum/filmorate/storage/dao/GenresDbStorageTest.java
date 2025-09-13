@@ -6,12 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +32,9 @@ class GenresDbStorageTest {
     @DisplayName("Должен вернуть жанр ID:1, \"Комедия\"")
     void getGenreById_genreComedyExist() {
         //when
-        Genre resGenre = genresDbStorage.getGenreById(1);
+
+        Optional<Genre> genreOpt = genresDbStorage.findById(1);
+        Genre resGenre = genreOpt.get();
 
         //then
         assertEquals(1, resGenre.getId());
@@ -43,7 +45,8 @@ class GenresDbStorageTest {
     @DisplayName("Должен вернуть жанр ID:3, \"Мультфильм\"")
     void getGenreById_genreCartoonExist() {
         //when
-        Genre resGenre = genresDbStorage.getGenreById(3);
+        Optional<Genre> genreOpt = genresDbStorage.findById(3);
+        Genre resGenre = genreOpt.get();
 
         //then
         assertEquals(3, resGenre.getId());
@@ -51,18 +54,22 @@ class GenresDbStorageTest {
     }
 
     @Test
-    @DisplayName("Должен выбросить исключение EmptyResultDataAccessException")
+    @DisplayName("Должен вернуть пустой Optional, когда жанра по ID не найдено")
     void getGenreById_genreNotExist() {
+        //given
         int idGenreNotExits = 99;
 
-        assertThrows(EmptyResultDataAccessException.class, () -> genresDbStorage.getGenreById(idGenreNotExits));
+        //when
+        Optional<Genre> genreOpt = genresDbStorage.findById(idGenreNotExits);
+        //then
+        assertTrue(genreOpt.isEmpty());
     }
 
     @Test
     @DisplayName("Должен вернуть список с 6 жанрами, которые добавлены при инициализации по умолчанию")
     void getAllGenres() {
         //when
-        List<Genre> genres = genresDbStorage.getAllGenres();
+        List<Genre> genres = genresDbStorage.findAll();
 
         //then
         assertEquals(6, genres.size());

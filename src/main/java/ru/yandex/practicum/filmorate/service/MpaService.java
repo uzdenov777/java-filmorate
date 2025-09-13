@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.dao.MpaDbStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -19,17 +20,18 @@ public class MpaService {
     }
 
     public Mpa getMpaById(int mpaId) throws ResponseStatusException {
-        boolean existsMpa = mpaDbStorage.isExistsMpa(mpaId);
-        if (!existsMpa) {
+       Optional<Mpa> mpaOpt = mpaDbStorage.findById(mpaId);
+        if (mpaOpt.isEmpty()) {
             log.info("Не найден Mpa-возрастное ограничение при запросе на возврат по ID: {}", mpaId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден Mpa-возрастное ограничение при запросе на возврат по ID: " + mpaId);
         }
 
-        return mpaDbStorage.getMpaById(mpaId);
+        Mpa mpa = mpaOpt.get();
+        return mpa;
     }
 
     public List<Mpa> getAllMpa() {
-        return mpaDbStorage.getAllMpa();
+        return mpaDbStorage.findAll();
     }
 
     public boolean isExistsMpa(Integer mpaId) throws ResponseStatusException {

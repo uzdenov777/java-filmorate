@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -15,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +43,7 @@ class FilmsDbStorageTest {
     @Test
     void add_addingFilm() {
         //given
-        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        List<Film> allFilmsBefore = filmsDbStorage.findAll();
         assertNull(testFilm.getId()); // ID появится только после добавления
         assertTrue(allFilmsBefore.isEmpty());
 
@@ -51,7 +51,7 @@ class FilmsDbStorageTest {
         filmsDbStorage.add(testFilm);
 
         //then
-        List<Film> allFilmsAfter = filmsDbStorage.getAllFilms();
+        List<Film> allFilmsAfter = filmsDbStorage.findAll();
         assertEquals(1L, testFilm.getId()); // теперь после добавления появился у фильма ID
         assertEquals(testFilm, allFilmsAfter.get(0)); // так как кроме
     }
@@ -60,7 +60,7 @@ class FilmsDbStorageTest {
     @Test
     void add_notAddingFilm_nameNull() {
         //given
-        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        List<Film> allFilmsBefore = filmsDbStorage.findAll();
         assertTrue(allFilmsBefore.isEmpty());
 
         //when+then
@@ -72,7 +72,7 @@ class FilmsDbStorageTest {
     @Test
     void add_notAddingFilm_descriptionNull() {
         //given
-        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        List<Film> allFilmsBefore = filmsDbStorage.findAll();
         assertTrue(allFilmsBefore.isEmpty());
 
         //when+then
@@ -84,7 +84,7 @@ class FilmsDbStorageTest {
     @Test
     void add_notAddingFilm_releaseDateNull() {
         //given
-        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        List<Film> allFilmsBefore = filmsDbStorage.findAll();
         assertTrue(allFilmsBefore.isEmpty());
 
         //when+then
@@ -96,7 +96,7 @@ class FilmsDbStorageTest {
     @Test
     void add_notAddingFilm_durationNull() {
         //given
-        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        List<Film> allFilmsBefore = filmsDbStorage.findAll();
         assertTrue(allFilmsBefore.isEmpty());
 
         //when+then
@@ -111,32 +111,36 @@ class FilmsDbStorageTest {
         Film savedFilm = filmsDbStorage.add(testFilm);
 
         //when
-        Film foundFilm = filmsDbStorage.getFilmById(testFilm.getId());
+        Optional<Film> filmOpt = filmsDbStorage.findById(testFilm.getId());
+        Film foundFilm = filmOpt.get();
 
         //then
         assertEquals(foundFilm, savedFilm);
     }
 
-    @DisplayName("Должен выбросить фильм, когда запрашиваем не существующий фильм по ID")
+    @DisplayName("Должен вернуть пустой Optional, когда запрашиваем не существующий фильм по ID с БД")
     @Test
     void getFilmById_notExistingFilm() {
         //given
         Long notExistingFilmId = 999L;
 
         //when
-        assertThrows(EmptyResultDataAccessException.class, () -> filmsDbStorage.getFilmById(notExistingFilmId));
+        Optional<Film> filmOpt = filmsDbStorage.findById(notExistingFilmId);
+
+        //then
+        assertTrue(filmOpt.isEmpty());
     }
 
     @DisplayName("Должен успешно вернуть список всех фильмов, когда фильмы добавлены")
     @Test
     void getAllFilms_filmAdded() {
         //given
-        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        List<Film> allFilmsBefore = filmsDbStorage.findAll();
         assertTrue(allFilmsBefore.isEmpty());
 
         //when
         filmsDbStorage.add(testFilm);
-        List<Film> allFilmsAfter = filmsDbStorage.getAllFilms();
+        List<Film> allFilmsAfter = filmsDbStorage.findAll();
 
         //then
         assertEquals(1L, testFilm.getId());
@@ -146,7 +150,7 @@ class FilmsDbStorageTest {
     @DisplayName("Должен вернуть пустой список фильмов, когда фильмы не были добавлены")
     @Test
     void getAllFilms_filmsNotAdded() {
-        List<Film> allFilmsBefore = filmsDbStorage.getAllFilms();
+        List<Film> allFilmsBefore = filmsDbStorage.findAll();
         assertTrue(allFilmsBefore.isEmpty());
     }
 
@@ -156,7 +160,8 @@ class FilmsDbStorageTest {
         //given
         filmsDbStorage.add(testFilm);
         Long filmId = testFilm.getId();
-        Film foundFilmBefore = filmsDbStorage.getFilmById(filmId);
+        Optional<Film> filmOptBefore = filmsDbStorage.findById(filmId);
+        Film foundFilmBefore = filmOptBefore.get();
         assertEquals(foundFilmBefore, testFilm);
 
         //when
@@ -170,7 +175,8 @@ class FilmsDbStorageTest {
         filmsDbStorage.update(updatedFilm);
 
         //then
-        Film foundFilmAfter = filmsDbStorage.getFilmById(filmId);
+        Optional<Film> filmOptAfter = filmsDbStorage.findById(filmId);
+        Film foundFilmAfter = filmOptAfter.get();
         assertEquals(updatedFilm, foundFilmAfter);
     }
 

@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +41,7 @@ class UserDbStorageTest {
     @DisplayName("Должен успешно добавить пользователя и сохранить ему новый ID")
     void add_addingUser() {
         //given
-        List<User> usersBefore = userDbStorage.getAllUsers();
+        List<User> usersBefore = userDbStorage.findAll();
         assertTrue(usersBefore.isEmpty());
         assertNull(firstUser.getId());// пока фильм еще не добавлен у него нет ID
 
@@ -49,7 +49,7 @@ class UserDbStorageTest {
         userDbStorage.add(firstUser);
 
         //then
-        List<User> usersAfter = userDbStorage.getAllUsers();
+        List<User> usersAfter = userDbStorage.findAll();
         assertNotNull(firstUser.getId());
         assertEquals(firstUser, usersAfter.get(0));
     }
@@ -58,7 +58,7 @@ class UserDbStorageTest {
     @DisplayName("Должен выбросить исключение DataIntegrityViolationException при добавлении нового пользователя, когда у пользователя отсутствует name")
     void add_notAddingUser_nameNull() {
         //given
-        List<User> usersBefore = userDbStorage.getAllUsers();
+        List<User> usersBefore = userDbStorage.findAll();
         assertTrue(usersBefore.isEmpty());
 
         //when
@@ -70,7 +70,7 @@ class UserDbStorageTest {
     @DisplayName("Должен выбросить исключение DataIntegrityViolationException при добавлении нового пользователя, когда у пользователя отсутствует email")
     void add_notAddingUser_emailNull() {
         //given
-        List<User> usersBefore = userDbStorage.getAllUsers();
+        List<User> usersBefore = userDbStorage.findAll();
         assertTrue(usersBefore.isEmpty());
 
         //when
@@ -82,7 +82,7 @@ class UserDbStorageTest {
     @DisplayName("Должен выбросить исключение DataIntegrityViolationException при добавлении нового пользователя, когда у пользователя отсутствует login")
     void add_notAddingUser_loginNull() {
         //given
-        List<User> usersBefore = userDbStorage.getAllUsers();
+        List<User> usersBefore = userDbStorage.findAll();
         assertTrue(usersBefore.isEmpty());
 
         //when
@@ -94,7 +94,7 @@ class UserDbStorageTest {
     @DisplayName("Должен выбросить исключение DataIntegrityViolationException при добавлении нового пользователя, когда у пользователя отсутствует Birthday")
     void add_notAddingUser_birthdayNull() {
         //given
-        List<User> usersBefore = userDbStorage.getAllUsers();
+        List<User> usersBefore = userDbStorage.findAll();
         assertTrue(usersBefore.isEmpty());
 
         //when
@@ -107,7 +107,7 @@ class UserDbStorageTest {
     void update() {
         //given
         userDbStorage.add(firstUser);
-        List<User> usersBefore = userDbStorage.getAllUsers();
+        List<User> usersBefore = userDbStorage.findAll();
         assertEquals(firstUser, usersBefore.get(0));
 
         //when
@@ -120,7 +120,7 @@ class UserDbStorageTest {
         userDbStorage.update(newUser);
 
         //then
-        List<User> usersAfter = userDbStorage.getAllUsers();
+        List<User> usersAfter = userDbStorage.findAll();
         assertEquals(newUser.getId(), firstUser.getId());
         assertEquals(newUser, usersAfter.get(0));
     }
@@ -130,27 +130,31 @@ class UserDbStorageTest {
     void getUserById_userExists() {
         //given
         userDbStorage.add(firstUser);
-        List<User> usersBefore = userDbStorage.getAllUsers();
+        List<User> usersBefore = userDbStorage.findAll();
         assertEquals(firstUser, usersBefore.get(0));
 
         //when
         Long userId = firstUser.getId();
-        User resUser = userDbStorage.getUserById(userId);
+        Optional<User> userOpt = userDbStorage.findById(userId);
+        User resUser = userOpt.get();
 
         //then
         assertEquals(firstUser, resUser);
     }
 
     @Test
-    @DisplayName("Должен вернуть user по ID, когда user добавлен заранее")
+    @DisplayName("Должен вернуть пустой Optional, когда пользователь по ID не найдено в БД")
     void getUserById_userNotExists() {
         //given
-        List<User> usersBefore = userDbStorage.getAllUsers();
+        List<User> usersBefore = userDbStorage.findAll();
         assertTrue(usersBefore.isEmpty());
 
-        //when+then
+        //when
         long idUserNotExists = 777L;
-        assertThrows(EmptyResultDataAccessException.class, () -> userDbStorage.getUserById(idUserNotExists));
+        Optional<User> userOpt = userDbStorage.findById(idUserNotExists);
+
+        //then
+        assertTrue(userOpt.isEmpty());
     }
 
     @Test
@@ -160,7 +164,7 @@ class UserDbStorageTest {
         userDbStorage.add(firstUser);
 
         //when
-        List<User> usersRes = userDbStorage.getAllUsers();
+        List<User> usersRes = userDbStorage.findAll();
 
         //then
         assertEquals(firstUser, usersRes.get(0));
@@ -170,7 +174,7 @@ class UserDbStorageTest {
     @DisplayName("Должен вернуть не пустой список всех пользователей, когда user-ы добавлены заранее")
     void getAllUsers_usersNotExists() {
         //when
-        List<User> usersRes = userDbStorage.getAllUsers();
+        List<User> usersRes = userDbStorage.findAll();
 
         //then
         assertTrue(usersRes.isEmpty());

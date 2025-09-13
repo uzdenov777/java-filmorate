@@ -6,12 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +36,8 @@ class MpaDbStorageTest {
         int idMpaExits = 1;
 
         //when
-        Mpa resMpa = mpaDbStorage.getMpaById(idMpaExits);
+        Optional<Mpa> mpaOpt = mpaDbStorage.findById(idMpaExits);
+        Mpa resMpa = mpaOpt.get();
 
         //then
         assertEquals(1, resMpa.getId());
@@ -49,7 +50,8 @@ class MpaDbStorageTest {
         int idMpaExits = 4;
 
         //when
-        Mpa resMpa = mpaDbStorage.getMpaById(idMpaExits);
+        Optional<Mpa> mpaOpt = mpaDbStorage.findById(idMpaExits);
+        Mpa resMpa = mpaOpt.get();
 
         //then
         assertEquals(4, resMpa.getId());
@@ -57,18 +59,23 @@ class MpaDbStorageTest {
     }
 
     @Test
-    @DisplayName("Должен выбросить исключение EmptyResultDataAccessException, когда запрашиваем не существующий mpa")
+    @DisplayName("Должен вернуть пустой Optional, когда запрашиваем не существующий mpa с БД")
     void getMpaById_mpaNotExist() {
+        //given
         int idMpaNotExits = 99;
 
-        assertThrows(EmptyResultDataAccessException.class, () -> mpaDbStorage.getMpaById(idMpaNotExits));
+        //when
+        Optional<Mpa> mpaOpt = mpaDbStorage.findById(idMpaNotExits);
+
+        //then
+        assertTrue(mpaOpt.isEmpty());
     }
 
     @Test
     @DisplayName("Должен вернуть список с 5 MPA, которые добавлены при инициализации по умолчанию")
     void getAllMpa() {
         //when
-        List<Mpa> allMpa = mpaDbStorage.getAllMpa();
+        List<Mpa> allMpa = mpaDbStorage.findAll();
 
         //then
         assertEquals(5, allMpa.size());

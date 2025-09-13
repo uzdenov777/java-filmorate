@@ -35,18 +35,18 @@ public class FilmService {
     }
 
     public Film add(Film newFilm) throws ResponseStatusException {
-        isValidFilm(newFilm); //если у фильма все понял и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
+        checkedFilm(newFilm); //если у фильма все поля и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
 
-        filmsDbStorage.add(newFilm); // пробуем добавить фильм
+        Film save = filmsDbStorage.add(newFilm); // пробуем добавить фильм
 
-        Long newFilmId = newFilm.getId();
-        Set<Genre> genresOfNewFilm = newFilm.getGenres();
-        Set<Long> likesUsersIdOfNewFilm = newFilm.getLikesUsersId();
+        Long filmId = save.getId();
+        Set<Genre> filmGenres = save.getGenres();
+        Set<Long> filmLikersIds = save.getLikerIds();
 
-        filmGenresService.addFilmGenres(newFilmId, genresOfNewFilm);
-        filmLikesService.addFilmLikes(newFilmId, likesUsersIdOfNewFilm);
+        filmGenresService.addFilmGenres(filmId, filmGenres);
+        filmLikesService.addFilmLikes(filmId, filmLikersIds);
 
-        return newFilm;
+        return save;
     }
 
 
@@ -59,67 +59,75 @@ public class FilmService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для обновления с ID: " + filmId);
         }
 
-        isValidFilm(filmToUpdate); //если у фильма все поля и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
+        checkedFilm(filmToUpdate); //если у фильма все поля и их составляющие в норме, то просто не выбросит исключение ResponseStatusException
 
-        filmsDbStorage.update(filmToUpdate);
+        Film save = filmsDbStorage.update(filmToUpdate);
 
-        Set<Genre> genres = filmToUpdate.getGenres();
-        Set<Long> likesUsersId = filmToUpdate.getLikesUsersId();
+        Set<Genre> filmGenres = save.getGenres();
+        Set<Long> filmLikersIds = save.getLikerIds();
 
-        if (genres.isEmpty()) {
+        if (filmGenres.isEmpty()) {
             filmGenresService.deleteAllFilmGenresByFilmId(filmId);
         } else {
-            filmGenresService.updateFilmGenres(filmId, genres);
+            filmGenresService.updateFilmGenres(filmId, filmGenres);
         }
 
-        if (likesUsersId.isEmpty()) {
+        if (filmLikersIds.isEmpty()) {
             filmLikesService.deleteAllFilmLikesByFilmId(filmId);
         } else {
-            filmLikesService.updateFilmLike(filmId, likesUsersId);
+            filmLikesService.updateFilmLike(filmId, filmLikersIds);
         }
 
-        return filmToUpdate;
+        return save;
     }
 
     public Film getFilmById(Long filmId) throws ResponseStatusException {
-        boolean filmExists = filmsDbStorage.isFilmExists(filmId);
-        if (!filmExists) {
+        Optional<Film> filmOpt = filmsDbStorage.findById(filmId);
+        if (filmOpt.isEmpty()) {
             log.info("Не найден фильм для возвращения по ID: {}", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для возвращения по ID: " + filmId);
         }
 
-        Film film = filmsDbStorage.getFilmById(filmId);
-        film.setGenres(filmGenresService.getGenresByFilmId(filmId));
-        film.setLikesUsersId(filmLikesService.getFilmLikesByFilmId(filmId));
+        Film film = filmOpt.get();
+
+        Set<Genre> filmGenres = filmGenresService.getGenresByFilmId(filmId);
+        film.setGenres(filmGenres);
+
+        Set<Long> filmLikersIds = filmLikesService.getFilmLikesByFilmId(filmId);
+        film.setLikerIds(filmLikersIds);
 
         return film;
     }
 
     public List<Film> getAllFilms() {
-        List<Film> allFilms = filmsDbStorage.getAllFilms();
+        List<Film> allFilms = filmsDbStorage.findAll();
 
         for (Film film : allFilms) {
             Long filmId = film.getId();
-            film.setGenres(filmGenresService.getGenresByFilmId(filmId));
-            film.setLikesUsersId(filmLikesService.getFilmLikesByFilmId(filmId));
+
+            Set<Genre> filmGenres = filmGenresService.getGenresByFilmId(filmId);
+            film.setGenres(filmGenres);
+
+            Set<Long> filmLikersIds = filmLikesService.getFilmLikesByFilmId(filmId);
+            film.setLikerIds(filmLikersIds);
         }
 
         return allFilms;
     }
 
-    public void addLikeFilm(long filmId, long userId) throws ResponseStatusException {
+    public void addLikeToFilm(long filmId, long userId) throws ResponseStatusException {
         checkExistFilmAndUser(filmId, userId);
 
         filmLikesService.addLikeFilm(filmId, userId);
     }
 
-    public void removeLikeFilm(long filmId, long userId) throws ResponseStatusException {
+    public void removeLikeToFilm(long filmId, long userId) throws ResponseStatusException {
         checkExistFilmAndUser(filmId, userId);
 
         filmLikesService.removeLikeFilm(filmId, userId);
     }
 
-    public Set<Long> getLikesUsersIdByFilmId(long filmId) {
+    public Set<Long> getLikersIdsByFilmId(long filmId) {
         boolean filmExists = filmsDbStorage.isFilmExists(filmId);
         if (!filmExists) {
             log.info("Для возвращения списка id пользователей поставивших лайк фильму по ID: {} не найден", filmId);
@@ -131,7 +139,7 @@ public class FilmService {
 
     public List<Film> getListTopPopularFilms(int count) {
         List<Film> listTopPopularFilms = new ArrayList<>();
-        List<Film> allFilms = getSortListFilms();
+        List<Film> allFilms = getFilmsSortedByPopularity();
 
         for (int i = 0; i < count && i < allFilms.size(); i++) {
             listTopPopularFilms.add(allFilms.get(i));
@@ -140,45 +148,47 @@ public class FilmService {
         return listTopPopularFilms;
     }
 
-    private List<Film> getSortListFilms() throws ResponseStatusException {
+    private List<Film> getFilmsSortedByPopularity() throws ResponseStatusException {
         List<Film> allFilms = new ArrayList<>(getAllFilms()); //копию для того, чтобы могли делать, что хотим с этим списком
+
         if (allFilms.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не добавлено еще ни одного фильма для получения TOP-а");
         }
 
-        allFilms.sort(Comparator.comparingInt((Film film) -> film.getLikesUsersId().size()).reversed());
+        allFilms.sort(Comparator.comparingInt((Film film) -> film.getLikerIds().size()).reversed());
         return allFilms;
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
-        boolean existFilmLike = filmsDbStorage.isFilmExists(filmId);
-        boolean existUserFirst = userService.isUserExists(userId);
+        boolean existFilm = filmsDbStorage.isFilmExists(filmId);
+        boolean existUser = userService.isUserExists(userId);
 
-
-        if (!existUserFirst) {
+        if (!existUser) {
             log.error("Пользователь с ID: {} не найден для добавления лайка фильму", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID: " + userId + " не найден для добавления лайка фильму");
-        } else if (!existFilmLike) {
+        } else if (!existFilm) {
             log.error("Фильм с ID: {} не найден для добавления ему лайка", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с ID: " + filmId + " не найден для добавления ему лайка");
         }
     }
 
-    private void isValidFilm(Film chekFilm) throws ResponseStatusException {
-        isValidReleaseDate(chekFilm); //В случае не валидного релиза выбросит исключение ResponseStatusException
+    private void checkedFilm(Film chekFilm) throws ResponseStatusException {
+        isValidReleaseDate(chekFilm); //В случае не валидной даты релиза выбросит исключение ResponseStatusException
 
         Mpa mpa = chekFilm.getMpa();
         if (Objects.nonNull(mpa)) {
-            mpaService.isExistsMpa(chekFilm.getMpa().getId());
+            int IdMpa = mpa.getId();
+            mpaService.isExistsMpa(IdMpa);
         }
 
-        Set<Genre> genres = chekFilm.getGenres();
-        for (Genre genre : genres) {
-            genresService.isGenreExist(genre.getId());
+        Set<Genre> filmGenres = chekFilm.getGenres();
+        for (Genre genre : filmGenres) {
+            int IdGenre = genre.getId();
+            genresService.isGenreExist(IdGenre);
         }
 
-        Set<Long> likesUsers = chekFilm.getLikesUsersId();
-        for (Long userId : likesUsers) {
+        Set<Long> findLikersIds = chekFilm.getLikerIds();
+        for (Long userId : findLikersIds) {
             userService.isUserExists(userId);
         }
     }
@@ -190,8 +200,8 @@ public class FilmService {
         boolean isBefore = releaseDateFilm.isBefore(minReleaseDate);
         boolean isEqual = releaseDateFilm.isEqual(minReleaseDate);
         if ((isBefore || isEqual)) {
-            log.error("Not Valid release date film :{}", filmToValidate);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not Valid release date film :" + filmToValidate);
+            log.error("Не правильная дата релиза фильма: {}", filmToValidate);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Не правильная дата релиза фильма: " + filmToValidate);
         }
     }
 }
