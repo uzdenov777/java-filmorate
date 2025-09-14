@@ -20,7 +20,7 @@ public class MpaService {
     }
 
     public Mpa getMpaById(int mpaId) throws ResponseStatusException {
-       Optional<Mpa> mpaOpt = mpaDbStorage.findById(mpaId);
+        Optional<Mpa> mpaOpt = mpaDbStorage.findById(mpaId);
         if (mpaOpt.isEmpty()) {
             log.info("Не найден Mpa-возрастное ограничение при запросе на возврат по ID: {}", mpaId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден Mpa-возрастное ограничение при запросе на возврат по ID: " + mpaId);

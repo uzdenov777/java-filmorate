@@ -51,9 +51,12 @@ class FilmsDbStorageTest {
         filmsDbStorage.add(testFilm);
 
         //then
+
         List<Film> allFilmsAfter = filmsDbStorage.findAll();
-        assertEquals(1L, testFilm.getId()); // теперь после добавления появился у фильма ID
-        assertEquals(testFilm, allFilmsAfter.get(0)); // так как кроме
+        Long testFilmId = testFilm.getId();
+        Film filmAfter = allFilmsAfter.get(0);
+        assertEquals(1L, testFilmId); // теперь после добавления появился у фильма ID
+        assertEquals(testFilm, filmAfter); // так как кроме
     }
 
     @DisplayName("Должен выбросить исключение DataIntegrityViolationException, когда у фильма отсутствует Name")
@@ -106,12 +109,13 @@ class FilmsDbStorageTest {
 
     @DisplayName("Должен успешно вернуть фильм, который был ранее добавлен")
     @Test
-    void getFilmById_existingFilm() {
+    void findById_existingFilm() {
         //given
         Film savedFilm = filmsDbStorage.add(testFilm);
 
         //when
-        Optional<Film> filmOpt = filmsDbStorage.findById(testFilm.getId());
+        Long testFilmId = testFilm.getId();
+        Optional<Film> filmOpt = filmsDbStorage.findById(testFilmId);
         Film foundFilm = filmOpt.get();
 
         //then
@@ -120,7 +124,7 @@ class FilmsDbStorageTest {
 
     @DisplayName("Должен вернуть пустой Optional, когда запрашиваем не существующий фильм по ID с БД")
     @Test
-    void getFilmById_notExistingFilm() {
+    void findById_notExistingFilm() {
         //given
         Long notExistingFilmId = 999L;
 
@@ -133,7 +137,7 @@ class FilmsDbStorageTest {
 
     @DisplayName("Должен успешно вернуть список всех фильмов, когда фильмы добавлены")
     @Test
-    void getAllFilms_filmAdded() {
+    void findAll_filmAdded() {
         //given
         List<Film> allFilmsBefore = filmsDbStorage.findAll();
         assertTrue(allFilmsBefore.isEmpty());
@@ -143,13 +147,15 @@ class FilmsDbStorageTest {
         List<Film> allFilmsAfter = filmsDbStorage.findAll();
 
         //then
-        assertEquals(1L, testFilm.getId());
-        assertEquals(testFilm, allFilmsAfter.get(0));
+        Long testFilmId = testFilm.getId();
+        Film filmAfter = allFilmsAfter.get(0);
+        assertEquals(1L, testFilmId);
+        assertEquals(testFilm, filmAfter);
     }
 
     @DisplayName("Должен вернуть пустой список фильмов, когда фильмы не были добавлены")
     @Test
-    void getAllFilms_filmsNotAdded() {
+    void findAll_filmsNotAdded() {
         List<Film> allFilmsBefore = filmsDbStorage.findAll();
         assertTrue(allFilmsBefore.isEmpty());
     }

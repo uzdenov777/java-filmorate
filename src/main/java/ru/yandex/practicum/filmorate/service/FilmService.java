@@ -73,7 +73,7 @@ public class FilmService {
         }
 
         if (filmLikersIds.isEmpty()) {
-            filmLikesService.deleteAllFilmLikesByFilmId(filmId);
+            filmLikesService.deleteLikesByFilmId(filmId);
         } else {
             filmLikesService.updateFilmLike(filmId, filmLikersIds);
         }
@@ -93,7 +93,7 @@ public class FilmService {
         Set<Genre> filmGenres = filmGenresService.getGenresByFilmId(filmId);
         film.setGenres(filmGenres);
 
-        Set<Long> filmLikersIds = filmLikesService.getFilmLikesByFilmId(filmId);
+        Set<Long> filmLikersIds = filmLikesService.getLikesByFilmId(filmId);
         film.setLikerIds(filmLikersIds);
 
         return film;
@@ -108,7 +108,7 @@ public class FilmService {
             Set<Genre> filmGenres = filmGenresService.getGenresByFilmId(filmId);
             film.setGenres(filmGenres);
 
-            Set<Long> filmLikersIds = filmLikesService.getFilmLikesByFilmId(filmId);
+            Set<Long> filmLikersIds = filmLikesService.getLikesByFilmId(filmId);
             film.setLikerIds(filmLikersIds);
         }
 
@@ -134,7 +134,7 @@ public class FilmService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Для возвращения списка id пользователей поставивших лайк фильму по ID: " + filmId + " не найден");
         }
 
-        return filmLikesService.getFilmLikesByFilmId(filmId);
+        return filmLikesService.getLikesByFilmId(filmId);
     }
 
     public List<Film> getListTopPopularFilms(int count) {

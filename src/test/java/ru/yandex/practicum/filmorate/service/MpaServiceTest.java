@@ -39,8 +39,10 @@ class MpaServiceTest {
         Mpa resMpa = mpaService.getMpaById(idMpaExits);
 
         //then
-        assertEquals(1, resMpa.getId());
-        assertEquals("G", resMpa.getName());
+        int resMpaId = resMpa.getId();
+        String resMpaName = resMpa.getName();
+        assertEquals(1, resMpaId);
+        assertEquals("G", resMpaName);
     }
 
     @Test
@@ -52,8 +54,10 @@ class MpaServiceTest {
         Mpa resMpa = mpaService.getMpaById(idMpaExits);
 
         //then
-        assertEquals(4, resMpa.getId());
-        assertEquals("R", resMpa.getName());
+        int resMpaId = resMpa.getId();
+        String resMpaName = resMpa.getName();
+        assertEquals(4, resMpaId);
+        assertEquals("R", resMpaName);
     }
 
     @Test
@@ -74,24 +78,34 @@ class MpaServiceTest {
         assertEquals(5, allMpa.size());
 
         Mpa mpaG = allMpa.get(0);
-        assertEquals(1, mpaG.getId());
-        assertEquals("G", mpaG.getName());
+        int mpaGId = mpaG.getId();
+        String mpaGName = mpaG.getName();
+        assertEquals(1, mpaGId);
+        assertEquals("G", mpaGName);
 
         Mpa mpaPG = allMpa.get(1);
-        assertEquals(2, mpaPG.getId());
-        assertEquals("PG", mpaPG.getName());
+        int mpaPGId = mpaPG.getId();
+        String mpaPGName = mpaPG.getName();
+        assertEquals(2, mpaPGId);
+        assertEquals("PG", mpaPGName);
 
         Mpa mpaPG13 = allMpa.get(2);
-        assertEquals(3, mpaPG13.getId());
-        assertEquals("PG-13", mpaPG13.getName());
+        int mpaPG13Id = mpaPG13.getId();
+        String mpaPG13Name = mpaPG13.getName();
+        assertEquals(3, mpaPG13Id);
+        assertEquals("PG-13", mpaPG13Name);
 
         Mpa mpaR = allMpa.get(3);
-        assertEquals(4, mpaR.getId());
-        assertEquals("R", mpaR.getName());
+        int mpaRId = mpaR.getId();
+        String mpaRName = mpaR.getName();
+        assertEquals(4, mpaRId);
+        assertEquals("R", mpaRName);
 
         Mpa mpaNC17 = allMpa.get(4);
-        assertEquals(5, mpaNC17.getId());
-        assertEquals("NC-17", mpaNC17.getName());
+        int mpaNC17Id = mpaNC17.getId();
+        String mpaNC17Name = mpaNC17.getName();
+        assertEquals(5, mpaNC17Id);
+        assertEquals("NC-17", mpaNC17Name);
     }
 
     @Test

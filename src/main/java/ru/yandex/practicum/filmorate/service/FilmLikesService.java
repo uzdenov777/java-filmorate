@@ -28,19 +28,19 @@ public class FilmLikesService {
         filmLikesDbStorage.removeLikeFilm(filmId, userId);
     }
 
-    public void deleteAllFilmLikesByFilmId(long filmId) {
-        filmLikesDbStorage.deleteAllFilmLikesByFilmId(filmId);
+    public void deleteLikesByFilmId(long filmId) {
+        filmLikesDbStorage.deleteLikesByFilmId(filmId);
     }
 
     public void updateFilmLike(long filmId, Set<Long> userIds) {
-        deleteAllFilmLikesByFilmId(filmId);
+        deleteLikesByFilmId(filmId);
 
         for (Long userId : userIds) {
             filmLikesDbStorage.addLikeFilm(filmId, userId);
         }
     }
 
-    public Set<Long> getFilmLikesByFilmId(long filmId) {
+    public Set<Long> getLikesByFilmId(long filmId) {
         return new HashSet<>(filmLikesDbStorage.getLikersIdsByFilmId(filmId));
     }
 }

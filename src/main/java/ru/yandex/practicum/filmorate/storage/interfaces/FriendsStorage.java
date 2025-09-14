@@ -8,5 +8,5 @@ public interface FriendsStorage {
 
     void removeFriend(Long userId, Long friendId);
 
-    List<Long> getAllFriendsIdByUserId(long userId);
+    List<Long> getFriendsIdByUserId(long userId);
 }

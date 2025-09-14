@@ -58,8 +58,9 @@ class UserServiceTest {
 
         //then
         List<User> users = userService.getAllUsers();
+        User returnedFirstUser = users.get(0);
         assertEquals(1, users.size());
-        assertEquals(firstUser, users.get(0));
+        assertEquals(firstUser, returnedFirstUser);
     }
 
     @Test
@@ -68,12 +69,14 @@ class UserServiceTest {
         //given
         userService.add(firstUser);
         List<User> before = userService.getAllUsers();
+        User returnedFirstUser = before.get(0);
         assertEquals(1, before.size());
-        assertEquals(firstUser, before.get(0));
+        assertEquals(firstUser, returnedFirstUser);
 
         //when
+        Long firstUserId = firstUser.getId();
         User newUser = new User();
-        newUser.setId(firstUser.getId());
+        newUser.setId(firstUserId);
         newUser.setName("newUser");
         newUser.setLogin("login newUser");
         newUser.setBirthday(LocalDate.now().minusDays(1));
@@ -82,8 +85,9 @@ class UserServiceTest {
 
         //then
         List<User> userList = userService.getAllUsers();
+        User returnedNewUser = userList.get(0);
         assertEquals(1, userList.size());
-        assertEquals(newUser, userList.get(0));
+        assertEquals(newUser, returnedNewUser);
     }
 
     @Test
@@ -95,7 +99,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Должен вернуть список всех добавленных фильмов, когда фильмы добавлены")
+    @DisplayName("Должен вернуть список всех добавленных пользователей, когда пользователи добавлены")
     void getAllUsers_getNotEmptyListAddUsers() {
         //given
         List<User> before = userService.getAllUsers();
@@ -109,12 +113,14 @@ class UserServiceTest {
         newUser.setEmail("30Сантиметров@.gmail.com");
         userService.add(firstUser);
         userService.add(newUser);
+        List<User> userList = userService.getAllUsers();
 
         //then
-        List<User> userList = userService.getAllUsers();
+        User returnedFirstUser = userList.get(0);
+        User returnedNewUser = userList.get(1);
         assertEquals(2, userList.size());
-        assertEquals(firstUser, userList.get(0));
-        assertEquals(newUser, userList.get(1));
+        assertEquals(firstUser, returnedFirstUser);
+        assertEquals(newUser, returnedNewUser);
     }
 
     @Test
@@ -131,20 +137,22 @@ class UserServiceTest {
         //given
         userService.add(firstUser);
         userService.add(secondUser);
-        List<User> friendsFirstUserBefore = userService.getAllFriendsByUserId(firstUser.getId());
-        List<User> friendsSecondUserBefore = userService.getAllFriendsByUserId(secondUser.getId());
+        Long firstUserId = firstUser.getId();
+        Long secondUserId = secondUser.getId();
+        List<User> friendsFirstUserBefore = userService.getAllFriendsByUserId(firstUserId);
+        List<User> friendsSecondUserBefore = userService.getAllFriendsByUserId(secondUserId);
         assertTrue(friendsFirstUserBefore.isEmpty());
         assertTrue(friendsSecondUserBefore.isEmpty());
 
         //when
-        long idFirstUser = firstUser.getId();
-        long idSecondUser = secondUser.getId();
-        userService.addFriend(idFirstUser, idSecondUser);
+        userService.addFriend(firstUserId, secondUserId);
 
         //then
-        List<User> friendsFirstUserAfter = userService.getAllFriendsByUserId(firstUser.getId());
-        List<User> friendsSecondUserAfter = userService.getAllFriendsByUserId(secondUser.getId());
-        assertEquals(idSecondUser, friendsFirstUserAfter.get(0).getId());
+        List<User> friendsFirstUserAfter = userService.getAllFriendsByUserId(firstUserId);
+        List<User> friendsSecondUserAfter = userService.getAllFriendsByUserId(secondUserId);
+        User friendUser = friendsFirstUserAfter.get(0);
+        Long friendUserId = friendUser.getId();
+        assertEquals(secondUserId, friendUserId);
         assertTrue(friendsSecondUserAfter.isEmpty());
     }
 
@@ -194,17 +202,19 @@ class UserServiceTest {
         long idFirstUser = firstUser.getId();
         long idSecondUser = secondUser.getId();
         userService.addFriend(idFirstUser, idSecondUser);
-        List<User> friendsFirstUserBefore = userService.getAllFriendsByUserId(firstUser.getId());
-        List<User> friendsSecondUserBefore = userService.getAllFriendsByUserId(secondUser.getId());
-        assertEquals(idSecondUser, friendsFirstUserBefore.get(0).getId());
+        List<User> friendsFirstUserBefore = userService.getAllFriendsByUserId(idFirstUser);
+        List<User> friendsSecondUserBefore = userService.getAllFriendsByUserId(idSecondUser);
+        User friend = friendsFirstUserBefore.get(0);
+        Long idFriend = friend.getId();
+        assertEquals(idSecondUser, idFriend);
         assertTrue(friendsSecondUserBefore.isEmpty());
 
         //when
         userService.removeFriend(idFirstUser, idSecondUser);
 
         //then
-        List<User> friendsFirstUserAfter = userService.getAllFriendsByUserId(firstUser.getId());
-        List<User> friendsSecondUserAfter = userService.getAllFriendsByUserId(secondUser.getId());
+        List<User> friendsFirstUserAfter = userService.getAllFriendsByUserId(idFirstUser);
+        List<User> friendsSecondUserAfter = userService.getAllFriendsByUserId(idSecondUser);
         assertTrue(friendsFirstUserAfter.isEmpty());
         assertTrue(friendsSecondUserAfter.isEmpty());
     }
@@ -258,8 +268,10 @@ class UserServiceTest {
         List<User> friends = userService.getAllFriendsByUserId(idFirst);
 
         //then
-        assertEquals(1, friends.size());
-        assertEquals(secondUser, friends.get(0));
+        int size = friends.size();
+        User userFriends = friends.get(0);
+        assertEquals(1, size);
+        assertEquals(secondUser, userFriends);
     }
 
     @Test
@@ -310,8 +322,11 @@ class UserServiceTest {
         List<User> mutualFriendsAfter = userService.getListMutualFriends(idFirst, idSecond);
 
         //then
-        assertEquals(1, mutualFriendsAfter.size());
-        assertEquals(idMutual, mutualFriendsAfter.get(0).getId());
+        int size = mutualFriendsAfter.size();
+        User friend = mutualFriendsAfter.get(0);
+        Long friendId = friend.getId();
+        assertEquals(1, size);
+        assertEquals(idMutual, friendId);
     }
 
     @Test

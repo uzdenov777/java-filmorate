@@ -24,6 +24,6 @@ public class FriendsServer {
     }
 
     public List<Long> getAllFriendsIdsByUserId(long userId) {
-        return friendsDbStorage.getAllFriendsIdByUserId(userId);
+        return friendsDbStorage.getFriendsIdByUserId(userId);
     }
 }

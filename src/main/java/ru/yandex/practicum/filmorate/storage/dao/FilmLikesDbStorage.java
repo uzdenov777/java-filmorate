@@ -29,7 +29,7 @@ public class FilmLikesDbStorage implements FilmLikesStorage {
     }
 
     @Override
-    public void deleteAllFilmLikesByFilmId(long filmId) {
+    public void deleteLikesByFilmId(long filmId) {
         String sql = "DELETE FROM film_likes WHERE film_id = ?";
 
         jdbcTemplate.update(sql, filmId);

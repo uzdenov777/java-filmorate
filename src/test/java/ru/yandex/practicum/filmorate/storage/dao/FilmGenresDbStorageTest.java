@@ -47,18 +47,21 @@ class FilmGenresDbStorageTest {
     void addFilmGenre_addingFilmGenre_GenreAndFilmExist() {
         //given
         filmsDbStorage.add(firstFilm);
-        List<Genre> genresFirstFilmBefore = filmGenresDbStorage.getGenresByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        List<Genre> genresFirstFilmBefore = filmGenresDbStorage.getGenresByFilmId(firstFilmId);
         assertTrue(genresFirstFilmBefore.isEmpty());
 
         //when
-        filmGenresDbStorage.addFilmGenre(firstFilm.getId(), 1);
+        filmGenresDbStorage.addFilmGenre(firstFilmId, 1);
 
         //then
-        List<Genre> genresFirstFilmAfter = filmGenresDbStorage.getGenresByFilmId(firstFilm.getId());
+        List<Genre> genresFirstFilmAfter = filmGenresDbStorage.getGenresByFilmId(firstFilmId);
         assertEquals(1, genresFirstFilmAfter.size());
         Genre genreFirstFilm = genresFirstFilmAfter.get(0);
-        assertEquals(1, genreFirstFilm.getId());
-        assertEquals("Комедия", genreFirstFilm.getName());
+        int genreFirstFilmId = genreFirstFilm.getId();
+        String genreFirstFilmName = genreFirstFilm.getName();
+        assertEquals(1, genreFirstFilmId);
+        assertEquals("Комедия", genreFirstFilmName);
     }
 
     @Test
@@ -73,13 +76,14 @@ class FilmGenresDbStorageTest {
     @DisplayName("Должен выбросить исключение DataIntegrityViolationException при добавлении фильму жанра, когда жанра с таким ID нет")
     void addFilmGenre_notAddingFilmGenre_genreNotExist() {
         //given
+        Long firstFilmId = firstFilm.getId();
         filmsDbStorage.add(firstFilm);
-        List<Genre> genresFirstFilmBefore = filmGenresDbStorage.getGenresByFilmId(firstFilm.getId());
+        List<Genre> genresFirstFilmBefore = filmGenresDbStorage.getGenresByFilmId(firstFilmId);
         assertTrue(genresFirstFilmBefore.isEmpty());
 
         //when+then
         int genreIdNotExit = 777;
-        assertThrows(DataIntegrityViolationException.class, () -> filmGenresDbStorage.addFilmGenre(firstFilm.getId(), genreIdNotExit));
+        assertThrows(DataIntegrityViolationException.class, () -> filmGenresDbStorage.addFilmGenre(firstFilmId, genreIdNotExit));
     }
 
     @Test
@@ -87,15 +91,18 @@ class FilmGenresDbStorageTest {
     void deleteFilmGenresByFilmId_genreExist() {
         //given
         filmsDbStorage.add(firstFilm);
-        filmGenresDbStorage.addFilmGenre(firstFilm.getId(), 1);
-        List<Genre> genresFirstFilmBefore = filmGenresDbStorage.getGenresByFilmId(firstFilm.getId());
-        assertEquals(1, genresFirstFilmBefore.get(0).getId());
+        Long firstFilmId = firstFilm.getId();
+        filmGenresDbStorage.addFilmGenre(firstFilmId, 1);
+        List<Genre> genresFirstFilmBefore = filmGenresDbStorage.getGenresByFilmId(firstFilmId);
+        Genre genreFirstFilm = genresFirstFilmBefore.get(0);
+        int longGenre = genreFirstFilm.getId();
+        assertEquals(1, longGenre);
 
         //when
-        filmGenresDbStorage.deleteFilmGenresByFilmId(firstFilm.getId());
+        filmGenresDbStorage.deleteFilmGenresByFilmId(firstFilmId);
 
         //then
-        List<Genre> genresFirstFilmAfter = filmGenresDbStorage.getGenresByFilmId(firstFilm.getId());
+        List<Genre> genresFirstFilmAfter = filmGenresDbStorage.getGenresByFilmId(firstFilmId);
         assertTrue(genresFirstFilmAfter.isEmpty());
     }
 
@@ -104,13 +111,16 @@ class FilmGenresDbStorageTest {
     void getGenresByFilmId_genreAdding() {
         //given
         filmsDbStorage.add(firstFilm);
-        filmGenresDbStorage.addFilmGenre(firstFilm.getId(), 1);
+        Long firstFilmId = firstFilm.getId();
+        filmGenresDbStorage.addFilmGenre(firstFilmId, 1);
 
         //when
-        List<Genre> genresFirstFilm = filmGenresDbStorage.getGenresByFilmId(firstFilm.getId());
+        List<Genre> genresFirstFilm = filmGenresDbStorage.getGenresByFilmId(firstFilmId);
 
         //then
-        assertEquals(1, genresFirstFilm.get(0).getId());
+        Genre genreFirstFilm = genresFirstFilm.get(0);
+        int genreId = genreFirstFilm.getId();
+        assertEquals(1, genreId);
     }
 
     @Test
@@ -120,7 +130,8 @@ class FilmGenresDbStorageTest {
         filmsDbStorage.add(firstFilm);
 
         //when
-        List<Genre> genresFirstFilm = filmGenresDbStorage.getGenresByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        List<Genre> genresFirstFilm = filmGenresDbStorage.getGenresByFilmId(firstFilmId);
 
         //then
         assertTrue(genresFirstFilm.isEmpty());

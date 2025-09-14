@@ -41,17 +41,18 @@ class UserDbStorageTest {
     @DisplayName("Должен успешно добавить пользователя и сохранить ему новый ID")
     void add_addingUser() {
         //given
+        Long firstUserId = firstUser.getId();
         List<User> usersBefore = userDbStorage.findAll();
         assertTrue(usersBefore.isEmpty());
-        assertNull(firstUser.getId());// пока фильм еще не добавлен у него нет ID
+        assertNull(firstUserId);// пока фильм еще не добавлен у него нет ID
 
         //when
         userDbStorage.add(firstUser);
 
         //then
         List<User> usersAfter = userDbStorage.findAll();
-        assertNotNull(firstUser.getId());
-        assertEquals(firstUser, usersAfter.get(0));
+        User userAfter = usersAfter.get(0);
+        assertEquals(firstUser, userAfter);
     }
 
     @Test
@@ -106,13 +107,16 @@ class UserDbStorageTest {
     @DisplayName("Должен обновить фильм")
     void update() {
         //given
+
         userDbStorage.add(firstUser);
+        Long firstUserId = firstUser.getId();
         List<User> usersBefore = userDbStorage.findAll();
-        assertEquals(firstUser, usersBefore.get(0));
+        User userBefore = usersBefore.get(0);
+        assertEquals(firstUser, userBefore);
 
         //when
         User newUser = new User();
-        newUser.setId(firstUser.getId());
+        newUser.setId(firstUserId);
         newUser.setName("New User");
         newUser.setEmail("newUser@gmail");
         newUser.setLogin("newUserLogin");
@@ -121,13 +125,15 @@ class UserDbStorageTest {
 
         //then
         List<User> usersAfter = userDbStorage.findAll();
-        assertEquals(newUser.getId(), firstUser.getId());
-        assertEquals(newUser, usersAfter.get(0));
+        Long newUserId = newUser.getId();
+        User userAfter = usersAfter.get(0);
+        assertEquals(newUserId, firstUserId);
+        assertEquals(newUser, userAfter);
     }
 
     @Test
     @DisplayName("Должен вернуть user по ID, когда user добавлен заранее")
-    void getUserById_userExists() {
+    void findById_userExists() {
         //given
         userDbStorage.add(firstUser);
         List<User> usersBefore = userDbStorage.findAll();
@@ -144,7 +150,7 @@ class UserDbStorageTest {
 
     @Test
     @DisplayName("Должен вернуть пустой Optional, когда пользователь по ID не найдено в БД")
-    void getUserById_userNotExists() {
+    void findById_userNotExists() {
         //given
         List<User> usersBefore = userDbStorage.findAll();
         assertTrue(usersBefore.isEmpty());
@@ -159,7 +165,7 @@ class UserDbStorageTest {
 
     @Test
     @DisplayName("Должен вернуть не пустой список всех пользователей, когда user-ы добавлены заранее")
-    void getAllUsers_usersExists() {
+    void findAll_usersExists() {
         //given
         userDbStorage.add(firstUser);
 
@@ -172,7 +178,7 @@ class UserDbStorageTest {
 
     @Test
     @DisplayName("Должен вернуть не пустой список всех пользователей, когда user-ы добавлены заранее")
-    void getAllUsers_usersNotExists() {
+    void findAll_usersNotExists() {
         //when
         List<User> usersRes = userDbStorage.findAll();
 

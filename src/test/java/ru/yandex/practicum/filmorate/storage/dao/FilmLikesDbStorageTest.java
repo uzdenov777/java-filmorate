@@ -57,15 +57,17 @@ class FilmLikesDbStorageTest {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        Long userFilmorateId = userFilmorate.getId();
+        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getLikersIdsByFilmId(firstFilmId);
         assertTrue(likesFilmByFirstFilmBefore.isEmpty());
 
         //when
-        filmLikesDbStorage.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
+        filmLikesDbStorage.addLikeFilm(firstFilmId, userFilmorateId);
 
         //then
-        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
-        assertEquals(userFilmorate.getId(), likesFilmByFirstFilmAfter.get(0));
+        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getLikersIdsByFilmId(firstFilmId);
+        assertEquals(userFilmorateId, likesFilmByFirstFilmAfter.get(0));
     }
 
     @Test
@@ -76,7 +78,8 @@ class FilmLikesDbStorageTest {
 
         //when+then
         long filmIdNotExist = 777L;
-        assertThrows(DataIntegrityViolationException.class, () -> filmLikesDbStorage.addLikeFilm(filmIdNotExist, userFilmorate.getId()));
+        Long userFilmorateId = userFilmorate.getId();
+        assertThrows(DataIntegrityViolationException.class, () -> filmLikesDbStorage.addLikeFilm(filmIdNotExist, userFilmorateId));
     }
 
     @Test
@@ -87,7 +90,8 @@ class FilmLikesDbStorageTest {
 
         //when+then
         long userIdNotExist = 777L;
-        assertThrows(DataIntegrityViolationException.class, () -> filmLikesDbStorage.addLikeFilm(firstFilm.getId(), userIdNotExist));
+        Long firstFilmId = firstFilm.getId();
+        assertThrows(DataIntegrityViolationException.class, () -> filmLikesDbStorage.addLikeFilm(firstFilmId, userIdNotExist));
     }
 
     @Test
@@ -96,44 +100,49 @@ class FilmLikesDbStorageTest {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        filmLikesDbStorage.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
-        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
-        assertEquals(userFilmorate.getId(), likesFilmByFirstFilmBefore.get(0));
+        Long firstFilmId = firstFilm.getId();
+        Long userFilmorateId = userFilmorate.getId();
+        filmLikesDbStorage.addLikeFilm(firstFilmId, userFilmorateId);
+        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getLikersIdsByFilmId(firstFilmId);
+        assertEquals(userFilmorateId, likesFilmByFirstFilmBefore.get(0));
 
         //when
-        filmLikesDbStorage.removeLikeFilm(firstFilm.getId(), userFilmorate.getId());
+        filmLikesDbStorage.removeLikeFilm(firstFilmId, userFilmorateId);
 
         //then
-        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
+        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getLikersIdsByFilmId(firstFilmId);
         assertTrue(likesFilmByFirstFilmAfter.isEmpty());
     }
 
     @Test
     @DisplayName("Должен удалить все лайки фильму, когда есть лайки")
-    void deleteAllFilmLikesByFilmId_removeAllLikesFilmById_UserAndFilmExist() {
+    void deleteLikesByFilmId_removeAllLikesFilmById_UserAndFilmExist() {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        filmLikesDbStorage.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
-        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
-        assertEquals(userFilmorate.getId(), likesFilmByFirstFilmBefore.get(0));
+        Long firstFilmId = firstFilm.getId();
+        Long userFilmorateId = userFilmorate.getId();
+        filmLikesDbStorage.addLikeFilm(firstFilmId, userFilmorateId);
+        List<Long> likesFilmByFirstFilmBefore = filmLikesDbStorage.getLikersIdsByFilmId(firstFilmId);
+        assertEquals(userFilmorateId, likesFilmByFirstFilmBefore.get(0));
 
         //when
-        filmLikesDbStorage.deleteAllFilmLikesByFilmId(firstFilm.getId());
+        filmLikesDbStorage.deleteLikesByFilmId(firstFilmId);
 
         //then
-        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
+        List<Long> likesFilmByFirstFilmAfter = filmLikesDbStorage.getLikersIdsByFilmId(firstFilmId);
         assertTrue(likesFilmByFirstFilmAfter.isEmpty());
     }
 
     @Test
     @DisplayName("Должен вернуть пустой список всех лайков фильму, когда нет ни одного лайка")
-    void getFilmLikesByFilmId_returnEmptyListAllLikesFilmById_notExistLikes() {
+    void getLikersIdsByFilmId_returnEmptyListAllLikesFilmById_notExistLikes() {
         //given
         filmsDbStorage.add(firstFilm);
 
         //when
-        List<Long> allLikesFirstFilm = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        List<Long> allLikesFirstFilm = filmLikesDbStorage.getLikersIdsByFilmId(firstFilmId);
 
         //then
         assertTrue(allLikesFirstFilm.isEmpty());
@@ -141,16 +150,19 @@ class FilmLikesDbStorageTest {
 
     @Test
     @DisplayName("Должен вернуть не пустой список всех лайков фильму, когда лайки поставлены")
-    void getFilmLikesByFilmId_returnNotEmptyListAllLikesFilmById_ExistLikes() {
+    void getLikersIdsByFilmId_returnNotEmptyListAllLikesFilmById_ExistLikes() {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        filmLikesDbStorage.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
+        Long firstFilmId = firstFilm.getId();
+        Long userFilmorateId = userFilmorate.getId();
+        filmLikesDbStorage.addLikeFilm(firstFilmId, userFilmorateId);
 
         //when
-        List<Long> allLikesFirstFilm = filmLikesDbStorage.getLikersIdsByFilmId(firstFilm.getId());
+        List<Long> allLikesFirstFilm = filmLikesDbStorage.getLikersIdsByFilmId(firstFilmId);
 
         //then
-        assertEquals(userFilmorate.getId(), allLikesFirstFilm.get(0));
+        Long likerId = allLikesFirstFilm.get(0);
+        assertEquals(userFilmorateId, likerId);
     }
 }

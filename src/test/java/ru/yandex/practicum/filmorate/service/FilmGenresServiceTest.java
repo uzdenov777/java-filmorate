@@ -50,35 +50,37 @@ class FilmGenresServiceTest {
     void addFilmGenres_addingFilmGenre_listNotEmpty() {
         //given
         filmsDbStorage.add(firstFilm);
-        Set<Genre> genresFirstFilmBefore = filmGenresService.getGenresByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        Set<Genre> genresFirstFilmBefore = filmGenresService.getGenresByFilmId(firstFilmId);
         assertTrue(genresFirstFilmBefore.isEmpty());
 
         //when
         Genre newGenre = new Genre(1, "Комедия");
         Set<Genre> filmGenres = new HashSet<>();
         filmGenres.add(newGenre);
-        filmGenresService.addFilmGenres(firstFilm.getId(), filmGenres);
+        filmGenresService.addFilmGenres(firstFilmId, filmGenres);
 
         //then
-        Set<Genre> genresFirstFilmAfter = filmGenresService.getGenresByFilmId(firstFilm.getId());
+        Set<Genre> genresFirstFilmAfter = filmGenresService.getGenresByFilmId(firstFilmId);
         assertEquals(1, genresFirstFilmAfter.size());
         assertTrue(genresFirstFilmAfter.contains(newGenre));
     }
 
     @Test
-    @DisplayName("Не должен добавить жанры фильма, когда список пустой")
+    @DisplayName("Не должен добавить жанры фильма, когда список жанров для добавления пустой")
     void addFilmGenres_notAddingFilmGenre_listEmpty() {
         //given
         filmsDbStorage.add(firstFilm);
-        Set<Genre> genresFirstFilmBefore = filmGenresService.getGenresByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        Set<Genre> genresFirstFilmBefore = filmGenresService.getGenresByFilmId(firstFilmId);
         assertTrue(genresFirstFilmBefore.isEmpty());
 
         //when
         Set<Genre> filmGenres = new HashSet<>();
-        filmGenresService.addFilmGenres(firstFilm.getId(), filmGenres);
+        filmGenresService.addFilmGenres(firstFilmId, filmGenres);
 
         //then
-        Set<Genre> genresFirstFilmAfter = filmGenresService.getGenresByFilmId(firstFilm.getId());
+        Set<Genre> genresFirstFilmAfter = filmGenresService.getGenresByFilmId(firstFilmId);
         assertTrue(genresFirstFilmAfter.isEmpty());
     }
 
@@ -100,7 +102,8 @@ class FilmGenresServiceTest {
     void addFilmGenre_notAddingFilmGenre_genreNotExist() {
         //given
         filmsDbStorage.add(firstFilm);
-        Set<Genre> genresFirstFilmBefore = filmGenresService.getGenresByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        Set<Genre> genresFirstFilmBefore = filmGenresService.getGenresByFilmId(firstFilmId);
         assertTrue(genresFirstFilmBefore.isEmpty());
 
         //when+then
@@ -108,7 +111,7 @@ class FilmGenresServiceTest {
         Genre newGenre = new Genre(genreIdNotExit, "Комедия");
         Set<Genre> filmGenres = new HashSet<>();
         filmGenres.add(newGenre);
-        assertThrows(DataIntegrityViolationException.class, () -> filmGenresService.addFilmGenres(firstFilm.getId(), filmGenres));
+        assertThrows(DataIntegrityViolationException.class, () -> filmGenresService.addFilmGenres(firstFilmId, filmGenres));
     }
 
     @Test
@@ -119,15 +122,16 @@ class FilmGenresServiceTest {
         Set<Genre> filmGenres = new HashSet<>();
         filmGenres.add(newGenre);
         filmsDbStorage.add(firstFilm);
-        filmGenresService.addFilmGenres(firstFilm.getId(), filmGenres);
-        Set<Genre> genresFirstFilmBefore = filmGenresService.getGenresByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        filmGenresService.addFilmGenres(firstFilmId, filmGenres);
+        Set<Genre> genresFirstFilmBefore = filmGenresService.getGenresByFilmId(firstFilmId);
         assertFalse(genresFirstFilmBefore.isEmpty());
 
         //when
-        filmGenresService.deleteAllFilmGenresByFilmId(firstFilm.getId());
+        filmGenresService.deleteAllFilmGenresByFilmId(firstFilmId);
 
         //then
-        Set<Genre> genresFirstFilmAfter = filmGenresService.getGenresByFilmId(firstFilm.getId());
+        Set<Genre> genresFirstFilmAfter = filmGenresService.getGenresByFilmId(firstFilmId);
         assertTrue(genresFirstFilmAfter.isEmpty());
     }
 
@@ -136,9 +140,10 @@ class FilmGenresServiceTest {
     void getGenresByFilmId_returnEmptySet_filmHasNoGenres() {
         //given
         filmsDbStorage.add(firstFilm);
+        Long firstFilmId = firstFilm.getId();
 
         //when
-        Set<Genre> genresFirstFilm = filmGenresService.getGenresByFilmId(firstFilm.getId());
+        Set<Genre> genresFirstFilm = filmGenresService.getGenresByFilmId(firstFilmId);
 
         //then
         assertTrue(genresFirstFilm.isEmpty());
@@ -152,10 +157,11 @@ class FilmGenresServiceTest {
         Set<Genre> filmGenres = new HashSet<>();
         filmGenres.add(newGenre);
         filmsDbStorage.add(firstFilm);
-        filmGenresService.addFilmGenres(firstFilm.getId(), filmGenres);
+        Long firstFilmId = firstFilm.getId();
+        filmGenresService.addFilmGenres(firstFilmId, filmGenres);
 
         //when
-        Set<Genre> genresFirstFilm = filmGenresService.getGenresByFilmId(firstFilm.getId());
+        Set<Genre> genresFirstFilm = filmGenresService.getGenresByFilmId(firstFilmId);
 
         //then
         assertTrue(genresFirstFilm.contains(newGenre));

@@ -58,19 +58,21 @@ class FilmLikesServiceTest {
 
     @Test
     @DisplayName("Должен добавить фильму лайк, когда и фильм и пользователь существуют")
-    void addFilmLike_addingLikeFilm_UserAndFilmExist() {
+    void addLikeFilm_addingLikeFilm_UserAndFilmExist() {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        Set<Long> likesFilmByFirstFilmBefore = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        Long userId = userFilmorate.getId();
+        Set<Long> likesFilmByFirstFilmBefore = filmLikesService.getLikesByFilmId(firstFilmId);
         assertTrue(likesFilmByFirstFilmBefore.isEmpty());
 
         //when
-        filmLikesService.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
+        filmLikesService.addLikeFilm(firstFilmId, userId);
 
         //then
-        Set<Long> likesFilmByFirstFilmAfter = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
-        assertTrue(likesFilmByFirstFilmAfter.contains(userFilmorate.getId()));
+        Set<Long> likesFilmByFirstFilmAfter = filmLikesService.getLikesByFilmId(firstFilmId);
+        assertTrue(likesFilmByFirstFilmAfter.contains(userId));
     }
 
     @Test
@@ -81,7 +83,8 @@ class FilmLikesServiceTest {
 
         //when+then
         long filmIdNotExist = 777L;
-        assertThrows(DataIntegrityViolationException.class, () -> filmLikesService.addLikeFilm(filmIdNotExist, userFilmorate.getId()));
+        long userId = userFilmorate.getId();
+        assertThrows(DataIntegrityViolationException.class, () -> filmLikesService.addLikeFilm(filmIdNotExist, userId));
     }
 
     @Test
@@ -92,7 +95,8 @@ class FilmLikesServiceTest {
 
         //when+then
         long userIdNotExist = 777L;
-        assertThrows(DataIntegrityViolationException.class, () -> filmLikesService.addLikeFilm(firstFilm.getId(), userIdNotExist));
+        long firstFilmId = firstFilm.getId();
+        assertThrows(DataIntegrityViolationException.class, () -> filmLikesService.addLikeFilm(firstFilmId, userIdNotExist));
     }
 
     @Test
@@ -101,26 +105,29 @@ class FilmLikesServiceTest {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        Set<Long> likesFilmByFirstFilmBefore = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        Long userId = userFilmorate.getId();
+        Set<Long> likesFilmByFirstFilmBefore = filmLikesService.getLikesByFilmId(firstFilmId);
         assertTrue(likesFilmByFirstFilmBefore.isEmpty());
 
         //when
         Set<Long> idUserLikes = new HashSet<>();
-        idUserLikes.add(userFilmorate.getId());
-        filmLikesService.addFilmLikes(firstFilm.getId(), idUserLikes);
+        idUserLikes.add(userId);
+        filmLikesService.addFilmLikes(firstFilmId, idUserLikes);
 
         //then
-        Set<Long> likesFilmByFirstFilmAfter = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
-        assertTrue(likesFilmByFirstFilmAfter.contains(userFilmorate.getId()));
+        Set<Long> likesFilmByFirstFilmAfter = filmLikesService.getLikesByFilmId(firstFilmId);
+        assertTrue(likesFilmByFirstFilmAfter.contains(userId));
     }
 
     @Test
-    @DisplayName("Должен выбросить исключение DataIntegrityViolationException при добавлении лайка, когда фильм не существует")
+    @DisplayName("Должен выбросить исключение DataIntegrityViolationException при добавлении лайков, когда фильм не существует")
     void addFilmLikes_notAddingLikeFilm_filmNotExist() {
         //given
         userDbStorage.add(userFilmorate);
+        long userId = userFilmorate.getId();
         Set<Long> idUserLikes = new HashSet<>();
-        idUserLikes.add(userFilmorate.getId());
+        idUserLikes.add(userId);
 
         //when+then
         long filmIdNotExist = 777L;
@@ -128,16 +135,17 @@ class FilmLikesServiceTest {
     }
 
     @Test
-    @DisplayName("Должен выбросить исключение DataIntegrityViolationException при добавлении лайка, когда пользователь не существует")
+    @DisplayName("Должен выбросить исключение DataIntegrityViolationException при добавлении лайков, когда пользователь не существует")
     void addFilmLikes_notAddingLikeFilm_userNotExist() {
         //given
         filmsDbStorage.add(firstFilm);
 
         //when+then
         long userIdNotExist = 777L;
+        Long filmId = firstFilm.getId();
         Set<Long> idUserLikes = new HashSet<>();
         idUserLikes.add(userIdNotExist);
-        assertThrows(DataIntegrityViolationException.class, () -> filmLikesService.addFilmLikes(firstFilm.getId(), idUserLikes));
+        assertThrows(DataIntegrityViolationException.class, () -> filmLikesService.addFilmLikes(filmId, idUserLikes));
     }
 
     @Test
@@ -146,44 +154,49 @@ class FilmLikesServiceTest {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        filmLikesService.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
-        Set<Long> likesFilmByFirstFilmBefore = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
-        assertTrue(likesFilmByFirstFilmBefore.contains(userFilmorate.getId()));
+        Long firstFilmId = firstFilm.getId();
+        Long userId = userFilmorate.getId();
+        filmLikesService.addLikeFilm(firstFilmId, userId);
+        Set<Long> likesFilmByFirstFilmBefore = filmLikesService.getLikesByFilmId(firstFilmId);
+        assertTrue(likesFilmByFirstFilmBefore.contains(userId));
 
         //when
-        filmLikesService.removeLikeFilm(firstFilm.getId(), userFilmorate.getId());
+        filmLikesService.removeLikeFilm(firstFilmId, userId);
 
         //then
-        Set<Long> likesFilmByFirstFilmAfter = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
+        Set<Long> likesFilmByFirstFilmAfter = filmLikesService.getLikesByFilmId(firstFilmId);
         assertTrue(likesFilmByFirstFilmAfter.isEmpty());
     }
 
     @Test
     @DisplayName("Должен удалить все лайки фильму, когда есть лайки")
-    void deleteAllFilmLikesByFilmId_removeAllLikesFilmById_UserAndFilmExist() {
+    void deleteLikesByFilmId_removeAllLikesFilmById_UserAndFilmExist() {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        filmLikesService.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
-        Set<Long> likesFilmByFirstFilmBefore = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
-        assertTrue(likesFilmByFirstFilmBefore.contains(userFilmorate.getId()));
+        Long firstFilmId = firstFilm.getId();
+        Long userId = userFilmorate.getId();
+        filmLikesService.addLikeFilm(firstFilmId, userId);
+        Set<Long> likesFilmByFirstFilmBefore = filmLikesService.getLikesByFilmId(firstFilmId);
+        assertTrue(likesFilmByFirstFilmBefore.contains(userId));
 
         //when
-        filmLikesService.deleteAllFilmLikesByFilmId(firstFilm.getId());
+        filmLikesService.deleteLikesByFilmId(firstFilmId);
 
         //then
-        Set<Long> likesFilmByFirstFilmAfter = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
+        Set<Long> likesFilmByFirstFilmAfter = filmLikesService.getLikesByFilmId(firstFilmId);
         assertTrue(likesFilmByFirstFilmAfter.isEmpty());
     }
 
     @Test
     @DisplayName("Должен вернуть пустой список всех лайков фильму, когда нет ни одного лайка")
-    void getFilmLikesByFilmId_returnEmptyListAllLikesFilmById_notExistLikes() {
+    void getLikesByFilmId_returnEmptyListAllLikesFilmById_notExistLikes() {
         //given
         filmsDbStorage.add(firstFilm);
 
         //when
-        Set<Long> allLikesFirstFilm = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
+        Long firstFilmId = firstFilm.getId();
+        Set<Long> allLikesFirstFilm = filmLikesService.getLikesByFilmId(firstFilmId);
 
         //then
         assertTrue(allLikesFirstFilm.isEmpty());
@@ -191,16 +204,18 @@ class FilmLikesServiceTest {
 
     @Test
     @DisplayName("Должен вернуть не пустой список всех лайков фильму, когда лайки поставлены")
-    void getFilmLikesByFilmId_returnNotEmptyListAllLikesFilmById_ExistLikes() {
+    void getLikesByFilmId_returnNotEmptyListAllLikesFilmById_ExistLikes() {
         //given
         filmsDbStorage.add(firstFilm);
         userDbStorage.add(userFilmorate);
-        filmLikesService.addLikeFilm(firstFilm.getId(), userFilmorate.getId());
+        Long firstFilmId = firstFilm.getId();
+        Long userId = userFilmorate.getId();
+        filmLikesService.addLikeFilm(firstFilmId, userId);
 
         //when
-        Set<Long> allLikesFirstFilm = filmLikesService.getFilmLikesByFilmId(firstFilm.getId());
+        Set<Long> allLikesFirstFilm = filmLikesService.getLikesByFilmId(firstFilmId);
 
         //then
-        assertTrue(allLikesFirstFilm.contains(userFilmorate.getId()));
+        assertTrue(allLikesFirstFilm.contains(userId));
     }
 }

@@ -29,7 +29,7 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     @Override
-    public List<Long> getAllFriendsIdByUserId(long userId) {
+    public List<Long> getFriendsIdByUserId(long userId) {
         String sql = "SELECT friend_id FROM friends WHERE user_id = ?";
 
         return jdbcTemplate.queryForList(sql, Long.class, userId);

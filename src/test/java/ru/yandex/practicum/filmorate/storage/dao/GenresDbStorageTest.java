@@ -30,32 +30,36 @@ class GenresDbStorageTest {
 
     @Test
     @DisplayName("Должен вернуть жанр ID:1, \"Комедия\"")
-    void getGenreById_genreComedyExist() {
+    void findById_genreComedyExist() {
         //when
 
         Optional<Genre> genreOpt = genresDbStorage.findById(1);
         Genre resGenre = genreOpt.get();
 
         //then
-        assertEquals(1, resGenre.getId());
-        assertEquals("Комедия", resGenre.getName());
+        int resGenreId = resGenre.getId();
+        String resGenreName = resGenre.getName();
+        assertEquals(1, resGenreId);
+        assertEquals("Комедия", resGenreName);
     }
 
     @Test
     @DisplayName("Должен вернуть жанр ID:3, \"Мультфильм\"")
-    void getGenreById_genreCartoonExist() {
+    void findById_genreCartoonExist() {
         //when
         Optional<Genre> genreOpt = genresDbStorage.findById(3);
         Genre resGenre = genreOpt.get();
 
         //then
-        assertEquals(3, resGenre.getId());
-        assertEquals("Мультфильм", resGenre.getName());
+        int resGenreId = resGenre.getId();
+        String resGenreName = resGenre.getName();
+        assertEquals(3, resGenreId);
+        assertEquals("Мультфильм", resGenreName);
     }
 
     @Test
     @DisplayName("Должен вернуть пустой Optional, когда жанра по ID не найдено")
-    void getGenreById_genreNotExist() {
+    void findById_genreNotExist() {
         //given
         int idGenreNotExits = 99;
 
@@ -67,36 +71,49 @@ class GenresDbStorageTest {
 
     @Test
     @DisplayName("Должен вернуть список с 6 жанрами, которые добавлены при инициализации по умолчанию")
-    void getAllGenres() {
+    void findAll() {
         //when
         List<Genre> genres = genresDbStorage.findAll();
 
         //then
-        assertEquals(6, genres.size());
+        int size = genres.size();
+        assertEquals(6, size);
 
         Genre genreComedy = genres.get(0);
-        assertEquals(1, genreComedy.getId());
-        assertEquals("Комедия", genreComedy.getName());
+        int genreComedyId = genreComedy.getId();
+        String genreComedyName = genreComedy.getName();
+        assertEquals(1, genreComedyId);
+        assertEquals("Комедия", genreComedyName);
 
         Genre genreDrama = genres.get(1);
-        assertEquals(2, genreDrama.getId());
-        assertEquals("Драма", genreDrama.getName());
+        int genreDramaId = genreDrama.getId();
+        String genreDramaName = genreDrama.getName();
+        assertEquals(2, genreDramaId);
+        assertEquals("Драма", genreDramaName);
 
         Genre genreCartoon = genres.get(2);
-        assertEquals(3, genreCartoon.getId());
-        assertEquals("Мультфильм", genreCartoon.getName());
+        int genreCartoonId = genreCartoon.getId();
+        String genreCartoonName = genreCartoon.getName();
+        assertEquals(3, genreCartoonId);
+        assertEquals("Мультфильм", genreCartoonName);
 
         Genre genreThriller = genres.get(3);
-        assertEquals(4, genreThriller.getId());
-        assertEquals("Триллер", genreThriller.getName());
+        int genreThrillerId = genreThriller.getId();
+        String genreThrillerName = genreThriller.getName();
+        assertEquals(4, genreThrillerId);
+        assertEquals("Триллер", genreThrillerName);
 
         Genre genreDocumentary = genres.get(4);
-        assertEquals(5, genreDocumentary.getId());
-        assertEquals("Документальный", genreDocumentary.getName());
+        int genreDocumentaryId = genreDocumentary.getId();
+        String genreDocumentaryName = genreDocumentary.getName();
+        assertEquals(5, genreDocumentaryId);
+        assertEquals("Документальный", genreDocumentaryName);
 
         Genre genreAction = genres.get(5);
-        assertEquals(6, genreAction.getId());
-        assertEquals("Боевик", genreAction.getName());
+        int genreActionId = genreAction.getId();
+        String genreActionName = genreAction.getName();
+        assertEquals(6, genreActionId);
+        assertEquals("Боевик", genreActionName);
     }
 
     @Test
