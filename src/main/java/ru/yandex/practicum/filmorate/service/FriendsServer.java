@@ -2,28 +2,43 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.storage.dao.FriendsDbStorage;
+import ru.yandex.practicum.filmorate.model.Friendship;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.interfaces.FriendRepository;
 
 import java.util.List;
 
 @Service
 public class FriendsServer {
-    private final FriendsDbStorage friendsDbStorage;
+
+    private final FriendRepository friendRepository;
 
     @Autowired
-    public FriendsServer(FriendsDbStorage friendsDbStorage) {
-        this.friendsDbStorage = friendsDbStorage;
+    public FriendsServer(FriendRepository friendRepository) {
+        this.friendRepository = friendRepository;
     }
 
-    public void addFriend(Long userId, Long friendId) {
-        friendsDbStorage.addFriend(userId, friendId);
+    public void addFriend(User user, User friend) {
+
+        Friendship friendship = new Friendship();
+        friendship.setUser(user);
+        friendship.setFriend(friend);
+
+        friendRepository.save(friendship);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        friendsDbStorage.removeFriend(userId, friendId);
+        friendRepository.deleteByUserIdAndFriendId(userId, friendId);
     }
 
-    public List<Long> getAllFriendsIdsByUserId(long userId) {
-        return friendsDbStorage.getFriendsIdByUserId(userId);
+    public List<User> getAllFriendsByUserId(long userId) {
+        return friendRepository.findFriendsByUserId(userId);
+    }
+
+    public List<User> getMutualFriends(Long idFirstUser, Long idSecondUser) {
+
+        List<User> mutualFriends = friendRepository.findMutualFriends(idFirstUser, idSecondUser);
+
+        return mutualFriends;
     }
 }

@@ -7,25 +7,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.dto.UserDto;
-import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Log4j2
 @Service
 public class UserService {
 
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
     private final FriendsServer friendsServer;
 
     @Autowired
-    public UserService(UserStorage userStorage, FriendsServer friendsServer) {
+    public UserService(UserRepository userRepository, FriendsServer friendsServer) {
 
-        this.userStorage = userStorage;
+        this.userRepository = userRepository;
         this.friendsServer = friendsServer;
     }
 
@@ -35,7 +34,7 @@ public class UserService {
 
         setDisplayName(newUser);
 
-        User saved = userStorage.save(newUser);
+        User saved = userRepository.save(newUser);
 
         UserDto savedDto = toUserDto(saved);
 
@@ -46,7 +45,7 @@ public class UserService {
 
         Long userId = userDto.getId();
 
-        boolean userExists = userStorage.existsById(userId);
+        boolean userExists = userRepository.existsById(userId);
         if (!userExists) {
             log.info("Не найден пользователь для обновления с ID: {}", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для обновления с ID: " + userId);
@@ -56,7 +55,7 @@ public class UserService {
 
         setDisplayName(updatedUser);
 
-        User saved = userStorage.save(updatedUser);
+        User saved = userRepository.save(updatedUser);
 
         UserDto responseDto = toUserDto(saved);
 
@@ -65,7 +64,7 @@ public class UserService {
 
     public List<UserDto> getAllUsers() {
 
-        List<User> allUsers = userStorage.findAll();
+        List<User> allUsers = userRepository.findAll();
 
         List<UserDto> userDtos = new ArrayList<>();
         for (User user : allUsers) {
@@ -79,54 +78,43 @@ public class UserService {
     }
 
     public void addFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
-        checkUsersExistAndNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
-        friendsServer.addFriend(idFirstUser, idSecondUser);
+        checkUsersExistAndIsNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
+
+        User firstUserProxy = userRepository.getReferenceById(idFirstUser);
+        User secondUserProxy = userRepository.getReferenceById(idSecondUser);
+
+        friendsServer.addFriend(firstUserProxy, secondUserProxy);
     }
 
     public void removeFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
-        checkUsersExistAndNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
+        checkUsersExistAndIsNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
         friendsServer.removeFriend(idFirstUser, idSecondUser);
     }
 
     public List<User> getAllFriendsByUserId(long userId) throws ResponseStatusException {
 
-        boolean existsUser = userStorage.existsById(userId);
+        boolean existsUser = userRepository.existsById(userId);
         if (!existsUser) {
             log.info("Не найден пользователь с ID: {}, для возращения списка его друзей", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId + ", для возращения списка его друзей");
         }
 
-        List<Long> friendsIds = friendsServer.getAllFriendsIdsByUserId(userId);
-        List<User> friendsByUser = new ArrayList<>();
-
-        for (Long friendId : friendsIds) {
-            Optional<User> userOpt = userStorage.findById(friendId);
-            User user = userOpt.get();
-            friendsByUser.add(user);
-        }
+        List<User> friendsByUser = friendsServer.getAllFriendsByUserId(userId);
 
         return friendsByUser;
     }
 
-    public List<User> getListMutualFriends(long idUserFirst, long idUserSecond) throws ResponseStatusException {
-        checkUsersExistAndNotEqual(idUserFirst, idUserSecond);
+    public List<User> getMutualFriends(long idUserFirst, long idUserSecond) throws ResponseStatusException {
+        checkUsersExistAndIsNotEqual(idUserFirst, idUserSecond);
 
-        List<Long> friendsOfFirstUser = friendsServer.getAllFriendsIdsByUserId(idUserFirst);
-        List<Long> friendsOfSecondUser = friendsServer.getAllFriendsIdsByUserId(idUserSecond);
-        friendsOfFirstUser.retainAll(friendsOfSecondUser);
+        List<User> mutualFriends = friendsServer.getMutualFriends(idUserFirst, idUserSecond);
 
-        List<User> mutualFriends = new ArrayList<>();
-        for (long friendId : friendsOfFirstUser) {
-            Optional<User> userOpt = userStorage.findById(friendId);
-            User user = userOpt.get();
-            mutualFriends.add(user);
-        }
         return mutualFriends;
     }
 
     public boolean isUserExists(Long userId) {
 
-        boolean userExists = userStorage.existsById(userId);
+        boolean userExists = userRepository.existsById(userId);
         if (!userExists) {
             log.info("Не найден пользователь с ID: {}", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId);
@@ -176,7 +164,7 @@ public class UserService {
     }
 
     // Проверяет, существуют ли пользователи и не доб. или удал. самого себя
-    private void checkUsersExistAndNotEqual(long idUserFirst, long idUserSecond) throws ResponseStatusException {
+    private void checkUsersExistAndIsNotEqual(long idUserFirst, long idUserSecond) throws ResponseStatusException {
 
         boolean checkUserIsNotSelf = idUserSecond == idUserFirst;
         if (checkUserIsNotSelf) {
@@ -184,8 +172,8 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Нельзя добавить себя в друзья или удалить самого себя: " + idUserFirst);
         }
 
-        boolean userFirstExists = userStorage.existsById(idUserFirst);
-        boolean userSecondExists = userStorage.existsById(idUserSecond);
+        boolean userFirstExists = userRepository.existsById(idUserFirst);
+        boolean userSecondExists = userRepository.existsById(idUserSecond);
 
         if (!userFirstExists) {
             log.error("Не найден пользователь для которого нужно добавить друга или удалить по ID: {}", idUserFirst);

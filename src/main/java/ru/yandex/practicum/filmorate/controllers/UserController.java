@@ -47,26 +47,26 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+    public void addFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("Adding friend");
         userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable int id, @PathVariable int friendId) {
+    public void removeFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("Removing friend");
         userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable int id) {
+    public List<User> getFriends(@PathVariable long id) {
         log.info("Getting friends");
         return userService.getAllFriendsByUserId(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getMutualFriends(@PathVariable int id, @PathVariable int otherId) {
+    public List<User> getMutualFriends(@PathVariable long id, @PathVariable long otherId) {
         log.info("Getting friends common");
-        return userService.getListMutualFriends(id, otherId);
+        return userService.getMutualFriends(id, otherId);
     }
 }
