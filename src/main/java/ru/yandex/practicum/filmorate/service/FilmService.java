@@ -186,6 +186,7 @@ public class FilmService {
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
 
         boolean existFilm = filmsStorage.existsById(filmId);
+
         boolean existUser = userService.isUserExists(userId);
 
         if (!existUser) {

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.dto.UserDto;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -22,38 +23,31 @@ public class UserController {
     }
 
     @PostMapping
-    public User add(@Valid @RequestBody User user) {
+    public UserDto add(@RequestBody @Valid UserDto userDto) {
 
-        log.info("Adding user: {}", user);
+        log.info("Adding user: {}", userDto);
 
-        User save = userService.add(user);
-        return save;
+        UserDto saved = userService.add(userDto);
+        return saved;
     }
 
     @PutMapping
-    public User update(@Valid @RequestBody User user) {
-        log.info("Updating user with: {}", user);
-        User save = userService.update(user);
-        log.info("Saving user with: {}", save);
-        return save;
-    }
+    public UserDto update(@RequestBody @Valid UserDto userDto) {
 
-    @GetMapping("/{id}")
-    public User getByIdUser(@PathVariable long id) {
-        log.info("Get user by id: {}", id);
-        return userService.getUserById(id);
+        log.info("Updating user with: {}", userDto);
+
+        UserDto saved = userService.update(userDto);
+        return saved;
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         log.info("Getting all users");
         return userService.getAllUsers();
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void
-
-    addFriend(@PathVariable int id, @PathVariable int friendId) {
+    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("Adding friend");
         userService.addFriend(id, friendId);
     }
@@ -71,7 +65,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getFriendsCommon(@PathVariable int id, @PathVariable int otherId) {
+    public List<User> getMutualFriends(@PathVariable int id, @PathVariable int otherId) {
         log.info("Getting friends common");
         return userService.getListMutualFriends(id, otherId);
     }

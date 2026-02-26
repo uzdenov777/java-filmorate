@@ -1,10 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -18,22 +19,28 @@ import java.util.Set;
  * дата рождения не может быть в будущем.
  */
 
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+
+    @Column(name = "user_name")
     private String name;
 
-    private final Set<Long> friends = new HashSet<>();
-
-    @NotBlank(message = "Email у пользователя не может отсутствовать")
-    @Email(message = "Email у пользователя не верного формата")
+    @Column(name = "email")
     private String email;
 
-    @NotBlank(message = "Login у пользователя не может отсутствовать")
+    @Column(name = "login")
     private String login;
 
-    @Past(message = "Дата рождения у пользователя не должна быть в будущем")
-    @NotNull
+    @Column(name = "birthday")
     private LocalDate birthday;
 }

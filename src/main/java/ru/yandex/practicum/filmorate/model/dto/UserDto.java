@@ -1,0 +1,32 @@
+package ru.yandex.practicum.filmorate.model.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
+@Data
+public class UserDto {
+
+    private Long id;
+
+    private String name;
+
+    private Set<Long> friends = new HashSet<>();
+
+    @NotBlank(message = "Email у пользователя не может отсутствовать")
+    @Email(message = "Email у пользователя не верного формата")
+    private String email;
+
+    @NotBlank(message = "Login у пользователя не может отсутствовать")
+    private String login;
+
+    @Past(message = "Дата рождения у пользователя не должна быть в будущем")
+    @NotNull
+    private LocalDate birthday;
+}
