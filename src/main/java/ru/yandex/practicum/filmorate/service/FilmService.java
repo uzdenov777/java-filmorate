@@ -183,7 +183,7 @@ public class FilmService {
 
         Set<Genre> filmGenres = chekFilm.getGenres();
         for (Genre genre : filmGenres) {
-            int genreId = genre.getId();
+            Long genreId = genre.getId();
             genresService.isGenreExist(genreId);
         }
 

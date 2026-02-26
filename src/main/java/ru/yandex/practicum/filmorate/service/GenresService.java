@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.dao.GenresDbStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.GenresStorage;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,14 +13,17 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class GenresService {
-    private final GenresDbStorage genresDbStorage;
 
-    public GenresService(GenresDbStorage genresDbStorage) {
-        this.genresDbStorage = genresDbStorage;
+    private final GenresStorage genresStorage;
+
+    public GenresService(GenresStorage genresStorage) {
+        this.genresStorage = genresStorage;
     }
 
-    public Genre getGenreById(int genreId) throws ResponseStatusException {
-        Optional<Genre> genreOpt = genresDbStorage.findById(genreId);
+    public Genre getGenreById(Long genreId) throws ResponseStatusException {
+
+        Optional<Genre> genreOpt = genresStorage.findById(genreId);
+
         if (genreOpt.isEmpty()) {
             log.info("Не найден жанр при запросе на возврат по ID: {}", genreId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр при запросе на возврат по ID: " + genreId);
@@ -31,11 +34,14 @@ public class GenresService {
     }
 
     public List<Genre> getAllGenres() {
-        return genresDbStorage.findAll();
+
+        return genresStorage.findAll();
     }
 
-    public boolean isGenreExist(int genreId) throws ResponseStatusException {
-        boolean genreExist = genresDbStorage.isExistsGenre(genreId);
+    public boolean isGenreExist(Long genreId) throws ResponseStatusException {
+
+        boolean genreExist = genresStorage.existsById(genreId);
+
         if (!genreExist) {
             log.info("Не найден жанр по ID: {}", genreId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр по ID: " + genreId);
