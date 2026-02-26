@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.dto.FilmRequest;
+import ru.yandex.practicum.filmorate.model.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -21,35 +23,41 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film add(@RequestBody @Valid Film newFilm) {
+    public FilmResponse add(@RequestBody @Valid FilmRequest newFilm) {
         log.info("Adding film: {}", newFilm);
-        Film save = filmService.add(newFilm);
-        log.info("Save film: {}", save);
+
+        FilmResponse save = filmService.add(newFilm);
+
         return save;
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film filmToUpdate) {
+    public FilmResponse update(@Valid @RequestBody FilmRequest filmToUpdate) {
         log.info("Updating film: {}", filmToUpdate);
-        Film save = filmService.update(filmToUpdate);
-        log.info("Saved during update film: {}", save);
+
+        FilmResponse save = filmService.update(filmToUpdate);
         return save;
     }
 
     @GetMapping("/{id}")
-    public Film getById(@PathVariable Long id) {
+    public FilmResponse getById(@PathVariable Long id) {
+
         log.info("Getting film with id: {}", id);
-        return filmService.getFilmById(id);
+
+        FilmResponse filmResponse = filmService.getFilmById(id);
+
+        return filmResponse;
     }
 
-    @GetMapping
-    public List<Film> getAllFilms() {
-        log.info("Getting all films");
-        return filmService.getAllFilms();
-    }
+//    @GetMapping
+//    public List<Film> getAllFilms() {
+//
+//        log.info("Getting all films");
+//        return filmService.getAllFilms();
+//    }
 
     @PutMapping("/{id}/like/{userId}")
-    public void like(@PathVariable int id, @PathVariable int userId) {
+    public void addLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Liking film ID: {}, User ID: {}", id, userId);
         filmService.addLikeToFilm(id, userId);
     }
@@ -60,9 +68,9 @@ public class FilmController {
         filmService.removeLikeToFilm(id, userId);
     }
 
-    @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        log.info("Getting popular films top: {}", count);
-        return filmService.getListTopPopularFilms(count);
-    }
+//    @GetMapping("/popular")
+//    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+//        log.info("Getting popular films top: {}", count);
+//        return filmService.getListTopPopularFilms(count);
+//    }
 }

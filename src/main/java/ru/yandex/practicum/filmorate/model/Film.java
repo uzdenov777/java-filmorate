@@ -30,6 +30,7 @@ public class Film {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "films_name")
@@ -53,9 +54,4 @@ public class Film {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mpa_id")
     private Mpa mpa;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Genre> genres = new HashSet<>();
-
-    private Set<Long> likerIds = new HashSet<>();
 }

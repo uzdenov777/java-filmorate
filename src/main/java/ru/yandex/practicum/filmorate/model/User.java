@@ -20,8 +20,10 @@ import java.util.Set;
 
 @Data
 public class User {
+
     private Long id;
     private String name;
+
     private final Set<Long> friends = new HashSet<>();
 
     @NotBlank(message = "Email у пользователя не может отсутствовать")
