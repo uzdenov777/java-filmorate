@@ -17,6 +17,7 @@ import java.util.Optional;
 
 @Repository
 public class UserDbStorage implements UsersStorage {
+
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -52,6 +53,7 @@ public class UserDbStorage implements UsersStorage {
 
     @Override
     public User add(User newUser) {
+
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
         simpleJdbcInsert.withTableName("USERS")
                 .usingGeneratedKeyColumns("id");

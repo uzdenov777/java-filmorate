@@ -16,25 +16,22 @@ import java.util.Set;
 @Log4j2
 @Service
 public class UserService {
+
     private final UserDbStorage userDbStorage;
     private final FriendsServer friendsServer;
 
     @Autowired
     public UserService(UserDbStorage userDbStorage, FriendsServer friendsServer) {
+
         this.userDbStorage = userDbStorage;
         this.friendsServer = friendsServer;
     }
 
     public User add(User newUser) {
+
         setDisplayName(newUser);
 
         User save = userDbStorage.add(newUser);
-
-        Set<Long> friends = save.getFriends();
-        if (!friends.isEmpty()) {
-            Long userId = save.getId();
-            addFriends(userId, friends);
-        }
 
         return save;
     }
@@ -184,6 +181,7 @@ public class UserService {
     }
 
     private void setDisplayName(User user) {
+
         String userName = user.getName();
         String loginUser = user.getLogin();
 

@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     private final UserService userService;
 
     @Autowired
@@ -22,9 +23,10 @@ public class UserController {
 
     @PostMapping
     public User add(@Valid @RequestBody User user) {
+
         log.info("Adding user: {}", user);
+
         User save = userService.add(user);
-        log.info("Saving user: {}", save);
         return save;
     }
 

@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @JdbcTest
 class FilmGenresServiceTest {
+
     private final JdbcTemplate jdbcTemplate;
 
     private FilmGenresService filmGenresService;
