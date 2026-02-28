@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -14,8 +15,8 @@ import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmsRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Log4j2
@@ -30,9 +31,11 @@ public class FilmService {
     private final GenresService genresService;
     private final MpaService mpaService;
 
+    private final FilmMapper filmMapper;
+
     @Autowired
     public FilmService(FilmsRepository filmsRepository, UserService userService, FilmLikesService filmLikesService,
-                       FilmGenresService filmGenresService, GenresService genresService, MpaService mpaService) {
+                       FilmGenresService filmGenresService, GenresService genresService, MpaService mpaService, FilmMapper filmMapper) {
 
         this.userService = userService;
         this.filmsRepository = filmsRepository;
@@ -40,14 +43,15 @@ public class FilmService {
         this.filmGenresService = filmGenresService;
         this.genresService = genresService;
         this.mpaService = mpaService;
+        this.filmMapper = filmMapper;
     }
 
     @Transactional
     public FilmDto add(FilmDto newFilmDto) throws ResponseStatusException {
 
-        isValidReleaseDate(newFilmDto);
+        checkFilm(newFilmDto);
 
-        Film newFilm = toFilm(newFilmDto);
+        Film newFilm = filmMapper.toEntity(newFilmDto);
         Film saved = filmsRepository.save(newFilm);
 
         List<Genre> genres = newFilmDto.getGenres();
@@ -55,7 +59,7 @@ public class FilmService {
 
         List<Genre> fullGenres = genresService.getGenres(genres);
 
-        FilmDto filmResponse = toFilmDto(saved, fullGenres);
+        FilmDto filmResponse = filmMapper.toDto(saved, fullGenres);
 
         return filmResponse;
     }
@@ -63,24 +67,26 @@ public class FilmService {
 
     public FilmDto update(FilmDto filmDtoToUpdate) throws ResponseStatusException {
 
-        Long filmId = filmDtoToUpdate.getId();
+        checkFilm(filmDtoToUpdate);
 
+        Long filmId = filmDtoToUpdate.getId();
         boolean filmExists = filmsRepository.existsById(filmId);
+
         if (!filmExists) {
             log.info("Не найден фильм для обновления с ID: {}", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для обновления с ID: " + filmId);
         }
 
-        isValidReleaseDate(filmDtoToUpdate);
-
-        Film filmToUpdate = toFilm(filmDtoToUpdate);
+        Film filmToUpdate = filmMapper.toEntity(filmDtoToUpdate);
         Film saved = filmsRepository.save(filmToUpdate);
 
+        //Сохраняем связи
         List<Genre> genres = filmDtoToUpdate.getGenres();
         filmGenresService.updateFilmGenres(saved, genres);
 
+        //готовлю ответ
         List<Genre> fullGenres = genresService.getGenres(genres);
-        FilmDto filmResponse = toFilmDto(saved, fullGenres);
+        FilmDto filmResponse = filmMapper.toDto(saved, fullGenres);
 
         return filmResponse;
     }
@@ -97,7 +103,7 @@ public class FilmService {
         Film film = filmOpt.get();
         List<Genre> genres = filmGenresService.getGenresByFilm(film);
 
-        FilmDto filmResponse = toFilmDto(film, genres);
+        FilmDto filmResponse = filmMapper.toDto(film, genres);
 
         return filmResponse;
     }
@@ -106,15 +112,7 @@ public class FilmService {
 
         List<Film> allFilms = getAllFilms();
 
-        List<FilmDto> responses = new ArrayList<>();
-        for (Film film : allFilms) {
-
-            List<Genre> genres = filmGenresService.getGenresByFilm(film);
-            FilmDto filmResponse = toFilmDto(film, genres);
-
-            responses.add(filmResponse);
-        }
-
+        List<FilmDto> responses = filmMapper.toDtos(allFilms, filmGenresService);
         return responses;
     }
 
@@ -133,55 +131,12 @@ public class FilmService {
         filmLikesService.deleteLikeFilm(filmId, userId);
     }
 
-    public List<Film> getTopPopularFilms(int count) {
+    public List<FilmDto> getTopPopularFilms(int count) {
 
         List<Film> listTopPopularFilms = filmLikesService.getTopPopularFilms(count);
 
-        return listTopPopularFilms;
-    }
-
-    private Film toFilm(FilmDto newFilmDto) {
-
-        Long id = newFilmDto.getId();
-        String name = newFilmDto.getName();
-        String description = newFilmDto.getDescription();
-        LocalDate releaseDate = newFilmDto.getReleaseDate();
-        Long duration = newFilmDto.getDuration();
-        Long mpaId = newFilmDto.getMpa().getId();
-        //полностью подтягиваем MPA
-        Mpa mpa = mpaService.getMpaById(mpaId);
-
-        Film film = new Film();
-        film.setId(id);
-        film.setName(name);
-        film.setDescription(description);
-        film.setReleaseDate(releaseDate);
-        film.setDuration(duration);
-        film.setMpa(mpa);
-
-        return film;
-    }
-
-
-    private FilmDto toFilmDto(Film film, List<Genre> genres) {
-
-        Long id = film.getId();
-        String name = film.getName();
-        String description = film.getDescription();
-        LocalDate releaseDate = film.getReleaseDate();
-        Long duration = film.getDuration();
-        Mpa mpa = film.getMpa();
-
-        FilmDto filmDto = new FilmDto();
-        filmDto.setId(id);
-        filmDto.setName(name);
-        filmDto.setDescription(description);
-        filmDto.setReleaseDate(releaseDate);
-        filmDto.setDuration(duration);
-        filmDto.setMpa(mpa);
-        filmDto.setGenres(genres);
-
-        return filmDto;
+        List<FilmDto> responses = filmMapper.toDtos(listTopPopularFilms, filmGenresService);
+        return responses;
     }
 
     private List<Film> getAllFilms() {
@@ -206,15 +161,15 @@ public class FilmService {
         }
     }
 
-    private void checkedFilm(Film chekFilm) throws ResponseStatusException {
+    private void checkFilm(FilmDto chekFilm) throws ResponseStatusException {
 
-//        isValidReleaseDate(chekFilm); //В случае не валидной даты релиза выбросит исключение ResponseStatusException
+        isValidReleaseDate(chekFilm); //В случае не валидной даты релиза выбросит исключение ResponseStatusException
 
-//        Mpa mpa = chekFilm.getMpa();
-//        if (Objects.nonNull(mpa)) {
-//            int mpaId = mpa.getId();
-//            mpaService.isExistsMpa(mpaId);
-//        }
+        Mpa mpa = chekFilm.getMpa();
+        if (Objects.nonNull(mpa)) {
+            Long mpaId = mpa.getId();
+            mpaService.isExistMpa(mpaId);
+        }
     }
 
     private void isValidReleaseDate(FilmDto filmToValidate) throws ResponseStatusException {

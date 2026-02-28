@@ -37,7 +37,7 @@ public class MpaService {
         return mpaRepository.findAll();
     }
 
-    public boolean isExistsMpa(Long mpaId) throws ResponseStatusException {
+    public boolean isExistMpa(Long mpaId) throws ResponseStatusException {
 
         boolean existsMpa = mpaRepository.existsById(mpaId);
         if (!existsMpa) {

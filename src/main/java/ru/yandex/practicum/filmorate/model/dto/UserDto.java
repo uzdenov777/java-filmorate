@@ -17,8 +17,6 @@ public class UserDto {
 
     private String name;
 
-    private Set<Long> friends = new HashSet<>();
-
     @NotBlank(message = "Email у пользователя не может отсутствовать")
     @Email(message = "Email у пользователя не верного формата")
     private String email;
@@ -27,6 +25,6 @@ public class UserDto {
     private String login;
 
     @Past(message = "Дата рождения у пользователя не должна быть в будущем")
-    @NotNull
+    @NotNull(message = "Дата рождения у пользователя не может отсутствовать")
     private LocalDate birthday;
 }

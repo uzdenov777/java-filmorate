@@ -5,14 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.dto.UserDto;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserRepository;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Log4j2
 @Service
@@ -21,44 +19,43 @@ public class UserService {
     private final UserRepository userRepository;
     private final FriendsServer friendsServer;
 
+    private final UserMapper userMapper;
+
     @Autowired
-    public UserService(UserRepository userRepository, FriendsServer friendsServer) {
+    public UserService(UserRepository userRepository, FriendsServer friendsServer, UserMapper userMapper) {
 
         this.userRepository = userRepository;
         this.friendsServer = friendsServer;
+        this.userMapper = userMapper;
     }
 
     public UserDto add(UserDto newUserDto) {
 
-        User newUser = toUser(newUserDto);
+        setDisplayName(newUserDto);
 
-        setDisplayName(newUser);
-
+        User newUser = userMapper.toEntity(newUserDto);
         User saved = userRepository.save(newUser);
 
-        UserDto savedDto = toUserDto(saved);
-
+        UserDto savedDto = userMapper.toDto(saved);
         return savedDto;
     }
 
     public UserDto update(UserDto userDto) {
 
-        Long userId = userDto.getId();
+        setDisplayName(userDto);
 
+        Long userId = userDto.getId();
         boolean userExists = userRepository.existsById(userId);
+
         if (!userExists) {
             log.info("Не найден пользователь для обновления с ID: {}", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для обновления с ID: " + userId);
         }
 
-        User updatedUser = toUser(userDto);
-
-        setDisplayName(updatedUser);
-
+        User updatedUser = userMapper.toEntity(userDto);
         User saved = userRepository.save(updatedUser);
 
-        UserDto responseDto = toUserDto(saved);
-
+        UserDto responseDto = userMapper.toDto(saved);
         return responseDto;
     }
 
@@ -66,15 +63,8 @@ public class UserService {
 
         List<User> allUsers = userRepository.findAll();
 
-        List<UserDto> userDtos = new ArrayList<>();
-        for (User user : allUsers) {
-
-            UserDto userDto = toUserDto(user);
-
-            userDtos.add(userDto);
-        }
-
-        return userDtos;
+        List<UserDto> responseDtos = userMapper.toDtos(allUsers);
+        return responseDtos;
     }
 
     public void addFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
@@ -88,10 +78,11 @@ public class UserService {
 
     public void removeFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
+
         friendsServer.removeFriend(idFirstUser, idSecondUser);
     }
 
-    public List<User> getAllFriendsByUserId(long userId) throws ResponseStatusException {
+    public List<UserDto> getAllFriendsByUserId(long userId) throws ResponseStatusException {
 
         boolean existsUser = userRepository.existsById(userId);
         if (!existsUser) {
@@ -101,15 +92,17 @@ public class UserService {
 
         List<User> friendsByUser = friendsServer.getAllFriendsByUserId(userId);
 
-        return friendsByUser;
+        List<UserDto> responseDtos = userMapper.toDtos(friendsByUser);
+        return responseDtos;
     }
 
-    public List<User> getMutualFriends(long idUserFirst, long idUserSecond) throws ResponseStatusException {
+    public List<UserDto> getMutualFriends(long idUserFirst, long idUserSecond) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idUserFirst, idUserSecond);
 
         List<User> mutualFriends = friendsServer.getMutualFriends(idUserFirst, idUserSecond);
 
-        return mutualFriends;
+        List<UserDto> responseDtos = userMapper.toDtos(mutualFriends);
+        return responseDtos;
     }
 
     public boolean isUserExists(Long userId) {
@@ -121,46 +114,6 @@ public class UserService {
         }
 
         return true;
-    }
-
-    private UserDto toUserDto(User saved) {
-
-        Long id = saved.getId();
-        String name = saved.getName();
-//        Set<Long> friends = saved.getFriends();
-        String email = saved.getEmail();
-        String login = saved.getLogin();
-        LocalDate birthday = saved.getBirthday();
-
-        UserDto user = new UserDto();
-        user.setId(id);
-        user.setName(name);
-//        user.setFriends(friends);
-        user.setEmail(email);
-        user.setLogin(login);
-        user.setBirthday(birthday);
-
-        return user;
-    }
-
-    private User toUser(UserDto newUserRequest) {
-
-        Long id = newUserRequest.getId();
-        String name = newUserRequest.getName();
-        Set<Long> friends = newUserRequest.getFriends();
-        String email = newUserRequest.getEmail();
-        String login = newUserRequest.getLogin();
-        LocalDate birthday = newUserRequest.getBirthday();
-
-        User user = new User();
-        user.setId(id);
-        user.setName(name);
-//        user.setFriends(friends);
-        user.setEmail(email);
-        user.setLogin(login);
-        user.setBirthday(birthday);
-
-        return user;
     }
 
     // Проверяет, существуют ли пользователи и не доб. или удал. самого себя
@@ -186,7 +139,7 @@ public class UserService {
         }
     }
 
-    private void setDisplayName(User user) {
+    private void setDisplayName(UserDto user) {
 
         String userName = user.getName();
         String loginUser = user.getLogin();
@@ -198,7 +151,6 @@ public class UserService {
     public User getUserProxyById(long userId) {
 
         User userProxy = userRepository.getReferenceById(userId);
-
         return userProxy;
     }
 }
