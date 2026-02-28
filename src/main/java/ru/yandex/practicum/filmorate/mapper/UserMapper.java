@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.model.dto.UserDto;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     User toEntity(UserDto userDto);

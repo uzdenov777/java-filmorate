@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.transaction.Transactional;
-import jdk.jshell.Snippet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -10,7 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmGenresRepository;
+import ru.yandex.practicum.filmorate.repository.FilmGenresRepository;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,10 +47,6 @@ public class FilmGenresService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
-
-//    public void deleteAllFilmGenresByFilm(Film film) {
-//        filmGenresRepository.deleteFilmGenresByFilm(film);
-//    }
 
     @Transactional
     public void updateFilmGenres(Film film, List<Genre> genres) {

@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmsRepository;
+import ru.yandex.practicum.filmorate.repository.FilmsRepository;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.service.FilmGenresService;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface FilmMapper {
 
     Film toEntity(FilmDto filmDto);

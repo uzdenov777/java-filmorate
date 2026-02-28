@@ -8,7 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.dto.UserDto;
-import ru.yandex.practicum.filmorate.storage.interfaces.UserRepository;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.List;
 
