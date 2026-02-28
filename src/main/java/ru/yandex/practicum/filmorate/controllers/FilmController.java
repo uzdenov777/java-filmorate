@@ -5,12 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.dto.FilmRequest;
-import ru.yandex.practicum.filmorate.model.dto.FilmResponse;
+import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -25,31 +23,31 @@ public class FilmController {
     }
 
     @PostMapping
-    public FilmResponse add(@RequestBody @Valid FilmRequest newFilm) {
+    public FilmDto add(@RequestBody @Valid FilmDto newFilm) {
         log.info("Adding film: {}", newFilm);
 
-        FilmResponse save = filmService.add(newFilm);
+        FilmDto save = filmService.add(newFilm);
         return save;
     }
 
     @PutMapping
-    public FilmResponse update(@RequestBody @Valid FilmRequest filmToUpdate) {
+    public FilmDto update(@RequestBody @Valid FilmDto filmToUpdate) {
         log.info("Updating film: {}", filmToUpdate);
 
-        FilmResponse save = filmService.update(filmToUpdate);
+        FilmDto save = filmService.update(filmToUpdate);
         return save;
     }
 
     @GetMapping("/{id}")
-    public FilmResponse getById(@PathVariable Long id) {
+    public FilmDto getById(@PathVariable Long id) {
         log.info("Getting film with id: {}", id);
 
-        FilmResponse filmResponse = filmService.getFilmById(id);
+        FilmDto filmResponse = filmService.getFilmById(id);
         return filmResponse;
     }
 
     @GetMapping
-    public List<FilmResponse> getAllFilms() {
+    public List<FilmDto> getAllFilms() {
         log.info("Getting all films");
         return filmService.getAllFilmsResponse();
     }

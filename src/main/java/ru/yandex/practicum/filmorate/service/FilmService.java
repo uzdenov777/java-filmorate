@@ -10,15 +10,13 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.dto.FilmRequest;
-import ru.yandex.practicum.filmorate.model.dto.FilmResponse;
+import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmsRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Log4j2
 @Service
@@ -45,27 +43,27 @@ public class FilmService {
     }
 
     @Transactional
-    public FilmResponse add(FilmRequest newFilmRequest) throws ResponseStatusException {
+    public FilmDto add(FilmDto newFilmDto) throws ResponseStatusException {
 
-        isValidReleaseDate(newFilmRequest);
+        isValidReleaseDate(newFilmDto);
 
-        Film newFilm = toFilm(newFilmRequest);
+        Film newFilm = toFilm(newFilmDto);
         Film saved = filmsRepository.save(newFilm);
 
-        List<Genre> genres = newFilmRequest.getGenres();
+        List<Genre> genres = newFilmDto.getGenres();
         filmGenresService.addFilmGenres(saved, genres);
 
         List<Genre> fullGenres = genresService.getGenres(genres);
 
-        FilmResponse filmResponse = toFilmResponse(saved, fullGenres);
+        FilmDto filmResponse = toFilmDto(saved, fullGenres);
 
         return filmResponse;
     }
 
 
-    public FilmResponse update(FilmRequest filmRequestToUpdate) throws ResponseStatusException {
+    public FilmDto update(FilmDto filmDtoToUpdate) throws ResponseStatusException {
 
-        Long filmId = filmRequestToUpdate.getId();
+        Long filmId = filmDtoToUpdate.getId();
 
         boolean filmExists = filmsRepository.existsById(filmId);
         if (!filmExists) {
@@ -73,21 +71,21 @@ public class FilmService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для обновления с ID: " + filmId);
         }
 
-        isValidReleaseDate(filmRequestToUpdate);
+        isValidReleaseDate(filmDtoToUpdate);
 
-        Film filmToUpdate = toFilm(filmRequestToUpdate);
+        Film filmToUpdate = toFilm(filmDtoToUpdate);
         Film saved = filmsRepository.save(filmToUpdate);
 
-        List<Genre> genres = filmRequestToUpdate.getGenres();
+        List<Genre> genres = filmDtoToUpdate.getGenres();
         filmGenresService.updateFilmGenres(saved, genres);
 
         List<Genre> fullGenres = genresService.getGenres(genres);
-        FilmResponse filmResponse = toFilmResponse(saved, fullGenres);
+        FilmDto filmResponse = toFilmDto(saved, fullGenres);
 
         return filmResponse;
     }
 
-    public FilmResponse getFilmById(Long filmId) throws ResponseStatusException {
+    public FilmDto getFilmById(Long filmId) throws ResponseStatusException {
 
         Optional<Film> filmOpt = filmsRepository.findById(filmId);
 
@@ -99,20 +97,20 @@ public class FilmService {
         Film film = filmOpt.get();
         List<Genre> genres = filmGenresService.getGenresByFilm(film);
 
-        FilmResponse filmResponse = toFilmResponse(film, genres);
+        FilmDto filmResponse = toFilmDto(film, genres);
 
         return filmResponse;
     }
 
-    public List<FilmResponse> getAllFilmsResponse() {
+    public List<FilmDto> getAllFilmsResponse() {
 
         List<Film> allFilms = getAllFilms();
 
-        List<FilmResponse> responses = new ArrayList<>();
+        List<FilmDto> responses = new ArrayList<>();
         for (Film film : allFilms) {
 
             List<Genre> genres = filmGenresService.getGenresByFilm(film);
-            FilmResponse filmResponse = toFilmResponse(film, genres);
+            FilmDto filmResponse = toFilmDto(film, genres);
 
             responses.add(filmResponse);
         }
@@ -142,14 +140,14 @@ public class FilmService {
         return listTopPopularFilms;
     }
 
-    private Film toFilm(FilmRequest newFilmRequest) {
+    private Film toFilm(FilmDto newFilmDto) {
 
-        Long id = newFilmRequest.getId();
-        String name = newFilmRequest.getName();
-        String description = newFilmRequest.getDescription();
-        LocalDate releaseDate = newFilmRequest.getReleaseDate();
-        Long duration = newFilmRequest.getDuration();
-        Long mpaId = newFilmRequest.getMpa().getId();
+        Long id = newFilmDto.getId();
+        String name = newFilmDto.getName();
+        String description = newFilmDto.getDescription();
+        LocalDate releaseDate = newFilmDto.getReleaseDate();
+        Long duration = newFilmDto.getDuration();
+        Long mpaId = newFilmDto.getMpa().getId();
         //полностью подтягиваем MPA
         Mpa mpa = mpaService.getMpaById(mpaId);
 
@@ -165,7 +163,7 @@ public class FilmService {
     }
 
 
-    private FilmResponse toFilmResponse(Film film, List<Genre> genres) {
+    private FilmDto toFilmDto(Film film, List<Genre> genres) {
 
         Long id = film.getId();
         String name = film.getName();
@@ -174,16 +172,16 @@ public class FilmService {
         Long duration = film.getDuration();
         Mpa mpa = film.getMpa();
 
-        FilmResponse filmResponse = new FilmResponse();
-        filmResponse.setId(id);
-        filmResponse.setName(name);
-        filmResponse.setDescription(description);
-        filmResponse.setReleaseDate(releaseDate);
-        filmResponse.setDuration(duration);
-        filmResponse.setMpa(mpa);
-        filmResponse.setGenres(genres);
+        FilmDto filmDto = new FilmDto();
+        filmDto.setId(id);
+        filmDto.setName(name);
+        filmDto.setDescription(description);
+        filmDto.setReleaseDate(releaseDate);
+        filmDto.setDuration(duration);
+        filmDto.setMpa(mpa);
+        filmDto.setGenres(genres);
 
-        return filmResponse;
+        return filmDto;
     }
 
     private List<Film> getAllFilms() {
@@ -219,7 +217,7 @@ public class FilmService {
 //        }
     }
 
-    private void isValidReleaseDate(FilmRequest filmToValidate) throws ResponseStatusException {
+    private void isValidReleaseDate(FilmDto filmToValidate) throws ResponseStatusException {
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
         LocalDate releaseDateFilm = filmToValidate.getReleaseDate();
 
