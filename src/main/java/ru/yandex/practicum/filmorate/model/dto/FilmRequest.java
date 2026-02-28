@@ -1,15 +1,24 @@
 package ru.yandex.practicum.filmorate.model.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 public class FilmRequest {
 
     @Positive(message = "ID у фильма не должна быть отрицательным")
-    Long id;
+    private Long id;
 
     @NotBlank(message = "Название у фильмы не может отсутствовать")
     private String name;
@@ -24,4 +33,9 @@ public class FilmRequest {
     @NotNull(message = "Продолжительность у фильмы не может отсутствовать")
     @Positive(message = "Продолжительность у фильма не должна быть отрицательной")
     private Long duration;
+
+    @NotNull(message = "Ограничение у фильмы не может отсутствовать")
+    private Mpa mpa;
+
+    private List<Genre> genres = new ArrayList<>();
 }

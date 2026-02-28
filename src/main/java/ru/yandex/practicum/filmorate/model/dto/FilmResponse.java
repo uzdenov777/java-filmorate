@@ -5,7 +5,9 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -23,7 +25,5 @@ public class FilmResponse {
 
     private Mpa mpa;
 
-    private Set<Genre> genres = new HashSet<>();
-
-    private Set<Long> likerIds = new HashSet<>();
+    private List<Genre> genres = new ArrayList<>();
 }

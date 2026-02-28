@@ -10,11 +10,13 @@ import ru.yandex.practicum.filmorate.model.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
+
     private final FilmService filmService;
 
     @Autowired
@@ -27,12 +29,11 @@ public class FilmController {
         log.info("Adding film: {}", newFilm);
 
         FilmResponse save = filmService.add(newFilm);
-
         return save;
     }
 
     @PutMapping
-    public FilmResponse update(@Valid @RequestBody FilmRequest filmToUpdate) {
+    public FilmResponse update(@RequestBody @Valid FilmRequest filmToUpdate) {
         log.info("Updating film: {}", filmToUpdate);
 
         FilmResponse save = filmService.update(filmToUpdate);
@@ -41,20 +42,17 @@ public class FilmController {
 
     @GetMapping("/{id}")
     public FilmResponse getById(@PathVariable Long id) {
-
         log.info("Getting film with id: {}", id);
 
         FilmResponse filmResponse = filmService.getFilmById(id);
-
         return filmResponse;
     }
 
-//    @GetMapping
-//    public List<Film> getAllFilms() {
-//
-//        log.info("Getting all films");
-//        return filmService.getAllFilms();
-//    }
+    @GetMapping
+    public List<FilmResponse> getAllFilms() {
+        log.info("Getting all films");
+        return filmService.getAllFilmsResponse();
+    }
 
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable int id, @PathVariable int userId) {
@@ -65,12 +63,12 @@ public class FilmController {
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Removing like film ID:{}, User ID{}", id, userId);
-        filmService.removeLikeToFilm(id, userId);
+        filmService.deleteLikeToFilm(id, userId);
     }
 
-//    @GetMapping("/popular")
-//    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-//        log.info("Getting popular films top: {}", count);
-//        return filmService.getListTopPopularFilms(count);
-//    }
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+        log.info("Getting popular films top: {}", count);
+        return filmService.getTopPopularFilms(count);
+    }
 }

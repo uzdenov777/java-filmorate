@@ -20,10 +20,9 @@ public class MpaService {
         this.mpaRepository = mpaRepository;
     }
 
-    public Mpa getMpaById(int mpaId) throws ResponseStatusException {
+    public Mpa getMpaById(Long mpaId) throws ResponseStatusException {
 
         Optional<Mpa> mpaOpt = mpaRepository.findById(mpaId);
-
         if (mpaOpt.isEmpty()) {
             log.info("Не найден Mpa-возрастное ограничение при запросе на возврат по ID: {}", mpaId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден Mpa-возрастное ограничение при запросе на возврат по ID: " + mpaId);
@@ -38,10 +37,9 @@ public class MpaService {
         return mpaRepository.findAll();
     }
 
-    public boolean isExistsMpa(Integer mpaId) throws ResponseStatusException {
+    public boolean isExistsMpa(Long mpaId) throws ResponseStatusException {
 
         boolean existsMpa = mpaRepository.existsById(mpaId);
-
         if (!existsMpa) {
             log.info("Не найден Mpa-возрастное ограничение по ID: {}", mpaId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден Mpa-возрастное ограничение по ID: " + mpaId);

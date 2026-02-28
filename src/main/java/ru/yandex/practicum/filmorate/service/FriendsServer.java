@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Friendship;
@@ -27,6 +28,7 @@ public class FriendsServer {
         friendRepository.save(friendship);
     }
 
+    @Transactional
     public void removeFriend(Long userId, Long friendId) {
         friendRepository.deleteByUserIdAndFriendId(userId, friendId);
     }

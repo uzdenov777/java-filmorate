@@ -194,4 +194,11 @@ public class UserService {
         String setNameUser = (userName == null || userName.isBlank()) ? loginUser : userName;
         user.setName(setNameUser);
     }
+
+    public User getUserProxyById(long userId) {
+
+        User userProxy = userRepository.getReferenceById(userId);
+
+        return userProxy;
+    }
 }

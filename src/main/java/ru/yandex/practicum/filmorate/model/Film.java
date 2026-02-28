@@ -51,7 +51,7 @@ public class Film {
     @Min(value = 1, message = "Продолжительность у фильма не должна быть меньше 1")
     private Long duration;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "mpa_id")
     private Mpa mpa;
 }

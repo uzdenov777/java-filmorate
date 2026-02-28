@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.interfaces;
 
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +13,6 @@ import java.util.List;
 @Repository
 public interface FriendRepository extends JpaRepository<Friendship, Long> {
 
-    @Transactional
     @Modifying
     @Query("DELETE FROM Friendship f " +
             "WHERE f.user.id = :userId " +
@@ -25,7 +23,6 @@ public interface FriendRepository extends JpaRepository<Friendship, Long> {
             "FROM Friendship f " +
             "WHERE f.user.id = :userId")
     List<User> findFriendsByUserId(@Param("userId") Long userId);
-
 
     @Query("SELECT u " +
             "FROM User u " +

@@ -5,25 +5,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.interfaces.GenresStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.GenresRepository;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
 public class GenresService {
 
-    private final GenresStorage genresStorage;
+    private final GenresRepository genresRepository;
 
-    public GenresService(GenresStorage genresStorage) {
-        this.genresStorage = genresStorage;
+    public GenresService(GenresRepository genresRepository) {
+        this.genresRepository = genresRepository;
     }
 
     public Genre getGenreById(Long genreId) throws ResponseStatusException {
 
-        Optional<Genre> genreOpt = genresStorage.findById(genreId);
-
+        Optional<Genre> genreOpt = genresRepository.findById(genreId);
         if (genreOpt.isEmpty()) {
             log.info("Не найден жанр при запросе на возврат по ID: {}", genreId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр при запросе на возврат по ID: " + genreId);
@@ -33,15 +31,26 @@ public class GenresService {
         return genre;
     }
 
-    public List<Genre> getAllGenres() {
+    public List<Genre> getGenres(List<Genre> genres) {
 
-        return genresStorage.findAll();
+        List<Long> genreIds = new ArrayList<>();
+        for (Genre genre : genres) {
+            Long genreId = genre.getId();
+            genreIds.add(genreId);
+        }
+
+        List<Genre> fullGenres = genresRepository.findAllByIdInBatch(genreIds);
+
+        return fullGenres;
+    }
+
+    public List<Genre> getAllGenres() {
+        return genresRepository.findAll();
     }
 
     public boolean isGenreExist(Long genreId) throws ResponseStatusException {
 
-        boolean genreExist = genresStorage.existsById(genreId);
-
+        boolean genreExist = genresRepository.existsById(genreId);
         if (!genreExist) {
             log.info("Не найден жанр по ID: {}", genreId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр по ID: " + genreId);
