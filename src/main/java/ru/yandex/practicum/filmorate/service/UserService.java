@@ -100,8 +100,7 @@ public class UserService {
 
         Page<User> mutualFriends = friendsServer.getMutualFriends(idUserFirst, idUserSecond, pageable);
 
-        List<UserDto> responseDtos = userMapper.toDtos(mutualFriends);
-        return responseDtos;
+        return userMapper.toDtos(mutualFriends);
     }
 
     public boolean isUserExists(Long userId) {

@@ -38,8 +38,7 @@ public class GenresService {
     public List<GenreDto> getAllGenres(Pageable pageable) {
         Page<Genre> genres = genresRepository.findAll(pageable);
 
-        List<GenreDto> genreDtos = genreMapper.toDtos(genres);
-        return genreDtos;
+        return genreMapper.toDtos(genres);
     }
 
     public void allGenresExistByIds(Set<GenreDto> genres) {

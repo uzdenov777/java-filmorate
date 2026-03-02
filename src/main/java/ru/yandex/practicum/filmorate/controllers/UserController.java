@@ -27,8 +27,7 @@ public class UserController {
 
         log.info("Adding user: {}", userDto);
 
-        UserDto saved = userService.add(userDto);
-        return saved;
+        return userService.add(userDto);
     }
 
     @PutMapping
@@ -36,8 +35,7 @@ public class UserController {
 
         log.info("Updating user with: {}", userDto);
 
-        UserDto saved = userService.update(userDto);
-        return saved;
+        return userService.update(userDto);
     }
 
     @GetMapping

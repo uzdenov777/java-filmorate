@@ -54,8 +54,7 @@ public class FilmService {
         Film newFilm = filmMapper.toEntity(newFilmDto);
         Film saved = filmsRepository.save(newFilm);
 
-        FilmDto filmResponse = filmMapper.toDto(saved);
-        return filmResponse;
+        return filmMapper.toDto(saved);
     }
 
 
@@ -74,8 +73,7 @@ public class FilmService {
         Film filmToUpdate = filmMapper.toEntity(filmDtoToUpdate);
         Film saved = filmsRepository.save(filmToUpdate);
 
-        FilmDto filmResponse = filmMapper.toDto(saved);
-        return filmResponse;
+        return filmMapper.toDto(saved);
     }
 
     public FilmDto getFilmById(Long filmId) throws ResponseStatusException {
@@ -112,8 +110,7 @@ public class FilmService {
 
         List<Film> listTopPopularFilms = filmLikesService.getTopPopularFilms(count);
 
-        List<FilmDto> responses = filmMapper.toDtos(listTopPopularFilms);
-        return responses;
+        return filmMapper.toDtos(listTopPopularFilms);
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {

@@ -9,8 +9,6 @@ import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.FriendRepository;
 
-import java.util.List;
-
 @Service
 public class FriendsServer {
 
@@ -41,8 +39,6 @@ public class FriendsServer {
 
     public Page<User> getMutualFriends(Long idFirstUser, Long idSecondUser, Pageable pageable) {
 
-        Page<User> mutualFriends = friendRepository.findMutualFriends(idFirstUser, idSecondUser, pageable);
-
-        return mutualFriends;
+        return friendRepository.findMutualFriends(idFirstUser, idSecondUser, pageable);
     }
 }

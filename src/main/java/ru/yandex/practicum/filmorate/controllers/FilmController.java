@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -27,24 +26,21 @@ public class FilmController {
     public FilmDto add(@RequestBody @Valid FilmDto newFilm) {
         log.info("Adding film: {}", newFilm);
 
-        FilmDto save = filmService.add(newFilm);
-        return save;
+        return filmService.add(newFilm);
     }
 
     @PutMapping
     public FilmDto update(@RequestBody @Valid FilmDto filmToUpdate) {
         log.info("Updating film: {}", filmToUpdate);
 
-        FilmDto save = filmService.update(filmToUpdate);
-        return save;
+        return filmService.update(filmToUpdate);
     }
 
     @GetMapping("/{id}")
     public FilmDto getById(@PathVariable Long id) {
         log.info("Getting film with id: {}", id);
 
-        FilmDto filmResponse = filmService.getFilmById(id);
-        return filmResponse;
+        return filmService.getFilmById(id);
     }
 
     @GetMapping
