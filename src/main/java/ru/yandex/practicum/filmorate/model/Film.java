@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Film.
@@ -55,4 +58,13 @@ public class Film {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "mpa_id")
     private Mpa mpa;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "film_genres",
+            joinColumns = @JoinColumn(name = "film_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    @OrderBy("id ASC") // сортировка по id
+    private Set<Genre> genres = new HashSet<>();
 }

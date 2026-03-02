@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.mapper;
 
 import org.mapstruct.Mapper;
+import org.springframework.data.domain.Page;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.dto.UserDto;
 
@@ -13,5 +14,5 @@ public interface UserMapper {
 
     UserDto toDto(User user);
 
-    List<UserDto> toDtos(List<User> users);
+    List<UserDto> toDtos(Page<User> users);
 }

@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controllers;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.dto.UserDto;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -40,9 +41,9 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> getAllUsers() {
+    public List<UserDto> getAllUsers(Pageable pageable) {
         log.info("Getting all users");
-        return userService.getAllUsers();
+        return userService.getAllUsers(pageable);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -58,14 +59,16 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<UserDto> getFriends(@PathVariable long id) {
+    public List<UserDto> getFriends(@PathVariable long id, Pageable pageable) {
         log.info("Getting friends");
-        return userService.getAllFriendsByUserId(id);
+        return userService.getAllFriendsByUserId(id, pageable);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<UserDto> getMutualFriends(@PathVariable long id, @PathVariable long otherId) {
+    public List<UserDto> getMutualFriends(@PathVariable long id,
+                                          @PathVariable long otherId,
+                                          Pageable pageable) {
         log.info("Getting friends common");
-        return userService.getMutualFriends(id, otherId);
+        return userService.getMutualFriends(id, otherId, pageable);
     }
 }

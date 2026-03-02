@@ -5,12 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Data
 public class FilmDto {
@@ -35,5 +35,5 @@ public class FilmDto {
     @NotNull(message = "Ограничение у фильмы не может отсутствовать")
     private Mpa mpa;
 
-    private List<Genre> genres = new ArrayList<>();
+    private Set<GenreDto> genres = new HashSet<>();
 }

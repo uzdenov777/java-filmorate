@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -8,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.repository.MpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -20,31 +20,26 @@ public class MpaService {
         this.mpaRepository = mpaRepository;
     }
 
-    public Mpa getMpaById(Long mpaId) throws ResponseStatusException {
+    public Mpa getMpaById(Long mpaId) {
 
-        Optional<Mpa> mpaOpt = mpaRepository.findById(mpaId);
-        if (mpaOpt.isEmpty()) {
-            log.info("Не найден Mpa-возрастное ограничение при запросе на возврат по ID: {}", mpaId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден Mpa-возрастное ограничение при запросе на возврат по ID: " + mpaId);
-        }
-
-        Mpa mpa = mpaOpt.get();
-        return mpa;
+        return mpaRepository.findById(mpaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Не найден Mpa-возрастное ограничение при запросе на возврат по ID: " + mpaId));
     }
 
-    public List<Mpa> getAllMpa() {
+    public List<Mpa> getAllMpa(Pageable pageable) {
 
-        return mpaRepository.findAll();
+        return mpaRepository.findAll(pageable).getContent();
     }
 
-    public boolean isExistMpa(Long mpaId) throws ResponseStatusException {
+    public void existsMpa(Long mpaId) {
 
         boolean existsMpa = mpaRepository.existsById(mpaId);
         if (!existsMpa) {
             log.info("Не найден Mpa-возрастное ограничение по ID: {}", mpaId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден Mpa-возрастное ограничение по ID: " + mpaId);
-        }
 
-        return true;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Не найден Mpa-возрастное ограничение по ID: " + mpaId);
+        }
     }
 }

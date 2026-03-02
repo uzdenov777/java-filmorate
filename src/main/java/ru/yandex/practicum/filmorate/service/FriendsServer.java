@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
@@ -33,13 +35,13 @@ public class FriendsServer {
         friendRepository.deleteByUserIdAndFriendId(userId, friendId);
     }
 
-    public List<User> getAllFriendsByUserId(long userId) {
-        return friendRepository.findFriendsByUserId(userId);
+    public Page<User> getAllFriendsByUserId(long userId, Pageable pageable) {
+        return friendRepository.findFriendsByUserId(userId, pageable);
     }
 
-    public List<User> getMutualFriends(Long idFirstUser, Long idSecondUser) {
+    public Page<User> getMutualFriends(Long idFirstUser, Long idSecondUser, Pageable pageable) {
 
-        List<User> mutualFriends = friendRepository.findMutualFriends(idFirstUser, idSecondUser);
+        Page<User> mutualFriends = friendRepository.findMutualFriends(idFirstUser, idSecondUser, pageable);
 
         return mutualFriends;
     }

@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controllers;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -46,9 +48,9 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<FilmDto> getAllFilms() {
+    public List<FilmDto> getAllFilms(Pageable pageable) {
         log.info("Getting all films");
-        return filmService.getAllFilmsResponse();
+        return filmService.getAllFilms(pageable);
     }
 
     @PutMapping("/{id}/like/{userId}")

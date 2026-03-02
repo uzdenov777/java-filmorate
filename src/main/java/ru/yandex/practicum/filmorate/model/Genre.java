@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -25,4 +28,7 @@ public class Genre {
     @Column(name = "genre_name")
     @NotBlank(message = "Name не может отсутствовать у Genre")
     private String name;
+
+    @ManyToMany(mappedBy = "genres")
+    private Set<Film> films = new HashSet<>();
 }

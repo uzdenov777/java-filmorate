@@ -3,21 +3,23 @@ package ru.yandex.practicum.filmorate.service;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
+import ru.yandex.practicum.filmorate.model.dto.GenreDto;
 import ru.yandex.practicum.filmorate.repository.FilmsRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
 
 @Log4j2
 @Service
@@ -27,7 +29,6 @@ public class FilmService {
 
     private final UserService userService;
     private final FilmLikesService filmLikesService;
-    private final FilmGenresService filmGenresService;
     private final GenresService genresService;
     private final MpaService mpaService;
 
@@ -35,12 +36,11 @@ public class FilmService {
 
     @Autowired
     public FilmService(FilmsRepository filmsRepository, UserService userService, FilmLikesService filmLikesService,
-                       FilmGenresService filmGenresService, GenresService genresService, MpaService mpaService, FilmMapper filmMapper) {
+                       GenresService genresService, MpaService mpaService, FilmMapper filmMapper) {
 
         this.userService = userService;
         this.filmsRepository = filmsRepository;
         this.filmLikesService = filmLikesService;
-        this.filmGenresService = filmGenresService;
         this.genresService = genresService;
         this.mpaService = mpaService;
         this.filmMapper = filmMapper;
@@ -49,25 +49,19 @@ public class FilmService {
     @Transactional
     public FilmDto add(FilmDto newFilmDto) throws ResponseStatusException {
 
-        checkFilm(newFilmDto);
+        validateFilm(newFilmDto);
 
         Film newFilm = filmMapper.toEntity(newFilmDto);
         Film saved = filmsRepository.save(newFilm);
 
-        List<Genre> genres = newFilmDto.getGenres();
-        filmGenresService.addFilmGenres(saved, genres);
-
-        List<Genre> fullGenres = genresService.getGenres(genres);
-
-        FilmDto filmResponse = filmMapper.toDto(saved, fullGenres);
-
+        FilmDto filmResponse = filmMapper.toDto(saved);
         return filmResponse;
     }
 
 
     public FilmDto update(FilmDto filmDtoToUpdate) throws ResponseStatusException {
 
-        checkFilm(filmDtoToUpdate);
+        validateFilm(filmDtoToUpdate);
 
         Long filmId = filmDtoToUpdate.getId();
         boolean filmExists = filmsRepository.existsById(filmId);
@@ -80,40 +74,23 @@ public class FilmService {
         Film filmToUpdate = filmMapper.toEntity(filmDtoToUpdate);
         Film saved = filmsRepository.save(filmToUpdate);
 
-        //Сохраняем связи
-        List<Genre> genres = filmDtoToUpdate.getGenres();
-        filmGenresService.updateFilmGenres(saved, genres);
-
-        //готовлю ответ
-        List<Genre> fullGenres = genresService.getGenres(genres);
-        FilmDto filmResponse = filmMapper.toDto(saved, fullGenres);
-
+        FilmDto filmResponse = filmMapper.toDto(saved);
         return filmResponse;
     }
 
     public FilmDto getFilmById(Long filmId) throws ResponseStatusException {
 
-        Optional<Film> filmOpt = filmsRepository.findById(filmId);
-
-        if (filmOpt.isEmpty()) {
-            log.info("Не найден фильм для возвращения по ID: {}", filmId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для возвращения по ID: " + filmId);
-        }
-
-        Film film = filmOpt.get();
-        List<Genre> genres = filmGenresService.getGenresByFilm(film);
-
-        FilmDto filmResponse = filmMapper.toDto(film, genres);
-
-        return filmResponse;
+        return filmsRepository.findById(filmId)
+                .map(filmMapper::toDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Не найден фильм для возвращения по ID: " + filmId));
     }
 
-    public List<FilmDto> getAllFilmsResponse() {
+    public List<FilmDto> getAllFilms(Pageable pageable) {
 
-        List<Film> allFilms = getAllFilms();
+        Page<Film> allFilms = filmsRepository.findAll(pageable);
 
-        List<FilmDto> responses = filmMapper.toDtos(allFilms, filmGenresService);
-        return responses;
+        return filmMapper.toDtos(allFilms);
     }
 
     public void addLikeToFilm(long filmId, long userId) throws ResponseStatusException {
@@ -135,40 +112,39 @@ public class FilmService {
 
         List<Film> listTopPopularFilms = filmLikesService.getTopPopularFilms(count);
 
-        List<FilmDto> responses = filmMapper.toDtos(listTopPopularFilms, filmGenresService);
+        List<FilmDto> responses = filmMapper.toDtos(listTopPopularFilms);
         return responses;
-    }
-
-    private List<Film> getAllFilms() {
-
-        List<Film> allFilms = filmsRepository.findAll();
-
-        return allFilms;
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
 
         boolean existFilm = filmsRepository.existsById(filmId);
-
         boolean existUser = userService.isUserExists(userId);
 
         if (!existUser) {
             log.error("Пользователь с ID: {} не найден для добавления лайка фильму", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID: " + userId + " не найден для добавления лайка фильму");
-        } else if (!existFilm) {
+        }
+
+        if (!existFilm) {
             log.error("Фильм с ID: {} не найден для добавления ему лайка", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с ID: " + filmId + " не найден для добавления ему лайка");
         }
     }
 
-    private void checkFilm(FilmDto chekFilm) throws ResponseStatusException {
+    private void validateFilm(FilmDto film) throws ResponseStatusException {
 
-        isValidReleaseDate(chekFilm); //В случае не валидной даты релиза выбросит исключение ResponseStatusException
+        isValidReleaseDate(film); //В случае не валидной даты релиза выбросит исключение ResponseStatusException
 
-        Mpa mpa = chekFilm.getMpa();
+        Mpa mpa = film.getMpa();
         if (Objects.nonNull(mpa)) {
             Long mpaId = mpa.getId();
-            mpaService.isExistMpa(mpaId);
+            mpaService.existsMpa(mpaId);
+        }
+
+        Set<GenreDto> genres = film.getGenres();
+        if (!genres.isEmpty()) {
+            genresService.allGenresExistByIds(genres);
         }
     }
 

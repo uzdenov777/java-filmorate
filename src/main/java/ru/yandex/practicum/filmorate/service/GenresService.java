@@ -1,63 +1,60 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.dto.GenreDto;
 import ru.yandex.practicum.filmorate.repository.GenresRepository;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
 public class GenresService {
 
     private final GenresRepository genresRepository;
+    private final GenreMapper genreMapper;
 
-    public GenresService(GenresRepository genresRepository) {
+    public GenresService(GenresRepository genresRepository, GenreMapper genreMapper) {
         this.genresRepository = genresRepository;
+        this.genreMapper = genreMapper;
     }
 
-    public Genre getGenreById(Long genreId) throws ResponseStatusException {
+    public GenreDto getGenreById(Long genreId) {
 
-        Optional<Genre> genreOpt = genresRepository.findById(genreId);
-        if (genreOpt.isEmpty()) {
-            log.info("Не найден жанр при запросе на возврат по ID: {}", genreId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр при запросе на возврат по ID: " + genreId);
-        }
-
-        Genre genre = genreOpt.get();
-        return genre;
+        return genresRepository.findById(genreId)
+                .map(genreMapper::toDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND
+                        , "Не найден жанр при запросе на возврат по ID: " + genreId));
     }
 
-    public List<Genre> getGenres(List<Genre> genres) {
+    public List<GenreDto> getAllGenres(Pageable pageable) {
+        Page<Genre> genres = genresRepository.findAll(pageable);
 
-        List<Long> genreIds = new ArrayList<>();
-        for (Genre genre : genres) {
-            Long genreId = genre.getId();
+        List<GenreDto> genreDtos = genreMapper.toDtos(genres);
+        return genreDtos;
+    }
+
+    public void allGenresExistByIds(Set<GenreDto> genres) {
+
+        Set<Long> genreIds = new HashSet<>();
+        for (GenreDto dto : genres) {
+            Long genreId = dto.getId();
             genreIds.add(genreId);
         }
 
-        List<Genre> fullGenres = genresRepository.findAllByIdInBatch(genreIds);
+        long numberMatches = genresRepository.countByIdIn(genreIds);
 
-        return fullGenres;
-    }
-
-    public List<Genre> getAllGenres() {
-        return genresRepository.findAll();
-    }
-
-    public boolean isGenreExist(Long genreId) throws ResponseStatusException {
-
-        boolean genreExist = genresRepository.existsById(genreId);
-        if (!genreExist) {
-            log.info("Не найден жанр по ID: {}", genreId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден жанр по ID: " + genreId);
+        boolean isMatch = numberMatches == genres.size();
+        if (!isMatch) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не существует один или несколько жанров");
         }
-
-        return true;
     }
 }

@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
+import io.micrometer.common.util.StringUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,8 +39,7 @@ public class UserService {
         User newUser = userMapper.toEntity(newUserDto);
         User saved = userRepository.save(newUser);
 
-        UserDto savedDto = userMapper.toDto(saved);
-        return savedDto;
+        return userMapper.toDto(saved);
     }
 
     public UserDto update(UserDto userDto) {
@@ -55,16 +57,14 @@ public class UserService {
         User updatedUser = userMapper.toEntity(userDto);
         User saved = userRepository.save(updatedUser);
 
-        UserDto responseDto = userMapper.toDto(saved);
-        return responseDto;
+        return userMapper.toDto(saved);
     }
 
-    public List<UserDto> getAllUsers() {
+    public List<UserDto> getAllUsers(Pageable pageable) {
 
-        List<User> allUsers = userRepository.findAll();
+        Page<User> allUsers = userRepository.findAll(pageable);
 
-        List<UserDto> responseDtos = userMapper.toDtos(allUsers);
-        return responseDtos;
+        return userMapper.toDtos(allUsers);
     }
 
     public void addFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
@@ -82,7 +82,7 @@ public class UserService {
         friendsServer.removeFriend(idFirstUser, idSecondUser);
     }
 
-    public List<UserDto> getAllFriendsByUserId(long userId) throws ResponseStatusException {
+    public List<UserDto> getAllFriendsByUserId(long userId, Pageable pageable) throws ResponseStatusException {
 
         boolean existsUser = userRepository.existsById(userId);
         if (!existsUser) {
@@ -90,16 +90,15 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId + ", для возращения списка его друзей");
         }
 
-        List<User> friendsByUser = friendsServer.getAllFriendsByUserId(userId);
+        Page<User> friendsByUser = friendsServer.getAllFriendsByUserId(userId, pageable);
 
-        List<UserDto> responseDtos = userMapper.toDtos(friendsByUser);
-        return responseDtos;
+        return userMapper.toDtos(friendsByUser);
     }
 
-    public List<UserDto> getMutualFriends(long idUserFirst, long idUserSecond) throws ResponseStatusException {
+    public List<UserDto> getMutualFriends(long idUserFirst, long idUserSecond, Pageable pageable) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idUserFirst, idUserSecond);
 
-        List<User> mutualFriends = friendsServer.getMutualFriends(idUserFirst, idUserSecond);
+        Page<User> mutualFriends = friendsServer.getMutualFriends(idUserFirst, idUserSecond, pageable);
 
         List<UserDto> responseDtos = userMapper.toDtos(mutualFriends);
         return responseDtos;
@@ -107,13 +106,7 @@ public class UserService {
 
     public boolean isUserExists(Long userId) {
 
-        boolean userExists = userRepository.existsById(userId);
-        if (!userExists) {
-            log.info("Не найден пользователь с ID: {}", userId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId);
-        }
-
-        return true;
+        return userRepository.existsById(userId);
     }
 
     // Проверяет, существуют ли пользователи и не доб. или удал. самого себя
@@ -144,13 +137,12 @@ public class UserService {
         String userName = user.getName();
         String loginUser = user.getLogin();
 
-        String setNameUser = (userName == null || userName.isBlank()) ? loginUser : userName;
+        String setNameUser = (StringUtils.isBlank(userName) ) ? loginUser : userName;
         user.setName(setNameUser);
     }
 
     public User getUserProxyById(long userId) {
 
-        User userProxy = userRepository.getReferenceById(userId);
-        return userProxy;
+        return userRepository.getReferenceById(userId);
     }
 }
