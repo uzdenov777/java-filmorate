@@ -32,15 +32,29 @@ public class UserController {
 
     @PutMapping
     public UserDto update(@RequestBody @Valid UserDto userDto) {
-
         log.info("Updating user with: {}", userDto);
 
         return userService.update(userDto);
     }
 
+    @DeleteMapping("/{userId}")
+    public void delete(@PathVariable Long userId) {
+        log.info("Удаление пользователя: {}", userId);
+
+        userService.deleteUser(userId);
+    }
+
+    @GetMapping("/{id}")
+    public UserDto getById(@PathVariable Long id) {
+        log.info("Вернуть пользователя: {}", id);
+
+        return userService.getById(id);
+    }
+
     @GetMapping
     public List<UserDto> getAllUsers(Pageable pageable) {
         log.info("Getting all users");
+
         return userService.getAllUsers(pageable);
     }
 

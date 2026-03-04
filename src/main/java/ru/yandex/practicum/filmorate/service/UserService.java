@@ -132,16 +132,31 @@ public class UserService {
     }
 
     private void setDisplayName(UserDto user) {
-
         String userName = user.getName();
         String loginUser = user.getLogin();
 
-        String setNameUser = (StringUtils.isBlank(userName) ) ? loginUser : userName;
+        String setNameUser = (StringUtils.isBlank(userName)) ? loginUser : userName;
         user.setName(setNameUser);
     }
 
     public User getUserProxyById(long userId) {
-
         return userRepository.getReferenceById(userId);
+    }
+
+    public void deleteUser(Long userId) {
+        boolean isExists = userRepository.existsById(userId);
+
+        if (!isExists) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND
+                    , "Не найден пользователь для удаления: " + userId);
+        }
+
+        userRepository.deleteById(userId);
+    }
+
+    public UserDto getById(Long id) {
+        return userRepository.findById(id)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

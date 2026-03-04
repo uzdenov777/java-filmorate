@@ -14,27 +14,34 @@ import ru.yandex.practicum.filmorate.model.User;
 public interface FriendRepository extends JpaRepository<Friendship, Long> {
 
     @Modifying
-    @Query("DELETE FROM Friendship f " +
-            "WHERE f.user.id = :userId " +
-            "AND f.friend.id = :friendId")
+    @Query("""
+            DELETE FROM Friendship f
+            WHERE f.user.id = :userId
+              AND f.friend.id = :friendId
+            """)
     void deleteByUserIdAndFriendId(@Param("userId") Long userId, @Param("friendId") Long friendId);
 
-    @Query("SELECT f.friend " +
-            "FROM Friendship f " +
-            "WHERE f.user.id = :userId")
+    @Query("""
+            SELECT f.friend
+            FROM Friendship f
+            WHERE f.user.id = :userId
+            """)
     Page<User> findFriendsByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    @Query("SELECT u " +
-            "FROM User u " +
-            "WHERE u.id IN " +
-            "  ( SELECT f1.friend.id " +
-            "    FROM Friendship f1 " +
-            "    WHERE f1.user.id = :idUserFirst ) " +
-            "AND u.id IN " +
-            "  ( SELECT f2.friend.id " +
-            "    FROM Friendship f2 " +
-            "    WHERE f2.user.id = :idUserSecond ) ")
-    Page<User> findMutualFriends(@Param("idUserFirst") Long idUserFirst,
-                                 @Param("idUserSecond") Long idUserSecond,
+    @Query("""
+            SELECT u
+            FROM User u
+            WHERE u.id IN (
+                SELECT f1.friend.id
+                FROM Friendship f1
+                WHERE f1.user.id = :idFirst)
+            AND u.id IN (
+                SELECT f2.friend.id
+                FROM Friendship f2
+                WHERE f2.user.id = :idSecond
+            )
+            """)
+    Page<User> findMutualFriends(@Param("idFirst") Long idFirst,
+                                 @Param("idSecond") Long idSecond,
                                  Pageable pageable);
 }

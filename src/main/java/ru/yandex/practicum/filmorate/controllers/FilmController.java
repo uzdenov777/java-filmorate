@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
 
@@ -16,10 +17,12 @@ import java.util.List;
 public class FilmController {
 
     private final FilmService filmService;
+    private final UserService userService;
 
     @Autowired
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, UserService userService) {
         this.filmService = filmService;
+        this.userService = userService;
     }
 
     @PostMapping
@@ -34,6 +37,13 @@ public class FilmController {
         log.info("Updating film: {}", filmToUpdate);
 
         return filmService.update(filmToUpdate);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void delete(@PathVariable Long filmId) {
+        log.info("Удаление фильма: {}", filmId);
+
+        filmService.deleteFilmById(filmId);
     }
 
     @GetMapping("/{id}")

@@ -62,7 +62,7 @@ public class FilmService {
 
         validateFilm(filmDtoToUpdate);
 
-        Long filmId = filmDtoToUpdate.getId();
+        var filmId = filmDtoToUpdate.getId();
         boolean filmExists = filmsRepository.existsById(filmId);
 
         if (!filmExists) {
@@ -70,10 +70,22 @@ public class FilmService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для обновления с ID: " + filmId);
         }
 
-        Film filmToUpdate = filmMapper.toEntity(filmDtoToUpdate);
-        Film saved = filmsRepository.save(filmToUpdate);
+        var filmToUpdate = filmMapper.toEntity(filmDtoToUpdate);
+        var saved = filmsRepository.save(filmToUpdate);
 
         return filmMapper.toDto(saved);
+    }
+
+    public void deleteFilmById(Long filmId) {
+        log.info("Удаление фильма: {}", filmId);
+
+        var exists = filmsRepository.existsById(filmId);
+        if (!exists) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Не найден фильм для удаления с ID: " + filmId);
+        }
+
+        filmsRepository.deleteById(filmId);
     }
 
     public FilmDto getFilmById(Long filmId) throws ResponseStatusException {
