@@ -75,4 +75,13 @@ public class FilmController {
         log.info("Getting popular films top:{}, genre:{}, year:{}", count, genreId, year);
         return filmService.getPopularFilmsByGenreAndYear(count, genreId, year);
     }
+
+    @GetMapping("/common")
+    public List<FilmDto> getCommonLikedFilms(@RequestParam Long userId,
+                                             @RequestParam Long friendId,
+                                             Pageable pageable) {
+        log.info("Вернуть общие фильмы для пользователей 1: {}, 2: {}", userId, friendId);
+
+        return filmService.getCommonLikedFilms(userId, friendId, pageable);
+    }
 }

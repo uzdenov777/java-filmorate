@@ -48,7 +48,6 @@ public class FilmService {
 
     @Transactional
     public FilmDto add(FilmDto newFilmDto) throws ResponseStatusException {
-
         validateFilm(newFilmDto);
 
         Film newFilm = filmMapper.toEntity(newFilmDto);
@@ -59,7 +58,6 @@ public class FilmService {
 
 
     public FilmDto update(FilmDto filmDtoToUpdate) throws ResponseStatusException {
-
         validateFilm(filmDtoToUpdate);
 
         var filmId = filmDtoToUpdate.getId();
@@ -89,7 +87,6 @@ public class FilmService {
     }
 
     public FilmDto getFilmById(Long filmId) throws ResponseStatusException {
-
         return filmsRepository.findById(filmId)
                 .map(filmMapper::toDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -97,10 +94,22 @@ public class FilmService {
     }
 
     public List<FilmDto> getAllFilms(Pageable pageable) {
-
         Page<Film> allFilms = filmsRepository.findAll(pageable);
 
         return filmMapper.toDtos(allFilms);
+    }
+
+    public List<FilmDto> getCommonLikedFilms(Long userId, Long friendId, Pageable pageable) {
+        var exists = userService.isUserExists(userId) && userService.isUserExists(friendId);
+
+        if (!exists) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND
+                    ,"Не найден один или два пользователя 1: " + userId + ", 2: " + friendId + " при возвращении общих фильмов");
+        }
+
+        Page<Film> films = filmsRepository.findCommonLikedFilms(userId, friendId, pageable);
+
+        return filmMapper.toDtos(films);
     }
 
     public void addLikeToFilm(long filmId, long userId) throws ResponseStatusException {
@@ -125,7 +134,6 @@ public class FilmService {
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
-
         boolean existFilm = filmsRepository.existsById(filmId);
         boolean existUser = userService.isUserExists(userId);
 
@@ -141,7 +149,6 @@ public class FilmService {
     }
 
     private void validateFilm(FilmDto film) throws ResponseStatusException {
-
         isValidReleaseDate(film); //В случае не валидной даты релиза выбросит исключение ResponseStatusException
 
         Mpa mpa = film.getMpa();
@@ -167,9 +174,4 @@ public class FilmService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Не правильная дата релиза фильма: " + filmToValidate);
         }
     }
-
-//    public List<FilmDto> getPopularFilmsByGenreAndYear(int count, long idGenre, long year) {
-//
-//
-//    }
 }
