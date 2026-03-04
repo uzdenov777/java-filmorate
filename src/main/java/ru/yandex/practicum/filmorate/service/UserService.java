@@ -60,12 +60,34 @@ public class UserService {
         return userMapper.toDto(saved);
     }
 
+    public void deleteUser(Long userId) {
+        boolean isExists = userRepository.existsById(userId);
+
+        if (!isExists) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND
+                    , "Не найден пользователь для удаления: " + userId);
+        }
+
+        userRepository.deleteById(userId);
+    }
+
+    public UserDto getById(Long id) {
+        return userRepository.findById(id)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
     public List<UserDto> getAllUsers(Pageable pageable) {
 
         Page<User> allUsers = userRepository.findAll(pageable);
 
         return userMapper.toDtos(allUsers);
     }
+
+    public User getUserProxyById(long userId) {
+        return userRepository.getReferenceById(userId);
+    }
+
 
     public void addFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
@@ -137,26 +159,5 @@ public class UserService {
 
         String setNameUser = (StringUtils.isBlank(userName)) ? loginUser : userName;
         user.setName(setNameUser);
-    }
-
-    public User getUserProxyById(long userId) {
-        return userRepository.getReferenceById(userId);
-    }
-
-    public void deleteUser(Long userId) {
-        boolean isExists = userRepository.existsById(userId);
-
-        if (!isExists) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND
-                    , "Не найден пользователь для удаления: " + userId);
-        }
-
-        userRepository.deleteById(userId);
-    }
-
-    public UserDto getById(Long id) {
-        return userRepository.findById(id)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

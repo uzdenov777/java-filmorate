@@ -120,7 +120,7 @@ public class FilmService {
 
     public List<FilmDto> getTopPopularFilms(int count) {
 
-        List<Film> listTopPopularFilms = filmLikesService.getTopPopularFilms(count);
+        List<Film> listTopPopularFilms = filmsRepository.getTopPopularFilms(count);
 
         return filmMapper.toDtos(listTopPopularFilms);
     }

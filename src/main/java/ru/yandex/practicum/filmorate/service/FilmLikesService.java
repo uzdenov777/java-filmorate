@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.model.FilmLike;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.FilmLikesRepository;
 
-import java.util.List;
-
 @Service
 public class FilmLikesService {
 
@@ -30,9 +28,5 @@ public class FilmLikesService {
     @Transactional
     public void deleteLikeFilm(long filmId, long userId) {
         filmLikesRepository.deleteLikeFilm(filmId, userId);
-    }
-
-    public List<Film> getTopPopularFilms(int count) {
-        return filmLikesRepository.getTopPopularFilms(count);
     }
 }
