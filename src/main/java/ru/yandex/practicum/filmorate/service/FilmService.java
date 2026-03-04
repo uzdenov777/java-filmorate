@@ -118,9 +118,9 @@ public class FilmService {
         filmLikesService.deleteLikeFilm(filmId, userId);
     }
 
-    public List<FilmDto> getTopPopularFilms(int count) {
+    public List<FilmDto> getPopularFilmsByGenreAndYear(int count, Long genreId, Long year) {
 
-        List<Film> listTopPopularFilms = filmsRepository.getTopPopularFilms(count);
+        List<Film> listTopPopularFilms = filmsRepository.getTopPopularFilms(count, genreId, year);
 
         return filmMapper.toDtos(listTopPopularFilms);
     }
@@ -168,4 +168,9 @@ public class FilmService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Не правильная дата релиза фильма: " + filmToValidate);
         }
     }
+
+//    public List<FilmDto> getPopularFilmsByGenreAndYear(int count, long idGenre, long year) {
+//
+//
+//    }
 }

@@ -14,10 +14,18 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
     @Query(value = """
             SELECT f.*
             FROM films f
-            LEFT JOIN film_likes fl ON f.id = fl.film_id
-            GROUP BY f.id
-            ORDER BY COUNT(fl.user_id) DESC, f.id ASC
+            LEFT JOIN (
+                SELECT film_id, COUNT(*) AS likes_count
+                FROM film_likes
+                GROUP BY film_id
+            ) lc ON lc.film_id = f.id
+            WHERE (:genreId = 0 OR EXISTS (
+                    SELECT 1 FROM film_genres fg
+                    WHERE fg.film_id = f.id AND fg.genre_id = :genreId
+                ))
+              AND (:year = 0 OR EXTRACT(YEAR FROM f.release_date) = :year)
+            ORDER BY COALESCE(lc.likes_count, 0) DESC, f.id ASC
             LIMIT :count
             """, nativeQuery = true)
-    List<Film> getTopPopularFilms(@Param("count") int count);
+    List<Film> getTopPopularFilms(@Param("count") int count, @Param("genreId") Long genreId, @Param("year") Long year);
 }

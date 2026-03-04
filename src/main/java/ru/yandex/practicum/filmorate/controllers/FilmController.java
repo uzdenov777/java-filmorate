@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
 
@@ -17,12 +16,10 @@ import java.util.List;
 public class FilmController {
 
     private final FilmService filmService;
-    private final UserService userService;
 
     @Autowired
-    public FilmController(FilmService filmService, UserService userService) {
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
-        this.userService = userService;
     }
 
     @PostMapping
@@ -72,8 +69,10 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<FilmDto> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        log.info("Getting popular films top: {}", count);
-        return filmService.getTopPopularFilms(count);
+    public List<FilmDto> getPopularFilms(@RequestParam(defaultValue = "10") int count,
+                                         @RequestParam(defaultValue = "0") Long genreId,
+                                         @RequestParam(defaultValue = "0") Long year) {
+        log.info("Getting popular films top:{}, genre:{}, year:{}", count, genreId, year);
+        return filmService.getPopularFilmsByGenreAndYear(count, genreId, year);
     }
 }
