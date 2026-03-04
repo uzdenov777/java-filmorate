@@ -119,7 +119,6 @@ public class FilmService {
     }
 
     public List<FilmDto> getPopularFilmsByGenreAndYear(int count, Long genreId, Long year) {
-
         List<Film> listTopPopularFilms = filmsRepository.getTopPopularFilms(count, genreId, year);
 
         return filmMapper.toDtos(listTopPopularFilms);
