@@ -12,7 +12,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -61,10 +60,18 @@ public class Film {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "film_genres",
+            name = "FILM_GENRES",
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
     @OrderBy("id ASC") // сортировка по id
     private Set<Genre> genres = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "FILM_DIRECTORS",
+            joinColumns = @JoinColumn(name = "film_id"),
+            inverseJoinColumns = @JoinColumn(name = "director_id")
+    )
+    private Set<Director> directors = new HashSet<>();
 }

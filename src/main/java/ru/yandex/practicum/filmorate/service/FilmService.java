@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.enums.SortingType;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -33,10 +34,11 @@ public class FilmService {
     private final MpaService mpaService;
 
     private final FilmMapper filmMapper;
+    private final DirectorService directorService;
 
     @Autowired
     public FilmService(FilmsRepository filmsRepository, UserService userService, FilmLikesService filmLikesService,
-                       GenresService genresService, MpaService mpaService, FilmMapper filmMapper) {
+                       GenresService genresService, MpaService mpaService, FilmMapper filmMapper, DirectorService directorService) {
 
         this.userService = userService;
         this.filmsRepository = filmsRepository;
@@ -44,6 +46,7 @@ public class FilmService {
         this.genresService = genresService;
         this.mpaService = mpaService;
         this.filmMapper = filmMapper;
+        this.directorService = directorService;
     }
 
     @Transactional
@@ -131,6 +134,12 @@ public class FilmService {
         List<Film> listTopPopularFilms = filmsRepository.getTopPopularFilms(count, genreId, year);
 
         return filmMapper.toDtos(listTopPopularFilms);
+    }
+
+    public List<FilmDto> getFilmByDirectorId(Long directorId, SortingType type) {
+        directorService.existById(directorId);
+
+        return;
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {

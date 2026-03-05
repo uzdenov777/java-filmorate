@@ -36,4 +36,6 @@ public class FilmDto {
     private Mpa mpa;
 
     private Set<GenreDto> genres = new HashSet<>();
+
+    private Set<DirectorDto> directors;
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.enums.SortingType;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -84,4 +85,15 @@ public class FilmController {
 
         return filmService.getCommonLikedFilms(userId, friendId, pageable);
     }
+
+    @GetMapping("/director/{directorId}")
+    public List<FilmDto> getFilmByDirectorId(@PathVariable Long directorId,
+                                             @RequestParam SortingType type) {
+        log.info("Возвращение фильмов режиссера: {} отсортированных по {}", directorId, type.toString());
+
+        return filmService.getFilmByDirectorId(directorId, type);
+    }
+//    GET /films/director/{directorId}?sortBy=[year,likes]
+//
+//    Возвращает список фильмов режиссера отсортированных по количеству лайков или году выпуска.
 }
