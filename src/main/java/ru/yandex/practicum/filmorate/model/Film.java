@@ -37,7 +37,7 @@ public class Film {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "films_name")
+    @Column(name = "name")
     @NotBlank(message = "Название у фильмы не может отсутствовать")
     private String name;
 

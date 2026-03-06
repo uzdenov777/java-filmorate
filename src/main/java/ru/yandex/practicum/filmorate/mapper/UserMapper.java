@@ -15,4 +15,6 @@ public interface UserMapper {
     UserDto toDto(User user);
 
     List<UserDto> toDtos(Page<User> users);
+
+    User userFromId(Long id);
 }

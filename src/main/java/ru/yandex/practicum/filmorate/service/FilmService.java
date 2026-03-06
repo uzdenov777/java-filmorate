@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -131,6 +132,10 @@ public class FilmService {
         List<Film> listTopPopularFilms = filmsRepository.getTopPopularFilms(count, genreId, year);
 
         return filmMapper.toDtos(listTopPopularFilms);
+    }
+
+    public boolean isFilmExists(Long filmId) {
+        return filmsRepository.existsById(filmId);
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
