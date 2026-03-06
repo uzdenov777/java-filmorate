@@ -32,21 +32,44 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
     List<Film> getTopPopularFilms(@Param("count") int count, @Param("genreId") Long genreId, @Param("year") Long year);
 
     @Query("""
-       SELECT f
-       FROM Film f
-       LEFT JOIN FilmLike fl ON fl.film = f
-       WHERE f.id IN (
-            SELECT fl1.film.id
-            FROM FilmLike fl1
-            WHERE fl1.user.id = :userId
-       )
-       AND f.id IN (
-            SELECT fl2.film.id
-            FROM FilmLike fl2
-            WHERE fl2.user.id = :friendId
-       )
-       GROUP BY f
-       ORDER BY COUNT(fl.user) DESC, f.id ASC
-       """)
+            SELECT f
+            FROM Film f
+            LEFT JOIN FilmLike fl ON fl.film = f
+            WHERE f.id IN (
+                 SELECT fl1.film.id
+                 FROM FilmLike fl1
+                 WHERE fl1.user.id = :userId
+            )
+            AND f.id IN (
+                 SELECT fl2.film.id
+                 FROM FilmLike fl2
+                 WHERE fl2.user.id = :friendId
+            )
+            GROUP BY f
+            ORDER BY COUNT(fl.user) DESC, f.id ASC
+            """)
     Page<Film> findCommonLikedFilms(Long userId, Long friendId, Pageable pageable);
+
+    @Query(value = """
+                 SELECT f.*
+                 FROM films f
+                 JOIN film_directors fd ON f.id = fd.film_id
+                 WHERE fd.director_id = :directorId
+                 ORDER BY f.release_date ASC
+            """, nativeQuery = true)
+    Page<Film> findByDirectorsIdOrderByReleaseDate(@Param("directorId") Long directorId, Pageable pageable);
+
+    @Query(value = """
+            SELECT f.*
+            FROM films f
+            JOIN film_directors fd ON f.id = fd.film_id
+            LEFT JOIN (
+                SELECT fl.film_id, COUNT(*) AS likes_count
+                FROM film_likes fl
+                GROUP BY fl.film_id
+            ) lc ON lc.film_id = f.id
+            WHERE fd.director_id = :directorId
+            ORDER BY COALESCE(lc.likes_count, 0) DESC, f.id ASC
+            """, nativeQuery = true)
+    Page<Film> findByDirectorsIdOrderByLikes(@Param("directorId") Long directorId, Pageable pageable);
 }

@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.enums.SortingType;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -21,6 +20,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import static ru.yandex.practicum.filmorate.enums.SortingType.fromString;
 
 @Log4j2
 @Service
@@ -107,7 +108,7 @@ public class FilmService {
 
         if (!exists) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND
-                    ,"Не найден один или два пользователя 1: " + userId + ", 2: " + friendId + " при возвращении общих фильмов");
+                    , "Не найден один или два пользователя 1: " + userId + ", 2: " + friendId + " при возвращении общих фильмов");
         }
 
         Page<Film> films = filmsRepository.findCommonLikedFilms(userId, friendId, pageable);
@@ -136,10 +137,17 @@ public class FilmService {
         return filmMapper.toDtos(listTopPopularFilms);
     }
 
-    public List<FilmDto> getFilmByDirectorId(Long directorId, SortingType type) {
+    public List<FilmDto> getFilmByDirector(Long directorId, String sortBy, Pageable pageable) {
         directorService.existById(directorId);
 
-        return;
+        Page<Film> films = Page.empty();
+
+        switch (fromString(sortBy)) {
+            case YEAR -> films = filmsRepository.findByDirectorsIdOrderByReleaseDate(directorId, pageable);
+            case LIKES -> films = filmsRepository.findByDirectorsIdOrderByLikes(directorId, pageable);
+        }
+
+        return filmMapper.toDtos(films);
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
