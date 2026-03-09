@@ -85,6 +85,3 @@ public class ReviewController {
         return reviewService.deleteGradeToReview(id, userId, false);
     }
 }
-
-//DELETE /reviews/{id}/like/{userId} — пользователь удаляет лайк/дизлайк отзыву.
-//DELETE /reviews/{id}/dislike/{userId} — пользователь удаляет дизлайк отзыву.

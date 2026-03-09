@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -105,7 +104,7 @@ public class FilmService {
 
         if (!exists) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND
-                    ,"Не найден один или два пользователя 1: " + userId + ", 2: " + friendId + " при возвращении общих фильмов");
+                    , "Не найден один или два пользователя 1: " + userId + ", 2: " + friendId + " при возвращении общих фильмов");
         }
 
         Page<Film> films = filmsRepository.findCommonLikedFilms(userId, friendId, pageable);
