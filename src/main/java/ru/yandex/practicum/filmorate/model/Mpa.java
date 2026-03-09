@@ -23,6 +23,6 @@ public class Mpa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "mpa_name")
+    @Column(name = "name")
     private String name;
 }

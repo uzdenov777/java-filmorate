@@ -18,4 +18,5 @@ public interface FilmMapper {
 
     List<FilmDto> toDtos(Page<Film> films);
 
+    Film filmFromId(Long id);
 }

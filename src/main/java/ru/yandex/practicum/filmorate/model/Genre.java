@@ -25,7 +25,7 @@ public class Genre {
     @NotNull(message = "ID не может отсутствовать у Genre")
     private Long id;
 
-    @Column(name = "genre_name")
+    @Column(name = "name")
     @NotBlank(message = "Name не может отсутствовать у Genre")
     private String name;
 

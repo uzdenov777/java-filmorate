@@ -48,7 +48,7 @@ public class UserController {
     public UserDto getById(@PathVariable Long id) {
         log.info("Вернуть пользователя: {}", id);
 
-        return userService.getById(id);
+        return userService.getDtoById(id);
     }
 
     @GetMapping
