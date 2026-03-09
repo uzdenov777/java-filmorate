@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.dto.UserDto;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -71,10 +72,14 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    public UserDto getById(Long id) {
+    public UserDto getDtoById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::toDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    public Optional<User> getById(Long id) {
+        return userRepository.findById(id);
     }
 
     public List<UserDto> getAllUsers(Pageable pageable) {

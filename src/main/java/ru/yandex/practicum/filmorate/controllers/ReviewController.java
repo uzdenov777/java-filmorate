@@ -6,13 +6,14 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
+import java.util.Set;
+
 @Slf4j
 @RestController
 @RequestMapping("/reviews")
 public class ReviewController {
 
     private final ReviewService reviewService;
-
 
     public ReviewController(ReviewService reviewService) {
         this.reviewService = reviewService;
@@ -22,8 +23,9 @@ public class ReviewController {
     public ReviewDto create(@RequestBody @Valid ReviewDto reviewDto) {
         log.info("Создание нового отзыва: {}", reviewDto);
 
-        ReviewDto ReviewDto = reviewService.create(reviewDto);
-        return ReviewDto;
+        reviewDto.setUseful(0L);
+
+        return reviewService.create(reviewDto);
     }
 
     @PutMapping
@@ -47,22 +49,24 @@ public class ReviewController {
         return reviewService.findById(id);
     }
 
+    @GetMapping
+    public Set<ReviewDto> getReviewsByFilm(@RequestParam(defaultValue = "0") Long filmId,
+                                           @RequestParam(defaultValue = "10") Long count) {
+        log.info("Возвращаем все отзывы фильма по ID: {}", filmId);
+
+        return reviewService.getReviewsByFilm(filmId, count);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public ReviewDto addLike(@PathVariable Long id, @PathVariable Long userId) {
+        log.info("Добавление лайка отзыву: {} пользователем: {}", id, userId);
+
+        return reviewService.addLike(id, userId);
+    }
 
 }
 
-//GET /reviews?filmId={filmId}&count={count}
-//Получение всех отзывов по идентификатору фильма, если фильм не указан то все. Если кол-во не указано то 10.
-//
-//PUT /reviews/{id}/like/{userId} — пользователь ставит лайк отзыву.
+
 //PUT /reviews/{id}/dislike/{userId} — пользователь ставит дизлайк отзыву.
 //DELETE /reviews/{id}/like/{userId} — пользователь удаляет лайк/дизлайк отзыву.
 //DELETE /reviews/{id}/dislike/{userId} — пользователь удаляет дизлайк отзыву.
-//Описание JSON-объекта с которым работают эндпоинты
-//{
-//    "reviewId": 123,
-//        "content": "This film is sooo baad.",
-//        "isPositive": false,
-//        "userId": 123, // Пользователь
-//        "filmId": 2, // Фильм
-//        "useful": 20 // рейтинг полезности
-//}

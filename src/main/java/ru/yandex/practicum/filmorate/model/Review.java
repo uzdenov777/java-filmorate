@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -23,7 +26,7 @@ public class Review {
     private String content;
 
     @Column(name = "is_positive")
-    private Boolean isPositive;
+    private Boolean positive;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
@@ -34,5 +37,13 @@ public class Review {
     private Film film;
 
     @Column(name = "useful")
-    private Long useful = 0L;
+    private Long useful;
+
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "reviews_id")
+    private Set<ReviewGrade> grades = new HashSet<>();
+
+    public void addGrade(ReviewGrade grade) {
+        grades.add(grade);
+    }
 }
