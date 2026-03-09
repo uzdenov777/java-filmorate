@@ -82,27 +82,52 @@ public class ReviewService {
         return reviewMapper.toDtos(reviews);
     }
 
-    public ReviewDto addLike(Long id, Long userId) {
+    public ReviewDto addGradeToReview(Long reviewId, Long userId, Boolean isPositive) {
         User user = userService.getById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Не найден пользователь: " + userId + " для оценки отзыва: " + id));
+                        "Не найден пользователь: " + userId + " для оценки отзыва: " + reviewId));
 
-        Review review = reviewRepository.findById(id)
+        Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Не найден отзыв: " + id + " для оценки пользователя: " + userId));
+                        "Не найден отзыв: " + reviewId + " для оценки пользователя: " + userId));
 
         ReviewGrade grade = new ReviewGrade();
-        grade.setReview(review);
         grade.setUser(user);
-        grade.setIsPositive(true);
+        grade.setIsPositive(isPositive);
+
+        removeOppositeReviewGrade(review, user, isPositive);
 
         review.addGrade(grade);
 
-        Long useful = review.getUseful();
-        review.setUseful(useful + 1);
+        Review saved = reviewRepository.save(review);
+        return reviewMapper.toDto(saved);
+    }
+
+    public ReviewDto deleteGradeToReview(Long reviewId, Long userId, Boolean isPositive) {
+        User user = userService.getById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Не найден пользователь: " + userId + " для оценки отзыва: " + reviewId));
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Не найден отзыв: " + reviewId + " для оценки пользователем: " + userId));
+
+        ReviewGrade grade = review.getGradeByUserAndPositiveType(user, isPositive)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "По параметрам reviewId: " + review.getId()
+                                + ", userId: " + user.getId()
+                                + ", isPositive: " + isPositive
+                                + " не найдена оценка отзыва для удаления"));
+
+        review.removeGrade(grade);
 
         Review saved = reviewRepository.save(review);
         return reviewMapper.toDto(saved);
+    }
+
+    private void removeOppositeReviewGrade(Review review, User user, boolean isPositive) {
+        review.getGradeByUserAndPositiveType(user, !isPositive)
+                .ifPresent(review::removeGrade);
     }
 
     private Set<ReviewDto> getAllReviews(Long count) {

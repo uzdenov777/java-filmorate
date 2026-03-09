@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -39,11 +41,48 @@ public class Review {
     @Column(name = "useful")
     private Long useful;
 
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "reviews_id")
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ReviewGrade> grades = new HashSet<>();
 
     public void addGrade(ReviewGrade grade) {
-        grades.add(grade);
+        grade.setReview(this);
+
+        this.grades.add(grade);
+
+        if (grade.getIsPositive() == true) {
+            this.setUseful(this.getUseful() + 1);
+        } else {
+            this.setUseful(this.getUseful() - 1);
+        }
+    }
+
+    public void removeGrade(ReviewGrade grade) {
+        this.grades.remove(grade);
+
+        boolean isPositive = grade.getIsPositive() == true;
+        boolean isNotZero = this.getUseful() != 0;
+
+        if (isPositive && isNotZero) {
+            this.setUseful(this.getUseful() - 1);
+        } else {
+            this.setUseful(this.getUseful() + 1);
+        }
+    }
+
+    public Optional<ReviewGrade> getGradeByUserAndPositiveType(User user, boolean isPositive) {
+        for (ReviewGrade reviewGrade : this.grades) {
+
+            var gradeUserId = reviewGrade.getUser().getId();
+            var userId = user.getId();
+
+            var isSameUser = Objects.equals(gradeUserId, userId);
+            var isSameGradeType = reviewGrade.getIsPositive() == isPositive;
+
+            if (isSameUser && isSameGradeType) {
+                return Optional.of(reviewGrade);
+            }
+        }
+
+        return Optional.empty();
     }
 }

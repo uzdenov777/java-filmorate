@@ -67,7 +67,4 @@ public class Film {
     )
     @OrderBy("id ASC") // сортировка по id
     private Set<Genre> genres = new HashSet<>();
-
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<Review> reviews = new HashSet<>();
 }

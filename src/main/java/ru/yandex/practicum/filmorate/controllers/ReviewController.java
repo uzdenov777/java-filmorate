@@ -61,12 +61,30 @@ public class ReviewController {
     public ReviewDto addLike(@PathVariable Long id, @PathVariable Long userId) {
         log.info("Добавление лайка отзыву: {} пользователем: {}", id, userId);
 
-        return reviewService.addLike(id, userId);
+        return reviewService.addGradeToReview(id, userId, true);
     }
 
+    @PutMapping("/{id}/dislike/{userId}")
+    public ReviewDto addDislike(@PathVariable Long id, @PathVariable Long userId) {
+        log.info("Добавление дизлайка отзыву: {} пользователем: {}", id, userId);
+
+        return reviewService.addGradeToReview(id, userId, false);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public ReviewDto deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        log.info("Удаление лайка отзыву: {} пользователем: {}", id, userId);
+
+        return reviewService.deleteGradeToReview(id, userId, true);
+    }
+
+    @DeleteMapping("/{id}/dislike/{userId}")
+    public ReviewDto deleteDislike(@PathVariable Long id, @PathVariable Long userId) {
+        log.info("Удаление дизлайка отзыву: {} пользователем: {}", id, userId);
+
+        return reviewService.deleteGradeToReview(id, userId, false);
+    }
 }
 
-
-//PUT /reviews/{id}/dislike/{userId} — пользователь ставит дизлайк отзыву.
 //DELETE /reviews/{id}/like/{userId} — пользователь удаляет лайк/дизлайк отзыву.
 //DELETE /reviews/{id}/dislike/{userId} — пользователь удаляет дизлайк отзыву.
