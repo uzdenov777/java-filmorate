@@ -150,6 +150,10 @@ public class FilmService {
         return filmMapper.toDtos(films);
     }
 
+    public boolean isFilmExists(Long filmId) {
+        return filmsRepository.existsById(filmId);
+    }
+
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
         boolean existFilm = filmsRepository.existsById(filmId);
         boolean existUser = userService.isUserExists(userId);

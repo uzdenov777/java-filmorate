@@ -8,13 +8,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.dto.UserDto;
+import ru.yandex.practicum.filmorate.repository.FilmsRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Log4j2
 @Service
@@ -22,15 +27,19 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final FriendsServer friendsServer;
+    private final FilmsRepository filmsRepository;
 
     private final UserMapper userMapper;
+    private final FilmMapper filmMapper;
 
     @Autowired
-    public UserService(UserRepository userRepository, FriendsServer friendsServer, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, FriendsServer friendsServer, FilmsRepository filmsRepository, UserMapper userMapper, FilmMapper filmMapper) {
 
         this.userRepository = userRepository;
         this.friendsServer = friendsServer;
+        this.filmsRepository = filmsRepository;
         this.userMapper = userMapper;
+        this.filmMapper = filmMapper;
     }
 
     public UserDto add(UserDto newUserDto) {
@@ -113,7 +122,6 @@ public class UserService {
 
         boolean existsUser = userRepository.existsById(userId);
         if (!existsUser) {
-            log.info("Не найден пользователь с ID: {}, для возращения списка его друзей", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId + ", для возращения списка его друзей");
         }
 
@@ -133,6 +141,23 @@ public class UserService {
     public boolean isUserExists(Long userId) {
 
         return userRepository.existsById(userId);
+    }
+
+    public List<FilmDto> getRecommendations(long id) {
+        boolean isExist = userRepository.existsById(id);
+        if (!isExist) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Не найден пользователь: " + id + " для возвращения рекомендаций");
+        }
+
+        Long similarUserId = userRepository.findSimilarUserByUserId(id);
+        if (similarUserId == null) {
+            return List.of();
+        }
+
+        List<Film> recommendations = filmsRepository.findRecommendations(id, similarUserId);
+
+        return filmMapper.toDtos(recommendations);
     }
 
     // Проверяет, существуют ли пользователи и не доб. или удал. самого себя

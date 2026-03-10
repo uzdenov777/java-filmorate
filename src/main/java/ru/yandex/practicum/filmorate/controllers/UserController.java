@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.dto.UserDto;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -83,4 +85,13 @@ public class UserController {
         log.info("Getting friends common");
         return userService.getMutualFriends(id, otherId, pageable);
     }
+
+    @GetMapping("/{id}/recommendations")
+    public List<FilmDto> getRecommendations(@PathVariable long id) {
+        log.info("Вернуть рекомендации для пользователя: {}", id);
+
+        return userService.getRecommendations(id);
+    }
+
+//    GET /users/{id}/recommendations
 }

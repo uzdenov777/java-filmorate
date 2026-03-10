@@ -72,4 +72,17 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
             ORDER BY COALESCE(lc.likes_count, 0) DESC, f.id ASC
             """, nativeQuery = true)
     Page<Film> findByDirectorsIdOrderByLikes(@Param("directorId") Long directorId, Pageable pageable);
+
+    @Query(value = """
+            SELECT f.*
+            FROM films f
+            JOIN film_likes fl ON f.id = fl.film_id
+            WHERE fl.user_id = :similarUserId
+            AND f.id NOT IN (
+                SELECT film_id
+                FROM film_likes
+                WHERE user_id = :userId
+            )
+            """, nativeQuery = true)
+    List<Film> findRecommendations(@Param("userId") long id, @Param("similarUserId") long similarUserId);
 }
