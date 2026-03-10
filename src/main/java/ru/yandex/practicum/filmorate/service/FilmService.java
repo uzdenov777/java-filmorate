@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static ru.yandex.practicum.filmorate.enums.EventType.LIKE;
+import static ru.yandex.practicum.filmorate.enums.Operation.ADD;
+import static ru.yandex.practicum.filmorate.enums.Operation.REMOVE;
 import static ru.yandex.practicum.filmorate.enums.SortingType.fromString;
 
 @Log4j2
@@ -36,10 +39,11 @@ public class FilmService {
 
     private final FilmMapper filmMapper;
     private final DirectorService directorService;
+    private final EventService eventService;
 
     @Autowired
     public FilmService(FilmsRepository filmsRepository, UserService userService, FilmLikesService filmLikesService,
-                       GenresService genresService, MpaService mpaService, FilmMapper filmMapper, DirectorService directorService) {
+                       GenresService genresService, MpaService mpaService, FilmMapper filmMapper, DirectorService directorService, EventService eventService) {
 
         this.userService = userService;
         this.filmsRepository = filmsRepository;
@@ -48,6 +52,7 @@ public class FilmService {
         this.mpaService = mpaService;
         this.filmMapper = filmMapper;
         this.directorService = directorService;
+        this.eventService = eventService;
     }
 
     @Transactional
@@ -120,15 +125,18 @@ public class FilmService {
         checkExistFilmAndUser(filmId, userId);
 
         Film filmProxy = filmsRepository.getReferenceById(filmId);
-        User secondUserProxy = userService.getUserProxyById(userId);
+        User userProxy = userService.getUserProxyById(userId);
 
-        filmLikesService.addLikeFilm(filmProxy, secondUserProxy);
+        filmLikesService.addLikeFilm(filmProxy, userProxy);
+        eventService.save(userProxy, filmId, LIKE, ADD);
     }
 
     public void deleteLikeToFilm(long filmId, long userId) throws ResponseStatusException {
         checkExistFilmAndUser(filmId, userId);
+        User userProxy = userService.getUserProxyById(userId);
 
         filmLikesService.deleteLikeFilm(filmId, userId);
+        eventService.save(userProxy, filmId, LIKE, REMOVE);
     }
 
     public List<FilmDto> getPopularFilmsByGenreAndYear(int count, Long genreId, Long year) {

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.dto.EventDto;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.dto.UserDto;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -93,5 +94,10 @@ public class UserController {
         return userService.getRecommendations(id);
     }
 
-//    GET /users/{id}/recommendations
+    @GetMapping("/{id}/feed")
+    public Set<EventDto> getEvents(@PathVariable long id) {
+        log.info("Вернуть список событий друга: {}", id);
+
+        return userService.getEvents(id);
+    }
 }

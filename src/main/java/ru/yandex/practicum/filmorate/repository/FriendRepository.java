@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.Set;
+
 @Repository
 public interface FriendRepository extends JpaRepository<Friendship, Long> {
 
@@ -27,6 +29,13 @@ public interface FriendRepository extends JpaRepository<Friendship, Long> {
             WHERE f.user.id = :userId
             """)
     Page<User> findFriendsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("""
+            SELECT f.friend.id
+            FROM Friendship f
+            WHERE f.user.id = :userId
+            """)
+    Set<Long> findFriendIdsByUserId(@Param("userId") Long userId);
 
     @Query("""
             SELECT u

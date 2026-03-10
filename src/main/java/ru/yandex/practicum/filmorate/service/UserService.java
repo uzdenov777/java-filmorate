@@ -8,10 +8,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.dto.EventDto;
 import ru.yandex.practicum.filmorate.model.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.dto.UserDto;
 import ru.yandex.practicum.filmorate.repository.FilmsRepository;
@@ -20,6 +24,10 @@ import ru.yandex.practicum.filmorate.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static ru.yandex.practicum.filmorate.enums.EventType.FRIEND;
+import static ru.yandex.practicum.filmorate.enums.Operation.ADD;
+import static ru.yandex.practicum.filmorate.enums.Operation.REMOVE;
 
 @Log4j2
 @Service
@@ -31,15 +39,17 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final FilmMapper filmMapper;
+    private final EventService eventService;
 
     @Autowired
-    public UserService(UserRepository userRepository, FriendsServer friendsServer, FilmsRepository filmsRepository, UserMapper userMapper, FilmMapper filmMapper) {
+    public UserService(UserRepository userRepository, FriendsServer friendsServer, FilmsRepository filmsRepository, UserMapper userMapper, FilmMapper filmMapper, EventService eventService) {
 
         this.userRepository = userRepository;
         this.friendsServer = friendsServer;
         this.filmsRepository = filmsRepository;
         this.userMapper = userMapper;
         this.filmMapper = filmMapper;
+        this.eventService = eventService;
     }
 
     public UserDto add(UserDto newUserDto) {
@@ -110,12 +120,16 @@ public class UserService {
         User secondUserProxy = userRepository.getReferenceById(idSecondUser);
 
         friendsServer.addFriend(firstUserProxy, secondUserProxy);
+        eventService.save(firstUserProxy, idSecondUser, FRIEND, ADD);
     }
 
     public void removeFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
 
+        User firstUserProxy = userRepository.getReferenceById(idFirstUser);
+
         friendsServer.removeFriend(idFirstUser, idSecondUser);
+        eventService.save(firstUserProxy, idSecondUser, FRIEND, REMOVE);
     }
 
     public List<UserDto> getAllFriendsByUserId(long userId, Pageable pageable) throws ResponseStatusException {
@@ -144,13 +158,13 @@ public class UserService {
     }
 
     public List<FilmDto> getRecommendations(long id) {
-        boolean isExist = userRepository.existsById(id);
-        if (!isExist) {
+        var isExistUser = userRepository.existsById(id);
+        if (!isExistUser) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Не найден пользователь: " + id + " для возвращения рекомендаций");
         }
 
-        Long similarUserId = userRepository.findSimilarUserByUserId(id);
+        var similarUserId = userRepository.findSimilarUserByUserId(id);
         if (similarUserId == null) {
             return List.of();
         }
@@ -158,6 +172,18 @@ public class UserService {
         List<Film> recommendations = filmsRepository.findRecommendations(id, similarUserId);
 
         return filmMapper.toDtos(recommendations);
+    }
+
+    public Set<EventDto> getEvents(Long userId) {
+        var isExistUser = userRepository.existsById(userId);
+        if (!isExistUser) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Не найден пользователь: " + userId + " для возвращения его ленты событий");
+        }
+
+        Set<Long> ids = friendsServer.findFriendIdsByUserId(userId);
+
+        return eventService.findByUserIds(ids);
     }
 
     // Проверяет, существуют ли пользователи и не доб. или удал. самого себя

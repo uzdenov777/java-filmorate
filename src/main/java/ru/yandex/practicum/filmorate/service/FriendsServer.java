@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.FriendRepository;
 
+import java.util.Set;
+
 @Service
 public class FriendsServer {
 
@@ -31,6 +33,10 @@ public class FriendsServer {
     @Transactional
     public void removeFriend(Long userId, Long friendId) {
         friendRepository.deleteByUserIdAndFriendId(userId, friendId);
+    }
+
+    public Set<Long> findFriendIdsByUserId(Long userId) {
+        return friendRepository.findFriendIdsByUserId(userId);
     }
 
     public Page<User> getAllFriendsByUserId(long userId, Pageable pageable) {

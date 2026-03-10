@@ -1,9 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.validation.Valid;
+import org.hibernate.Remove;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.ReviewGrade;
@@ -14,6 +17,9 @@ import ru.yandex.practicum.filmorate.repository.ReviewRepository;
 import java.util.List;
 import java.util.Set;
 
+import static ru.yandex.practicum.filmorate.enums.EventType.REVIEW;
+import static ru.yandex.practicum.filmorate.enums.Operation.*;
+
 @Service
 public class ReviewService {
 
@@ -21,12 +27,14 @@ public class ReviewService {
     private final FilmService filmService;
     private final ReviewMapper reviewMapper;
     private final ReviewRepository reviewRepository;
+    private final EventService eventService;
 
-    public ReviewService(UserService userService, FilmService filmService, ReviewMapper reviewMapper, ReviewRepository reviewRepository) {
+    public ReviewService(UserService userService, FilmService filmService, ReviewMapper reviewMapper, ReviewRepository reviewRepository, EventService eventService) {
         this.userService = userService;
         this.filmService = filmService;
         this.reviewMapper = reviewMapper;
         this.reviewRepository = reviewRepository;
+        this.eventService = eventService;
     }
 
     public ReviewDto create(ReviewDto reviewDto) {
@@ -35,7 +43,9 @@ public class ReviewService {
         Review review = reviewMapper.toEntity(reviewDto);
         Review saved = reviewRepository.save(review);
 
+        eventService.save(review.getUser(), reviewDto.getFilmId(), REVIEW, ADD);
         return reviewMapper.toDto(saved);
+
     }
 
     public ReviewDto update(@Valid ReviewDto reviewDto) {
@@ -44,18 +54,17 @@ public class ReviewService {
         Review review = reviewMapper.toEntity(reviewDto);
         Review saved = reviewRepository.save(review);
 
+        eventService.save(saved.getUser(), saved.getFilm().getId(), REVIEW, UPDATE);
         return reviewMapper.toDto(saved);
     }
 
     public void deleteById(Long id) {
-        var isExistsReview = reviewRepository.existsById(id);
-
-        if (!isExistsReview) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Не найден отзыв для удаления по ID: " + id);
-        }
+        var review = reviewRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Не найден отзыв для удаления по ID: " + id));
 
         reviewRepository.deleteById(id);
+        eventService.save(review.getUser(), review.getFilm().getId(), REVIEW, REMOVE);
     }
 
 
