@@ -181,9 +181,7 @@ public class UserService {
                     "Не найден пользователь: " + userId + " для возвращения его ленты событий");
         }
 
-        Set<Long> ids = friendsServer.findFriendIdsByUserId(userId);
-
-        return eventService.findByUserIds(ids);
+        return eventService.findByUserId(userId);
     }
 
     // Проверяет, существуют ли пользователи и не доб. или удал. самого себя

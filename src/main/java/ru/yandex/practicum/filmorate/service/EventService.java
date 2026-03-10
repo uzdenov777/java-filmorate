@@ -30,13 +30,13 @@ public class EventService {
         event.setEntityId(entityId);
         event.setType(type);
         event.setOperation(operation);
-        event.setTimestamp(Instant.now().getEpochSecond());
+        event.setTimestamp(Instant.now().toEpochMilli());
 
         eventRepository.save(event);
     }
 
-    public Set<EventDto> findByUserIds(Set<Long> ids) {
-       List<Event> events = eventRepository.findByUserIdIn(ids);
+    public Set<EventDto> findByUserId(Long id) {
+       List<Event> events = eventRepository.findByUserId(id);
 
        return eventMapper.toDtos(events);
     }

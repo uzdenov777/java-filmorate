@@ -43,9 +43,8 @@ public class ReviewService {
         Review review = reviewMapper.toEntity(reviewDto);
         Review saved = reviewRepository.save(review);
 
-        eventService.save(review.getUser(), reviewDto.getFilmId(), REVIEW, ADD);
+        eventService.save(saved.getUser(), saved.getId(), REVIEW, ADD);
         return reviewMapper.toDto(saved);
-
     }
 
     public ReviewDto update(@Valid ReviewDto reviewDto) {
@@ -54,7 +53,7 @@ public class ReviewService {
         Review review = reviewMapper.toEntity(reviewDto);
         Review saved = reviewRepository.save(review);
 
-        eventService.save(saved.getUser(), saved.getFilm().getId(), REVIEW, UPDATE);
+        eventService.save(saved.getUser(), saved.getId(), REVIEW, UPDATE);
         return reviewMapper.toDto(saved);
     }
 
@@ -64,7 +63,7 @@ public class ReviewService {
                         "Не найден отзыв для удаления по ID: " + id));
 
         reviewRepository.deleteById(id);
-        eventService.save(review.getUser(), review.getFilm().getId(), REVIEW, REMOVE);
+        eventService.save(review.getUser(), review.getId(), REVIEW, REMOVE);
     }
 
 

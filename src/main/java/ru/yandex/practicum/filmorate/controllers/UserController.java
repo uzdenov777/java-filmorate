@@ -96,7 +96,7 @@ public class UserController {
 
     @GetMapping("/{id}/feed")
     public Set<EventDto> getEvents(@PathVariable long id) {
-        log.info("Вернуть список событий друга: {}", id);
+        log.info("Вернуть список событий пользователя: {}", id);
 
         return userService.getEvents(id);
     }
