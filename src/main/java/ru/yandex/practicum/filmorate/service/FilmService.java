@@ -162,6 +162,17 @@ public class FilmService {
         return filmsRepository.existsById(filmId);
     }
 
+    public List<FilmDto> searchFilms(String query, String by) {
+        List<String> params = List.of(by.split(","));
+
+        boolean byIsTitle = params.contains("title");
+        boolean byIsDirector = params.contains("director");
+
+        List<Film> films = filmsRepository.searchFilms(query, byIsTitle, byIsDirector);
+
+        return filmMapper.toDtos(films);
+    }
+
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
         boolean existFilm = filmsRepository.existsById(filmId);
         boolean existUser = userService.isUserExists(userId);

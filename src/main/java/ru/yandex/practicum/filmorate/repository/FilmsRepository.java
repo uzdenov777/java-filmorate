@@ -29,7 +29,9 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
             ORDER BY COALESCE(lc.likes_count, 0) DESC, f.id ASC
             LIMIT :count
             """, nativeQuery = true)
-    List<Film> getTopPopularFilms(@Param("count") int count, @Param("genreId") Long genreId, @Param("year") Long year);
+    List<Film> getTopPopularFilms(@Param("count") int count,
+                                  @Param("genreId") Long genreId,
+                                  @Param("year") Long year);
 
     @Query("""
             SELECT f
@@ -48,7 +50,9 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
             GROUP BY f
             ORDER BY COUNT(fl.user) DESC, f.id ASC
             """)
-    Page<Film> findCommonLikedFilms(Long userId, Long friendId, Pageable pageable);
+    Page<Film> findCommonLikedFilms(Long userId,
+                                    Long friendId,
+                                    Pageable pageable);
 
     @Query(value = """
                  SELECT f.*
@@ -57,7 +61,8 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
                  WHERE fd.director_id = :directorId
                  ORDER BY f.release_date ASC
             """, nativeQuery = true)
-    Page<Film> findByDirectorsIdOrderByReleaseDate(@Param("directorId") Long directorId, Pageable pageable);
+    Page<Film> findByDirectorsIdOrderByReleaseDate(@Param("directorId") Long directorId,
+                                                   Pageable pageable);
 
     @Query(value = """
             SELECT f.*
@@ -71,7 +76,8 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
             WHERE fd.director_id = :directorId
             ORDER BY COALESCE(lc.likes_count, 0) DESC, f.id ASC
             """, nativeQuery = true)
-    Page<Film> findByDirectorsIdOrderByLikes(@Param("directorId") Long directorId, Pageable pageable);
+    Page<Film> findByDirectorsIdOrderByLikes(@Param("directorId") Long directorId,
+                                             Pageable pageable);
 
     @Query(value = """
             SELECT f.*
@@ -84,5 +90,19 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
                 WHERE user_id = :userId
             )
             """, nativeQuery = true)
-    List<Film> findRecommendations(@Param("userId") long id, @Param("similarUserId") long similarUserId);
+    List<Film> findRecommendations(@Param("userId") long id,
+                                   @Param("similarUserId") long similarUserId);
+
+    @Query(value = """
+            SELECT f.*
+            FROM films f
+            JOIN film_directors fd ON f.id = fd.film_id
+            JOIN directors d ON fd.director_id = d.id
+            WHERE ((:byIsTitle = true AND f.name ILIKE CONCAT('%', :query, '%'))
+                  OR (:byIsDirector = true AND d.name ILIKE CONCAT('%', :query, '%')))
+            GROUP BY f.id
+            """, nativeQuery = true)
+    List<Film> searchFilms(@Param("query") String query,
+                           @Param("byIsTitle") boolean byIsTitle,
+                           @Param("byIsDirector") boolean byIsDirector);
 }

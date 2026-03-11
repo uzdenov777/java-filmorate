@@ -93,4 +93,14 @@ public class FilmController {
 
         return filmService.getFilmByDirector(directorId, sortBy, pageable);
     }
+
+    @GetMapping("/search")
+    public List<FilmDto> searchFilms(@RequestParam String query,
+                                     @RequestParam String by){
+     log.info("Поиск фильма query: {}, by: {}", query, by);
+
+     return filmService.searchFilms(query, by);
+    }
+
+//    GET /films/search?query=крад&by=director,title
 }
