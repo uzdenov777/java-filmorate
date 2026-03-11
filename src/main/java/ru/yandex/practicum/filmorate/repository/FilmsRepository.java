@@ -96,8 +96,8 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
     @Query(value = """
             SELECT f.*
             FROM films f
-            JOIN film_directors fd ON f.id = fd.film_id
-            JOIN directors d ON fd.director_id = d.id
+            LEFT JOIN film_directors fd ON f.id = fd.film_id
+            LEFT JOIN directors d ON fd.director_id = d.id
             WHERE ((:byIsTitle = true AND f.name ILIKE CONCAT('%', :query, '%'))
                   OR (:byIsDirector = true AND d.name ILIKE CONCAT('%', :query, '%')))
             GROUP BY f.id
