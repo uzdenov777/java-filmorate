@@ -16,7 +16,6 @@ public class FriendsServer {
     private final FriendRepository friendRepository;
 
     public void addFriend(User user, User friend) {
-
         Friendship friendship = new Friendship();
         friendship.setUser(user);
         friendship.setFriend(friend);
@@ -29,16 +28,11 @@ public class FriendsServer {
         friendRepository.deleteByUserIdAndFriendId(userId, friendId);
     }
 
-    public Set<Long> findFriendIdsByUserId(Long userId) {
-        return friendRepository.findFriendIdsByUserId(userId);
-    }
-
     public Page<User> getAllFriendsByUserId(long userId, Pageable pageable) {
         return friendRepository.findFriendsByUserId(userId, pageable);
     }
 
     public Page<User> getMutualFriends(Long idFirstUser, Long idSecondUser, Pageable pageable) {
-
         return friendRepository.findMutualFriends(idFirstUser, idSecondUser, pageable);
     }
 }

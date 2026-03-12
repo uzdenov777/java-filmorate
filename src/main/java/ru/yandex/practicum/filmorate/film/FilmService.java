@@ -50,8 +50,8 @@ public class FilmService {
     public FilmDto add(FilmDto newFilmDto) throws ResponseStatusException {
         validateFilm(newFilmDto);
 
-        Film newFilm = filmMapper.toEntity(newFilmDto);
-        Film saved = filmsRepository.save(newFilm);
+        var newFilm = filmMapper.toEntity(newFilmDto);
+        var saved = filmsRepository.save(newFilm);
 
         return filmMapper.toDto(saved);
     }
@@ -64,7 +64,6 @@ public class FilmService {
         boolean filmExists = filmsRepository.existsById(filmId);
 
         if (!filmExists) {
-            log.info("Не найден фильм для обновления с ID: {}", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден фильм для обновления с ID: " + filmId);
         }
 
@@ -94,29 +93,27 @@ public class FilmService {
     }
 
     public List<FilmDto> getAllFilms(Pageable pageable) {
-        Page<Film> allFilms = filmsRepository.findAll(pageable);
+        var allFilms = filmsRepository.findAll(pageable);
 
         return filmMapper.toDtos(allFilms);
     }
 
     public List<FilmDto> getCommonLikedFilms(Long userId, Long friendId, Pageable pageable) {
         var exists = userService.isUserExists(userId) && userService.isUserExists(friendId);
-
         if (!exists) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND
                     , "Не найден один или два пользователя 1: " + userId + ", 2: " + friendId + " при возвращении общих фильмов");
         }
 
-        Page<Film> films = filmsRepository.findCommonLikedFilms(userId, friendId, pageable);
-
+        var films = filmsRepository.findCommonLikedFilms(userId, friendId, pageable);
         return filmMapper.toDtos(films);
     }
 
     public void addLikeToFilm(long filmId, long userId) throws ResponseStatusException {
         checkExistFilmAndUser(filmId, userId);
 
-        Film filmProxy = filmsRepository.getReferenceById(filmId);
-        User userProxy = userService.getUserProxyById(userId);
+        var filmProxy = filmsRepository.getReferenceById(filmId);
+        var userProxy = userService.getUserProxyById(userId);
 
         filmLikesService.addLikeFilm(filmProxy, userProxy);
         eventService.save(userProxy, filmId, LIKE, ADD);
@@ -124,14 +121,14 @@ public class FilmService {
 
     public void deleteLikeToFilm(long filmId, long userId) throws ResponseStatusException {
         checkExistFilmAndUser(filmId, userId);
-        User userProxy = userService.getUserProxyById(userId);
+        var userProxy = userService.getUserProxyById(userId);
 
         filmLikesService.deleteLikeFilm(filmId, userId);
         eventService.save(userProxy, filmId, LIKE, REMOVE);
     }
 
     public List<FilmDto> getPopularFilmsByGenreAndYear(int count, Long genreId, Long year) {
-        List<Film> listTopPopularFilms = filmsRepository.getTopPopularFilms(count, genreId, year);
+        var listTopPopularFilms = filmsRepository.getTopPopularFilms(count, genreId, year);
 
         return filmMapper.toDtos(listTopPopularFilms);
     }
@@ -156,25 +153,22 @@ public class FilmService {
     public List<FilmDto> searchFilms(String query, String by) {
         List<String> params = List.of(by.split(","));
 
-        boolean byIsTitle = params.contains("title");
-        boolean byIsDirector = params.contains("director");
+        var byIsTitle = params.contains("title");
+        var byIsDirector = params.contains("director");
 
-        List<Film> films = filmsRepository.searchFilms(query, byIsTitle, byIsDirector);
-
+        var films = filmsRepository.searchFilms(query, byIsTitle, byIsDirector);
         return filmMapper.toDtos(films);
     }
 
     private void checkExistFilmAndUser(long filmId, long userId) throws ResponseStatusException {
-        boolean existFilm = filmsRepository.existsById(filmId);
-        boolean existUser = userService.isUserExists(userId);
+        var existFilm = filmsRepository.existsById(filmId);
+        var existUser = userService.isUserExists(userId);
 
         if (!existUser) {
-            log.error("Пользователь с ID: {} не найден для добавления лайка фильму", userId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с ID: " + userId + " не найден для добавления лайка фильму");
         }
 
         if (!existFilm) {
-            log.error("Фильм с ID: {} не найден для добавления ему лайка", filmId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с ID: " + filmId + " не найден для добавления ему лайка");
         }
     }
@@ -184,8 +178,7 @@ public class FilmService {
 
         Mpa mpa = film.getMpa();
         if (Objects.nonNull(mpa)) {
-            Long mpaId = mpa.getId();
-            mpaService.existsMpa(mpaId);
+            mpaService.existsMpa(mpa.getId());
         }
 
         Set<GenreDto> genres = film.getGenres();
@@ -195,13 +188,12 @@ public class FilmService {
     }
 
     private void isValidReleaseDate(FilmDto filmToValidate) throws ResponseStatusException {
-        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        LocalDate releaseDateFilm = filmToValidate.getReleaseDate();
+        var minReleaseDate = LocalDate.of(1895, 12, 28);
+        var releaseDateFilm = filmToValidate.getReleaseDate();
 
-        boolean isBefore = releaseDateFilm.isBefore(minReleaseDate);
-        boolean isEqual = releaseDateFilm.isEqual(minReleaseDate);
+        var isBefore = releaseDateFilm.isBefore(minReleaseDate);
+        var isEqual = releaseDateFilm.isEqual(minReleaseDate);
         if ((isBefore || isEqual)) {
-            log.error("Не правильная дата релиза фильма: {}", filmToValidate);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Не правильная дата релиза фильма: " + filmToValidate);
         }
     }

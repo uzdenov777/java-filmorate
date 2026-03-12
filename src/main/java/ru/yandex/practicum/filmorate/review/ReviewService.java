@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.review;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,21 +30,23 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final EventService eventService;
 
+    @Transactional
     public ReviewDto create(ReviewDto reviewDto) {
         existsFilmAndUser(reviewDto);
 
-        Review review = reviewMapper.toEntity(reviewDto);
-        Review saved = reviewRepository.save(review);
+        var review = reviewMapper.toEntity(reviewDto);
+        var saved = reviewRepository.save(review);
 
         eventService.save(saved.getUser(), saved.getId(), REVIEW, ADD);
+
         return reviewMapper.toDto(saved);
     }
 
     public ReviewDto update(@Valid ReviewDto reviewDto) {
         existsFilmAndUser(reviewDto);
 
-        Review review = reviewMapper.toEntity(reviewDto);
-        Review saved = reviewRepository.save(review);
+        var review = reviewMapper.toEntity(reviewDto);
+        var saved = reviewRepository.save(review);
 
         eventService.save(saved.getUser(), saved.getId(), REVIEW, UPDATE);
         return reviewMapper.toDto(saved);
@@ -83,15 +86,15 @@ public class ReviewService {
     }
 
     public ReviewDto addGradeToReview(Long reviewId, Long userId, Boolean isPositive) {
-        User user = userService.getById(userId)
+        var user = userService.getById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Не найден пользователь: " + userId + " для оценки отзыва: " + reviewId));
 
-        Review review = reviewRepository.findById(reviewId)
+        var review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Не найден отзыв: " + reviewId + " для оценки пользователя: " + userId));
 
-        ReviewGrade grade = new ReviewGrade();
+        var grade = new ReviewGrade();
         grade.setUser(user);
         grade.setIsPositive(isPositive);
 
@@ -99,20 +102,20 @@ public class ReviewService {
 
         review.addGrade(grade);
 
-        Review saved = reviewRepository.save(review);
+        var saved = reviewRepository.save(review);
         return reviewMapper.toDto(saved);
     }
 
     public ReviewDto deleteGradeToReview(Long reviewId, Long userId, Boolean isPositive) {
-        User user = userService.getById(userId)
+        var user = userService.getById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Не найден пользователь: " + userId + " для оценки отзыва: " + reviewId));
 
-        Review review = reviewRepository.findById(reviewId)
+        var review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Не найден отзыв: " + reviewId + " для оценки пользователем: " + userId));
 
-        ReviewGrade grade = review.getGradeByUserAndPositiveType(user, isPositive)
+        var grade = review.getGradeByUserAndPositiveType(user, isPositive)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "По параметрам reviewId: " + review.getId()
                                 + ", userId: " + user.getId()
@@ -121,7 +124,7 @@ public class ReviewService {
 
         review.removeGrade(grade);
 
-        Review saved = reviewRepository.save(review);
+        var saved = reviewRepository.save(review);
         return reviewMapper.toDto(saved);
     }
 

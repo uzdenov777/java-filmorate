@@ -16,17 +16,16 @@ public class DirectorService {
     private final DirectorRepository directorRepository;
     private final DirectorMapper directorMapper;
 
-    public DirectorDto create(DirectorDto directorDto) {
-        var director = directorMapper.toEntity(directorDto);
+    public DirectorDto create(DirectorDto dto) {
+        var director = directorMapper.toEntity(dto);
 
         var saved = directorRepository.save(director);
-
         return directorMapper.toDto(saved);
     }
 
 
-    public DirectorDto update(DirectorDto directorDto) {
-        var id = directorDto.getId();
+    public DirectorDto update(DirectorDto dto) {
+        var id = dto.getId();
 
         var exists = directorRepository.existsById(id);
         if (!exists) {
@@ -34,10 +33,9 @@ public class DirectorService {
                     "Не найден режиссер для обновления по ID: " + id);
         }
 
-        var director = directorMapper.toEntity(directorDto);
+        var director = directorMapper.toEntity(dto);
 
         var saved = directorRepository.save(director);
-
         return directorMapper.toDto(saved);
     }
 

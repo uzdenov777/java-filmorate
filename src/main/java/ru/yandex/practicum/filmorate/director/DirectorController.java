@@ -17,35 +17,35 @@ public class DirectorController {
     private final DirectorService directorService;
 
     @PostMapping
-    public DirectorDto createDirector(@RequestBody DirectorDto directorDto) {
+    public DirectorDto create(@RequestBody DirectorDto directorDto) {
         log.info("Добавление нового режиссера: {}", directorDto);
 
         return directorService.create(directorDto);
     }
 
     @PutMapping
-    public DirectorDto updateDirector(@RequestBody DirectorDto directorDto) {
+    public DirectorDto update(@RequestBody DirectorDto directorDto) {
         log.info("Обновление нового режиссера: {}", directorDto);
 
         return directorService.update(directorDto);
     }
 
     @GetMapping("/{id}")
-    public DirectorDto getDirector(@PathVariable Long id) {
+    public DirectorDto getById(@PathVariable Long id) {
         log.info("Вернуть режиссера по ID: {}", id);
 
         return directorService.getDtoById(id);
     }
 
     @GetMapping
-    public Set<DirectorDto> getDirectors(Pageable pageable) {
+    public Set<DirectorDto> getAll(Pageable pageable) {
         log.info("Возвращение всех режиссеров");
 
         return directorService.getAll(pageable);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteDirector(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         log.info("Удаление режиссера по ID: {}", id);
 
         directorService.delete(id);

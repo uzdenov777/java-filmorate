@@ -38,8 +38,7 @@ public class GenresService {
     public void allGenresExistByIds(Set<GenreDto> genres) {
         Set<Long> genreIds = new HashSet<>();
         for (GenreDto dto : genres) {
-            Long genreId = dto.getId();
-            genreIds.add(genreId);
+            genreIds.add(dto.getId());
         }
 
         long numberMatches = genresRepository.countByIdIn(genreIds);

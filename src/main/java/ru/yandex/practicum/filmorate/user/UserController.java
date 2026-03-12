@@ -22,7 +22,6 @@ public class UserController {
 
     @PostMapping
     public UserDto add(@RequestBody @Valid UserDto userDto) {
-
         log.info("Adding user: {}", userDto);
 
         return userService.add(userDto);
@@ -59,18 +58,21 @@ public class UserController {
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("Adding friend");
+
         userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void removeFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("Removing friend");
+
         userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<UserDto> getFriends(@PathVariable long id, Pageable pageable) {
         log.info("Getting friends");
+
         return userService.getAllFriendsByUserId(id, pageable);
     }
 
@@ -79,6 +81,7 @@ public class UserController {
                                           @PathVariable long otherId,
                                           Pageable pageable) {
         log.info("Getting friends common");
+
         return userService.getMutualFriends(id, otherId, pageable);
     }
 

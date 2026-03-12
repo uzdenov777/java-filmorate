@@ -41,37 +41,32 @@ public class UserService {
     private final UserMapper userMapper;
     private final FilmMapper filmMapper;
 
-    public UserDto add(UserDto newUserDto) {
+    public UserDto add(UserDto dto) {
+        setDisplayName(dto);
 
-        setDisplayName(newUserDto);
+        var newUser = userMapper.toEntity(dto);
 
-        User newUser = userMapper.toEntity(newUserDto);
-        User saved = userRepository.save(newUser);
-
+        var saved = userRepository.save(newUser);
         return userMapper.toDto(saved);
     }
 
-    public UserDto update(UserDto userDto) {
-
-        setDisplayName(userDto);
-
-        Long userId = userDto.getId();
-        boolean userExists = userRepository.existsById(userId);
-
+    public UserDto update(UserDto dto) {
+        var userExists = userRepository.existsById(dto.getId());
         if (!userExists) {
-            log.info("Не найден пользователь для обновления с ID: {}", userId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для обновления с ID: " + userId);
+            log.info("Не найден пользователь для обновления с ID: {}", dto);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для обновления с ID: " + dto);
         }
 
-        User updatedUser = userMapper.toEntity(userDto);
-        User saved = userRepository.save(updatedUser);
+        setDisplayName(dto);
 
+        var updatedUser = userMapper.toEntity(dto);
+
+        var saved = userRepository.save(updatedUser);
         return userMapper.toDto(saved);
     }
 
     public void deleteUser(Long userId) {
-        boolean isExists = userRepository.existsById(userId);
-
+        var isExists = userRepository.existsById(userId);
         if (!isExists) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND
                     , "Не найден пользователь для удаления: " + userId);
@@ -92,8 +87,7 @@ public class UserService {
 
     public List<UserDto> getAllUsers(Pageable pageable) {
 
-        Page<User> allUsers = userRepository.findAll(pageable);
-
+        var allUsers = userRepository.findAll(pageable);
         return userMapper.toDtos(allUsers);
     }
 
@@ -105,8 +99,8 @@ public class UserService {
     public void addFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
 
-        User firstUserProxy = userRepository.getReferenceById(idFirstUser);
-        User secondUserProxy = userRepository.getReferenceById(idSecondUser);
+        var firstUserProxy = userRepository.getReferenceById(idFirstUser);
+        var secondUserProxy = userRepository.getReferenceById(idSecondUser);
 
         friendsServer.addFriend(firstUserProxy, secondUserProxy);
         eventService.save(firstUserProxy, idSecondUser, FRIEND, ADD);
@@ -115,29 +109,26 @@ public class UserService {
     public void removeFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
 
-        User firstUserProxy = userRepository.getReferenceById(idFirstUser);
+        var firstUserProxy = userRepository.getReferenceById(idFirstUser);
 
         friendsServer.removeFriend(idFirstUser, idSecondUser);
         eventService.save(firstUserProxy, idSecondUser, FRIEND, REMOVE);
     }
 
     public List<UserDto> getAllFriendsByUserId(long userId, Pageable pageable) throws ResponseStatusException {
-
-        boolean existsUser = userRepository.existsById(userId);
+        var existsUser = userRepository.existsById(userId);
         if (!existsUser) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId + ", для возращения списка его друзей");
         }
 
-        Page<User> friendsByUser = friendsServer.getAllFriendsByUserId(userId, pageable);
-
+        var friendsByUser = friendsServer.getAllFriendsByUserId(userId, pageable);
         return userMapper.toDtos(friendsByUser);
     }
 
     public List<UserDto> getMutualFriends(long idUserFirst, long idUserSecond, Pageable pageable) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idUserFirst, idUserSecond);
 
-        Page<User> mutualFriends = friendsServer.getMutualFriends(idUserFirst, idUserSecond, pageable);
-
+        var mutualFriends = friendsServer.getMutualFriends(idUserFirst, idUserSecond, pageable);
         return userMapper.toDtos(mutualFriends);
     }
 
@@ -158,8 +149,7 @@ public class UserService {
             return List.of();
         }
 
-        List<Film> recommendations = filmsRepository.findRecommendations(id, similarUserId);
-
+        var recommendations = filmsRepository.findRecommendations(id, similarUserId);
         return filmMapper.toDtos(recommendations);
     }
 
@@ -176,31 +166,31 @@ public class UserService {
     // Проверяет, существуют ли пользователи и не доб. или удал. самого себя
     private void checkUsersExistAndIsNotEqual(long idUserFirst, long idUserSecond) throws ResponseStatusException {
 
-        boolean checkUserIsNotSelf = idUserSecond == idUserFirst;
+        var checkUserIsNotSelf = idUserSecond == idUserFirst;
         if (checkUserIsNotSelf) {
-            log.error("Нельзя добавить себя в друзья или удалить самого себя: {}", idUserFirst);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Нельзя добавить себя в друзья или удалить самого себя: " + idUserFirst);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Нельзя добавить себя в друзья или удалить самого себя: " + idUserFirst);
         }
 
-        boolean userFirstExists = userRepository.existsById(idUserFirst);
-        boolean userSecondExists = userRepository.existsById(idUserSecond);
+        var userFirstExists = userRepository.existsById(idUserFirst);
+        var userSecondExists = userRepository.existsById(idUserSecond);
 
         if (!userFirstExists) {
-            log.error("Не найден пользователь для которого нужно добавить друга или удалить по ID: {}", idUserFirst);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для которого нужно добавить или удалить друга по ID: " + idUserFirst);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Не найден пользователь для которого нужно добавить или удалить друга по ID: " + idUserFirst);
         }
 
         if (!userSecondExists) {
-            log.error("Не найден пользователь для добавления или удаления в друзья по ID: {}", idUserSecond);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для добавления или удаления в друзья по ID: " + idUserSecond);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Не найден пользователь для добавления или удаления в друзья по ID: " + idUserSecond);
         }
     }
 
     private void setDisplayName(UserDto user) {
-        String userName = user.getName();
-        String loginUser = user.getLogin();
+        var userName = user.getName();
+        var loginUser = user.getLogin();
 
-        String setNameUser = (StringUtils.isBlank(userName)) ? loginUser : userName;
+        var setNameUser = (StringUtils.isBlank(userName)) ? loginUser : userName;
         user.setName(setNameUser);
     }
 }
