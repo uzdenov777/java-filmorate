@@ -618,7 +618,7 @@ class FilmControllerIT {
         mockMvc.perform(put("/films/{id}/like/{userId}", filmId, userId))
                 .andExpect(status().isOk());
     }
- 
+
     @SneakyThrows
     @Test
     void addLike_whenFilmNotExist_thenReturn404() {

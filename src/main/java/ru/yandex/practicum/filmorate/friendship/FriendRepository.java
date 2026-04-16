@@ -9,8 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.user.model.User;
 
-import java.util.Set;
-
 @Repository
 public interface FriendRepository extends JpaRepository<Friendship, Long> {
 

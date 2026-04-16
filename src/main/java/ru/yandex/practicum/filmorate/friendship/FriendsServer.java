@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.user.model.User;
 
-import java.util.Set;
-
 @AllArgsConstructor
 @Service
 public class FriendsServer {
@@ -25,7 +23,7 @@ public class FriendsServer {
 
         try {
             friendRepository.save(friendship);
-        }catch(DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Нельзя дважды сохранить дружбу user: " + user + ", friend: " + friend);
         }

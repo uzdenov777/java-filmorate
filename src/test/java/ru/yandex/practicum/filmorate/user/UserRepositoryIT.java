@@ -42,7 +42,7 @@ class UserRepositoryIT {
     @BeforeEach
     void setUp() {
         firstUser = new User();
-        firstUser.setName("Firsr");
+        firstUser.setName("First");
         firstUser.setEmail("firstUser@gmail.com");
         firstUser.setLogin("firstUser");
         firstUser.setBirthday(LocalDate.now().minusDays(1));
