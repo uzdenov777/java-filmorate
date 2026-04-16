@@ -35,7 +35,7 @@ public class GenresService {
         return genreMapper.toDtos(genres);
     }
 
-    public void allGenresExistByIds(Set<GenreDto> genres) {
+    public void genresExistByIds(Set<GenreDto> genres) {
         Set<Long> genreIds = new HashSet<>();
         for (GenreDto dto : genres) {
             genreIds.add(dto.getId());

@@ -26,7 +26,7 @@ public class MpaService {
         return mpaRepository.findAll(pageable).getContent();
     }
 
-    public void existsMpa(Long mpaId) {
+    public void checkMpaExists(Long mpaId) {
         var existsMpa = mpaRepository.existsById(mpaId);
 
         if (!existsMpa) {

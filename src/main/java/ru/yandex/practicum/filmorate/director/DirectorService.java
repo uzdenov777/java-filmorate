@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.director.model.DirectorDto;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -53,7 +54,7 @@ public class DirectorService {
         return directorMapper.toDtos(directors);
     }
 
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         var exists = directorRepository.existsById(id);
 
         if (!exists) {
@@ -64,12 +65,26 @@ public class DirectorService {
         directorRepository.deleteById(id);
     }
 
-    public void existById(Long directorId) {
+    public void checkDirectorExists(Long directorId) {
         var exists = directorRepository.existsById(directorId);
 
         if (!exists) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Не найден режиссер по ID: " + directorId);
+        }
+    }
+
+    public void directorsExistByIds(Set<DirectorDto> directors) {
+        Set<Long> directorsId = new HashSet<>();
+        for (DirectorDto director : directors) {
+            directorsId.add(director.getId());
+        }
+
+        long numberMatches = directorRepository.countByIdIn(directorsId);
+
+        boolean isMatch = numberMatches == directors.size();
+        if (!isMatch) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не существует один или несколько режиссеров");
         }
     }
 }

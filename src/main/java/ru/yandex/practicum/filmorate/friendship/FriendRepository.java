@@ -30,13 +30,6 @@ public interface FriendRepository extends JpaRepository<Friendship, Long> {
     Page<User> findFriendsByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("""
-            SELECT f.friend.id
-            FROM Friendship f
-            WHERE f.user.id = :userId
-            """)
-    Set<Long> findFriendIdsByUserId(@Param("userId") Long userId);
-
-    @Query("""
             SELECT u
             FROM User u
             WHERE u.id IN (

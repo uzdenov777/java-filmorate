@@ -32,7 +32,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}")
-    public void delete(@PathVariable Long filmId) {
+    public void deleteById(@PathVariable Long filmId) {
         log.info("Удаление фильма: {}", filmId);
 
         filmService.deleteFilmById(filmId);
@@ -86,7 +86,7 @@ public class FilmController {
                                              Pageable pageable) {
         log.info("Возвращение фильмов режиссера: {} отсортированных по {}", directorId, sortBy);
 
-        return filmService.getFilmByDirector(directorId, sortBy, pageable);
+        return filmService.getFilmsByDirectorId(directorId, sortBy, pageable);
     }
 
     @GetMapping("/search")
@@ -96,5 +96,4 @@ public class FilmController {
 
         return filmService.searchFilms(query, by);
     }
-
 }

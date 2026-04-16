@@ -75,7 +75,7 @@ public class ReviewService {
             return getAllReviews(count);
         }
 
-        var isExistFilm = filmService.isFilmExists(filmId);
+        var isExistFilm = filmService.isFilmExistsById(filmId);
         if (!isExistFilm) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Не найден фильм для возвращения его отзывов");
@@ -141,7 +141,7 @@ public class ReviewService {
 
     private void existsFilmAndUser(ReviewDto reviewDto) {
         var isExistUser = userService.isUserExists(reviewDto.getUserId());
-        var isExistFilm = filmService.isFilmExists(reviewDto.getFilmId());
+        var isExistFilm = filmService.isFilmExistsById(reviewDto.getFilmId());
 
         if (!(isExistUser && isExistFilm)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

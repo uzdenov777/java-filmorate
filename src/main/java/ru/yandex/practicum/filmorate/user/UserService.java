@@ -3,21 +3,18 @@ package ru.yandex.practicum.filmorate.user;
 import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.event.EventService;
-import ru.yandex.practicum.filmorate.film.FilmMapper;
-import ru.yandex.practicum.filmorate.friendship.FriendsServer;
-import ru.yandex.practicum.filmorate.film.model.Film;
-import ru.yandex.practicum.filmorate.user.model.User;
 import ru.yandex.practicum.filmorate.event.model.dto.EventDto;
-import ru.yandex.practicum.filmorate.film.model.dto.FilmDto;
-import ru.yandex.practicum.filmorate.user.model.dto.UserDto;
+import ru.yandex.practicum.filmorate.film.FilmMapper;
 import ru.yandex.practicum.filmorate.film.FilmsRepository;
+import ru.yandex.practicum.filmorate.film.model.dto.FilmDto;
+import ru.yandex.practicum.filmorate.friendship.FriendsServer;
+import ru.yandex.practicum.filmorate.user.model.User;
+import ru.yandex.practicum.filmorate.user.model.dto.UserDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,10 +48,17 @@ public class UserService {
     }
 
     public UserDto update(UserDto dto) {
-        var userExists = userRepository.existsById(dto.getId());
+        Long id = dto.getId();
+
+        if (id == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "При обновлении выявлено, что ID из тела запроса NULL");
+        }
+
+        var userExists = userRepository.existsById(id);
         if (!userExists) {
-            log.info("Не найден пользователь для обновления с ID: {}", dto);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь для обновления с ID: " + dto);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Не найден пользователь для обновления с ID: " + id);
         }
 
         setDisplayName(dto);
@@ -66,7 +70,7 @@ public class UserService {
     }
 
     public void deleteUser(Long userId) {
-        var isExists = userRepository.existsById(userId);
+        var isExists = isUserExists(userId);
         if (!isExists) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND
                     , "Не найден пользователь для удаления: " + userId);
@@ -78,7 +82,8 @@ public class UserService {
     public UserDto getDtoById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::toDto)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Для возвращения не найден пользователь по ID: " + id));
     }
 
     public Optional<User> getById(Long id) {
@@ -86,7 +91,6 @@ public class UserService {
     }
 
     public List<UserDto> getAllUsers(Pageable pageable) {
-
         var allUsers = userRepository.findAll(pageable);
         return userMapper.toDtos(allUsers);
     }
@@ -95,8 +99,7 @@ public class UserService {
         return userRepository.getReferenceById(userId);
     }
 
-
-    public void addFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
+    public void addFriend(Long idFirstUser, Long idSecondUser) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
 
         var firstUserProxy = userRepository.getReferenceById(idFirstUser);
@@ -106,26 +109,27 @@ public class UserService {
         eventService.save(firstUserProxy, idSecondUser, FRIEND, ADD);
     }
 
-    public void removeFriend(long idFirstUser, long idSecondUser) throws ResponseStatusException {
+    public void removeFriend(Long idFirstUser, Long idSecondUser) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idFirstUser, idSecondUser); // если все хорошо просто не выбросит исключение
 
-        var firstUserProxy = userRepository.getReferenceById(idFirstUser);
-
         friendsServer.removeFriend(idFirstUser, idSecondUser);
+
+        var firstUserProxy = userRepository.getReferenceById(idFirstUser);
         eventService.save(firstUserProxy, idSecondUser, FRIEND, REMOVE);
     }
 
-    public List<UserDto> getAllFriendsByUserId(long userId, Pageable pageable) throws ResponseStatusException {
-        var existsUser = userRepository.existsById(userId);
+    public List<UserDto> getAllFriendsByUserId(Long userId, Pageable pageable) throws ResponseStatusException {
+        var existsUser = isUserExists(userId);
         if (!existsUser) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден пользователь с ID: " + userId + ", для возращения списка его друзей");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Не найден пользователь с ID: " + userId + ", для возращения списка его друзей");
         }
 
         var friendsByUser = friendsServer.getAllFriendsByUserId(userId, pageable);
         return userMapper.toDtos(friendsByUser);
     }
 
-    public List<UserDto> getMutualFriends(long idUserFirst, long idUserSecond, Pageable pageable) throws ResponseStatusException {
+    public List<UserDto> getMutualFriends(Long idUserFirst, Long idUserSecond, Pageable pageable) throws ResponseStatusException {
         checkUsersExistAndIsNotEqual(idUserFirst, idUserSecond);
 
         var mutualFriends = friendsServer.getMutualFriends(idUserFirst, idUserSecond, pageable);
@@ -133,12 +137,11 @@ public class UserService {
     }
 
     public boolean isUserExists(Long userId) {
-
         return userRepository.existsById(userId);
     }
 
-    public List<FilmDto> getRecommendations(long id) {
-        var isExistUser = userRepository.existsById(id);
+    public List<FilmDto> getRecommendations(Long id) {
+        var isExistUser = isUserExists(id);
         if (!isExistUser) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Не найден пользователь: " + id + " для возвращения рекомендаций");
@@ -154,7 +157,7 @@ public class UserService {
     }
 
     public Set<EventDto> getEvents(Long userId) {
-        var isExistUser = userRepository.existsById(userId);
+        var isExistUser = isUserExists(userId);
         if (!isExistUser) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Не найден пользователь: " + userId + " для возвращения его ленты событий");
@@ -164,16 +167,15 @@ public class UserService {
     }
 
     // Проверяет, существуют ли пользователи и не доб. или удал. самого себя
-    private void checkUsersExistAndIsNotEqual(long idUserFirst, long idUserSecond) throws ResponseStatusException {
-
-        var checkUserIsNotSelf = idUserSecond == idUserFirst;
+    private void checkUsersExistAndIsNotEqual(Long idUserFirst, Long idUserSecond) throws ResponseStatusException {
+        var checkUserIsNotSelf = idUserSecond.equals(idUserFirst);
         if (checkUserIsNotSelf) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Нельзя добавить себя в друзья или удалить самого себя: " + idUserFirst);
         }
 
-        var userFirstExists = userRepository.existsById(idUserFirst);
-        var userSecondExists = userRepository.existsById(idUserSecond);
+        var userFirstExists = isUserExists(idUserFirst);
+        var userSecondExists = isUserExists(idUserSecond);
 
         if (!userFirstExists) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

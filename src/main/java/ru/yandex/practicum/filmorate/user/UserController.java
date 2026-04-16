@@ -56,29 +56,29 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable long id, @PathVariable long friendId) {
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Adding friend");
 
         userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable long id, @PathVariable long friendId) {
+    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Removing friend");
 
         userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<UserDto> getFriends(@PathVariable long id, Pageable pageable) {
+    public List<UserDto> getFriends(@PathVariable Long id, Pageable pageable) {
         log.info("Getting friends");
 
         return userService.getAllFriendsByUserId(id, pageable);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<UserDto> getMutualFriends(@PathVariable long id,
-                                          @PathVariable long otherId,
+    public List<UserDto> getMutualFriends(@PathVariable Long id,
+                                          @PathVariable Long otherId,
                                           Pageable pageable) {
         log.info("Getting friends common");
 
@@ -86,14 +86,14 @@ public class UserController {
     }
 
     @GetMapping("/{id}/recommendations")
-    public List<FilmDto> getRecommendations(@PathVariable long id) {
+    public List<FilmDto> getRecommendations(@PathVariable Long id) {
         log.info("Вернуть рекомендации для пользователя: {}", id);
 
         return userService.getRecommendations(id);
     }
 
     @GetMapping("/{id}/feed")
-    public Set<EventDto> getEvents(@PathVariable long id) {
+    public Set<EventDto> getEvents(@PathVariable Long id) {
         log.info("Вернуть список событий пользователя: {}", id);
 
         return userService.getEvents(id);

@@ -90,8 +90,8 @@ public interface FilmsRepository extends JpaRepository<Film, Long> {
                 WHERE user_id = :userId
             )
             """, nativeQuery = true)
-    List<Film> findRecommendations(@Param("userId") long id,
-                                   @Param("similarUserId") long similarUserId);
+    List<Film> findRecommendations(@Param("userId") Long id,
+                                   @Param("similarUserId") Long similarUserId);
 
     @Query(value = """
             SELECT f.*

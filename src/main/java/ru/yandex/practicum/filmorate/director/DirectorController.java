@@ -48,6 +48,6 @@ public class DirectorController {
     public void delete(@PathVariable Long id) {
         log.info("Удаление режиссера по ID: {}", id);
 
-        directorService.delete(id);
+        directorService.deleteById(id);
     }
 }

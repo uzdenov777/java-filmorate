@@ -17,7 +17,7 @@ public enum SortingType {
             return SortingType.valueOf(sortBy.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Неверный тип сортировки: '" + sortBy + "'. Допустимые значения: YEAR, LIKES"
+                    "Неверный тип сортировки: " + sortBy + ". Допустимые значения: YEAR, LIKES"
             );
         }
     }
